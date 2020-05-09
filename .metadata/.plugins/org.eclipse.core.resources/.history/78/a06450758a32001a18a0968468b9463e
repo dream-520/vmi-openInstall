@@ -1,0 +1,532 @@
+package com.tigerjoys.shark.miai.service.impl;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.shark.miai.common.enums.AppNameEnum;
+import org.shark.miai.common.enums.PlatformEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.alibaba.fastjson.JSONObject;
+import com.tigerjoys.nbs.common.ActionResult;
+import com.tigerjoys.nbs.common.utils.JsonHelper;
+import com.tigerjoys.nbs.common.utils.MD5;
+import com.tigerjoys.nbs.common.utils.Tools;
+import com.tigerjoys.nbs.mybatis.core.page.PageModel;
+import com.tigerjoys.nbs.mybatis.core.sql.Projections;
+import com.tigerjoys.nbs.mybatis.core.sql.Restrictions;
+import com.tigerjoys.nbs.web.context.BeatContext;
+import com.tigerjoys.nbs.web.context.RequestHeader;
+import com.tigerjoys.nbs.web.context.RequestUtils;
+import com.tigerjoys.nbs.web.context.UserDetails;
+import com.tigerjoys.shark.miai.Const;
+import com.tigerjoys.shark.miai.agent.IPayAgent;
+import com.tigerjoys.shark.miai.agent.IRedFlowerAgent;
+import com.tigerjoys.shark.miai.agent.ISysConfigAgent;
+import com.tigerjoys.shark.miai.agent.IUserAgent;
+import com.tigerjoys.shark.miai.agent.IUserDiamondAgent;
+import com.tigerjoys.shark.miai.agent.IUserEnergyAgent;
+import com.tigerjoys.shark.miai.agent.IUserIncomeAgent;
+import com.tigerjoys.shark.miai.agent.IUserScvcAgent;
+import com.tigerjoys.shark.miai.agent.dto.ChargeDeductionConfigDto;
+import com.tigerjoys.shark.miai.agent.dto.FirstChargeConfigDto;
+import com.tigerjoys.shark.miai.agent.dto.FirstChargeRedFlowerConfigDto;
+import com.tigerjoys.shark.miai.agent.dto.PayAccessDto;
+import com.tigerjoys.shark.miai.agent.dto.UserBO;
+import com.tigerjoys.shark.miai.agent.dto.result.IncomeResultDto;
+import com.tigerjoys.shark.miai.agent.enums.FirstPayTypeEnum;
+import com.tigerjoys.shark.miai.agent.enums.PayChannelEnum;
+import com.tigerjoys.shark.miai.agent.enums.PayTypeEnum;
+import com.tigerjoys.shark.miai.agent.enums.RechargeOrderDonorTimesEnum;
+import com.tigerjoys.shark.miai.agent.enums.RechargeOrderDonorTypeEnum;
+import com.tigerjoys.shark.miai.agent.enums.RedFlowerAccountLogTypeEnum;
+import com.tigerjoys.shark.miai.agent.enums.UserDiamondAccountLogTypeEnum;
+import com.tigerjoys.shark.miai.agent.enums.UserIncomeAccountLogTypeEnum;
+import com.tigerjoys.shark.miai.agent.enums.UserIncomeAccountLogTypeEnum.AccountType;
+import com.tigerjoys.shark.miai.agent.impl.SysConfigAgentImpl;
+import com.tigerjoys.shark.miai.enums.ErrorCodeEnum;
+import com.tigerjoys.shark.miai.inter.contract.IAppVersionContract;
+import com.tigerjoys.shark.miai.inter.contract.IEnergyCustomCategoryContract;
+import com.tigerjoys.shark.miai.inter.contract.IEnergyCustomMobileContract;
+import com.tigerjoys.shark.miai.inter.contract.IEnergyCustomPriceContract;
+import com.tigerjoys.shark.miai.inter.contract.IEnergyOrderContract;
+import com.tigerjoys.shark.miai.inter.contract.IRechargeCustomCategoryContract;
+import com.tigerjoys.shark.miai.inter.contract.IRechargeCustomMobileContract;
+import com.tigerjoys.shark.miai.inter.contract.IRechargeCustomPriceContract;
+import com.tigerjoys.shark.miai.inter.contract.IRechargeOrderContract;
+import com.tigerjoys.shark.miai.inter.contract.IRechargePriceContract;
+import com.tigerjoys.shark.miai.inter.contract.IRedFlowerOrderContract;
+import com.tigerjoys.shark.miai.inter.contract.IRedFlowerPriceContract;
+import com.tigerjoys.shark.miai.inter.contract.ISysConfigContract;
+import com.tigerjoys.shark.miai.inter.contract.IUserFirstRechargeLogContract;
+import com.tigerjoys.shark.miai.inter.contract.IUserIncomeAccountContract;
+import com.tigerjoys.shark.miai.inter.contract.IUserIncomeAccountLogContract;
+import com.tigerjoys.shark.miai.inter.contract.IUserIncomeWithdrawalContract;
+import com.tigerjoys.shark.miai.inter.contract.IUserNoWithdrawalBoundsContract;
+import com.tigerjoys.shark.miai.inter.contract.IUserPayActionContract;
+import com.tigerjoys.shark.miai.inter.contract.IUserVideoChatRecordLogContract;
+import com.tigerjoys.shark.miai.inter.entity.AppVersionEntity;
+import com.tigerjoys.shark.miai.inter.entity.RechargeCustomCategoryEntity;
+import com.tigerjoys.shark.miai.inter.entity.RechargeCustomMobileEntity;
+import com.tigerjoys.shark.miai.inter.entity.RechargeCustomPriceEntity;
+import com.tigerjoys.shark.miai.inter.entity.RechargeOrderEntity;
+import com.tigerjoys.shark.miai.inter.entity.RechargePriceEntity;
+import com.tigerjoys.shark.miai.inter.entity.RedFlowerOrderEntity;
+import com.tigerjoys.shark.miai.inter.entity.RedFlowerPriceEntity;
+import com.tigerjoys.shark.miai.inter.entity.SysConfigEntity;
+import com.tigerjoys.shark.miai.inter.entity.UserFirstRechargeLogEntity;
+import com.tigerjoys.shark.miai.inter.entity.UserPayActionEntity;
+import com.tigerjoys.shark.miai.service.IRechargeRedFlowerService;
+import com.tigerjoys.shark.miai.service.IRechargeWithdrawalService;
+import com.tigerjoys.shark.miai.utils.ServiceHelper;
+
+/**
+ * @author mouzhanpeng at [2017年10月11日 下午4:05:56]
+ * @since JDK 1.8.0
+ */
+@Service
+public class RechargeRedFlowerServiceImpl implements IRechargeRedFlowerService {
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
+	@Autowired
+	private IRechargeOrderContract rechargeOrderContract;
+	
+	@Autowired
+	private IPayAgent payAgent;
+
+	@Autowired
+	private IAppVersionContract appVersionContract;
+
+	@Autowired
+	private IUserIncomeAgent userIncomeAgent;
+	
+	@Autowired
+	private ISysConfigContract sysConfigContract;
+	
+	@Autowired
+	private IRedFlowerPriceContract redFlowerPriceContract;
+	
+	@Autowired
+	private IRedFlowerOrderContract redFlowerOrderContract;
+	
+	@Autowired
+	private IRedFlowerAgent redFlowerAgent;
+	
+	
+	@Autowired
+	private ISysConfigAgent sysConfigAgent;
+	
+	@Autowired
+	private IUserFirstRechargeLogContract userFirstRechargeLogContract;
+	
+	
+	@Autowired
+	private IUserNoWithdrawalBoundsContract userNoWithdrawalBoundsContract;
+	
+	@Autowired
+	private IUserAgent userAgent;
+	
+	
+	@Autowired
+	private IUserPayActionContract userPayActionContract;
+	
+	@Autowired
+	private IRechargeWithdrawalService rechargeWithdrawalService;
+	
+	
+	
+
+	@Override
+	public ActionResult getNativePriceList() throws Exception {
+		return ActionResult.success(getPriceList());
+	}
+	
+	
+	public Map<String, Object> getPriceList() throws Exception {
+		BeatContext bc = RequestUtils.getCurrent();
+		long userId = bc.getUserid();
+		String channel = bc.getHeader().getChannel();
+		Map<String, Object> map = new HashMap<>();
+		map.put("balance", redFlowerAgent.getRedFlowerBalance(userId));
+		map.put("income", Tools.formatDouble2Percent(userIncomeAgent.getIncomeBalance(userId, AccountType.GENERAL)));
+		
+		long subNum = redFlowerAgent.getCurrentCacheRedFlowerBalance(userId);
+		map.put("currentCacheRedFlower", subNum);
+		UserBO userBo = userAgent.findById(userId);
+		ChargeDeductionConfigDto config = sysConfigAgent.chargeDeduction();
+		if(Tools.isNotNull(config)) {
+			if( config.getStatus() == 1) {
+				map.put("ratio", Tools.getFloat2(config.getRatio()));
+			} else {
+				map.put("ratio", 0.00F);
+			}
+		} else {
+			map.put("ratio", 0.00F);
+		}
+		
+		int os = bc.getHeader().getOs_type();
+		String packageName = bc.getHeader().getPackageName();
+		boolean firstCharge = checkFirstRecharge(userId);
+		List<RedFlowerPriceEntity> list = null;
+		PageModel pageModel = PageModel.getPageModel();
+		if(PlatformEnum.android.type == os){
+			String mobileModel = bc.getHeader().getMobile_model();
+			list = getPricesByMobile(mobileModel, packageName,userId );
+		}else{
+			FirstChargeRedFlowerConfigDto configDto = sysConfigAgent.firstChargeRedFlower();
+			pageModel.clearAll();
+			pageModel.addQuery(Restrictions.eq("status", 1));
+			pageModel.addQuery(Restrictions.eq("category_id", 0));
+			pageModel.asc("priority");
+			list = redFlowerPriceContract.load(pageModel);
+			if (Tools.isNotNull(list)) {
+				if(firstCharge && configDto.getStatus()==1){
+					list.add(0,ServiceHelper.FirstRechargePrice.getRedFlowerPrice(configDto));
+				}
+			}
+		}
+	
+		if (Tools.isNotNull(list)) {
+			
+			String cityCode = RequestUtils.getCurrent().getHeader().getCityCode();
+			
+			if(!AppNameEnum.andriod_com_tjhj_miliao.getPackageName().equalsIgnoreCase(packageName)){
+				if("332".equals(cityCode) || userBo.getProvinceid()==3958L ){
+					list = list.stream().filter(v->v.getMoney()>=10000).collect(Collectors.toList());
+				}
+				
+				if( ("131".equals(cityCode) || userBo.getProvinceid()==3593L)){
+					list = list.stream().filter(v->v.getMoney()>=10000).collect(Collectors.toList());
+				}
+				
+				
+				if(rechargeWithdrawalService.checkChargeLimit(userId)){
+					list = list.stream().filter(v->v.getMoney()>=10000).collect(Collectors.toList());
+				}
+				
+				if(rechargeWithdrawalService.checkChargeLimit200(userId)){
+					list = list.stream().filter(v->v.getMoney()>=20000).collect(Collectors.toList());
+				}
+				
+				if(rechargeWithdrawalService.checkUserAPPLimit(userId)){
+					list = list.stream().filter(v->v.getMoney()>=10000).collect(Collectors.toList());
+				}
+				
+				if("User_Share_i".equalsIgnoreCase(channel) || "User_Share_a".equalsIgnoreCase(channel) ){
+					list = list.stream().filter(v->v.getMoney()>=10000).collect(Collectors.toList());
+				}
+				
+				long day = (Tools.getDayTime()-Tools.getDayTime(userBo.getCreateTime()))/(24 * 60 * 60 * 1000);
+				if(!Const.IS_TEST && day>=30){
+					list = list.stream().filter(v->v.getMoney()>=10000).collect(Collectors.toList());
+				}
+				
+			}
+			
+			if(rechargeWithdrawalService.checkUserAccountLimit(userId)){
+				list = list.stream().filter(v->v.getMoney()>=50000).collect(Collectors.toList());
+			}
+			
+			if(AppNameEnum.andriod_com_tjhj_miliao.getPackageName().equalsIgnoreCase(packageName)){
+				list = list.stream().filter(v->v.getMoney()>=10000).collect(Collectors.toList());
+			}
+			
+			if(com.tigerjoys.shark.miai.agent.constant.Const.USER_ID_CHARGE_PRICE_LIST.contains(userId)){
+				list.add(0,ServiceHelper.FirstRechargePrice.getRedFlowerDynamicPrice(Long.MAX_VALUE-1));
+			}
+		
+			List<Map<String, Object>> prices = new ArrayList<>();
+			for (RedFlowerPriceEntity price : list) {
+				Map<String, Object> item = new HashMap<>();
+				item.put("priceId", price.getId());
+				item.put("identifier", price.getPrice_identifier());
+				item.put("title", price.getTitle());
+				if(firstCharge || price.getDonor_times().equals(RechargeOrderDonorTimesEnum.every.getCode())){
+					item.put("description", Tools.isNull(price.getDescription()) ? null : price.getDescription());
+				}else {
+					item.put("description",Tools.isNull(price.getRepetition_desc()) ? null : price.getRepetition_desc());
+				}
+				item.put("money", price.getMoney() / 100);
+				item.put("flower", price.getFlower());
+				item.put("actionUrl", Const.WEB_SITE+"/api/product/all/"+4+"/"+price.getId());
+				prices.add(item);
+			}
+			pageModel.clearAll().addLimitField(0, 1).addQuery(Restrictions.eq("platform", 2)).addQuery(Restrictions.eq("code", bc.getHeader().getVersioncode()));
+			List<AppVersionEntity> v = appVersionContract.load(pageModel);
+			
+			if (Tools.isNotNull(v)) {
+				String userName = RequestUtils.getCurrent().getUser().getUsername();
+				if (Const.IOS_TEST_MOBILE_ACCOUNT_MAP.containsKey(userName)) {
+					map.put("shield", 1);
+				} else {
+					map.put("shield", v.get(0).getBlock_apple_pay());
+				}
+			} else {
+				map.put("shield", 1);
+			}
+			map.put("prices", prices);
+		}
+		
+		pageModel.clearAll();
+		pageModel.addQuery(Restrictions.eq("code", bc.getHeader().getVersioncode()));
+		pageModel.addQuery(Restrictions.eq("platform", os));
+		List<AppVersionEntity> versionList = appVersionContract.load(pageModel);
+		int incomeStatus = 0;
+		if (Tools.isNotNull(versionList)) {
+			incomeStatus = versionList.get(0).getIncome_status();
+		}
+		map.put("incomeStatus", incomeStatus);
+	
+		return map;
+	}
+	
+	
+	private List<RedFlowerPriceEntity> getPricesByMobile(String model, String packageName,long userId ) throws Exception {
+		List<RedFlowerPriceEntity> list = new ArrayList<>();
+		RechargeCustomCategoryEntity category = rechargeWithdrawalService.getRechargeCustomCategory(model);
+	    if(Tools.isNull(category)){
+	    	return list;
+	    }
+		PageModel pageModel = PageModel.getPageModel();
+		pageModel.addQuery(Restrictions.eq("category_id", category.getId()));
+		pageModel.addQuery(Restrictions.eq("status",1));
+		pageModel.asc("priority");
+		List<RedFlowerPriceEntity> prices = redFlowerPriceContract.load(pageModel);
+		boolean firstCharge = checkFirstRecharge(userId);
+		if(Tools.isNotNull(prices)){
+			pageModel.clearAll();
+			pageModel.addQuery(Restrictions.eq("user_id", userId));
+			pageModel.addQuery(Restrictions.eq("status",1));
+			if(category.getFirst_flower_status() == 1 && firstCharge ){
+				FirstChargeRedFlowerConfigDto firstPrice = new FirstChargeRedFlowerConfigDto();
+				firstPrice.setTitle(category.getFirst_flower_title());
+				firstPrice.setDescription(category.getFirst_flower_disc());
+				firstPrice.setMoney(category.getFirst_flower_money());
+				firstPrice.setFlower(category.getFirst_flower_num());
+				prices.add(0,ServiceHelper.FirstRechargePrice.getRedFlowerPrice(firstPrice));
+			}
+			list.addAll(prices);
+		}
+		return list;
+	}
+
+	
+	
+	
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public ActionResult recharge(long priceId, int channelCode, double money, double income, Map<String,String> ipaParam) throws Exception {
+		BeatContext context = RequestUtils.getCurrent();
+		RequestHeader header = context.getHeader();
+		UserDetails user = context.getUser();
+		Long userId = user.getUserid();
+		String nickname = Tools.isNull(user.getNickname()) ? "" : user.getNickname();
+		String mobile = Tools.isNull(user.getMobile()) ? "" : user.getMobile();
+		Date date = new Date();
+		int mon = new BigDecimal(String.valueOf(money)).multiply(new BigDecimal("100")).intValue(), inc = new BigDecimal(String.valueOf(income)).multiply(new BigDecimal("100")).intValue();
+		if(0 < inc && inc > userIncomeAgent.getIncomeBalance(userId, AccountType.GENERAL)){
+			return ActionResult.fail(ErrorCodeEnum.income_pay_not_enough);
+		}
+		RedFlowerPriceEntity price = null;
+		if( Long.MAX_VALUE-1 == priceId){
+			price = ServiceHelper.FirstRechargePrice.getRedFlowerDynamicPrice(priceId);
+		}else if(Long.MAX_VALUE-100 == priceId){
+			if( header.getOs_type() == PlatformEnum.android.type){
+				price = ServiceHelper.FirstRechargePrice.getRedFlowerPrice(rechargeWithdrawalService.getFirstRedFlowerCategoryCharge());
+			}else{
+				price = ServiceHelper.FirstRechargePrice.getRedFlowerPrice(sysConfigAgent.firstChargeRedFlower());
+			}
+		}else {
+			price = redFlowerPriceContract.findById(priceId);
+		}
+		if (Tools.isNotNull(price)) {
+			if (mon + inc != price.getMoney() || sysConfigAgent.checkIncomeRadioNoPass(price.getMoney(),inc)) {
+				return ActionResult.fail(ErrorCodeEnum.parameter_error);
+			}
+		} else {
+			return ActionResult.fail(ErrorCodeEnum.parameter_error);
+		}
+		RedFlowerOrderEntity order = new RedFlowerOrderEntity();
+		order.setCreate_time(date);
+		order.setUpdate_time(date);
+		order.setUser_id(userId);
+		order.setMobile(mobile);
+		order.setNickname(nickname);
+		order.setPrice_id(price.getId());
+		order.setPrice(price.getMoney());
+		order.setFlower(price.getFlower());
+		order.setDonor_type(price.getDonor_type());
+		order.setDonor_times(price.getDonor_times());
+		order.setDonor(price.getDonor());
+		order.setMoney(mon);
+		order.setIncome(inc);
+		order.setStatus(0);
+		order.setPackage_name(header.getPackageName());
+		redFlowerOrderContract.insert(order);
+		// 收益冲钻
+		if(0 == money){
+			IncomeResultDto<Long> result = userIncomeAgent.changeIncomeAccount(userId, inc, 0, UserIncomeAccountLogTypeEnum.buy_red_flower, String.valueOf(order.getId()),
+					UserIncomeAccountLogTypeEnum.buy_red_flower.getDesc());
+			if(0 == result.getCode()){
+				userNoWithdrawalBoundsContract.updateBalance(userId, AccountType.GENERAL.getCode(), 0, inc);
+				// 购小红花
+				long chargeDiamond = price.getFlower();
+				if(price.getDonor_type() == RechargeOrderDonorTypeEnum.diamond.getCode()){
+					if( price.getDonor()>0){
+						if(price.getDonor_times() == RechargeOrderDonorTimesEnum.first.getCode() && checkFirstRecharge(userId)){
+							chargeDiamond = price.getFlower() + price.getDonor();
+						}else if(price.getDonor_times() ==  RechargeOrderDonorTimesEnum.every.getCode()){
+							chargeDiamond = price.getFlower() + price.getDonor();
+						}else if(price.getDonor_times() ==  RechargeOrderDonorTimesEnum.nothing.getCode()){
+							chargeDiamond = price.getFlower() ;
+						}else if(price.getDonor_times() ==  RechargeOrderDonorTimesEnum.repetition_desc.getCode() && !checkFirstRecharge(userId) ){
+							chargeDiamond = price.getFlower() + price.getDonor();
+						}
+					}
+				}
+				redFlowerAgent.changeRedFlowerAccount(userId, chargeDiamond ,
+						(long)mon, RedFlowerAccountLogTypeEnum.recharge_account.getCode(), 1, channelCode,
+						String.valueOf(order.getId()), RedFlowerAccountLogTypeEnum.recharge_account.getDesc());
+				
+				if(price.getDonor_type() == RechargeOrderDonorTypeEnum.money.getCode()){
+					if(price.getDonor() > 0){
+						if(price.getDonor_times() == RechargeOrderDonorTimesEnum.first.getCode() && checkFirstRecharge(userId)){
+							userNoWithdrawalBoundsContract.updateBalance(userId, AccountType.GENERAL.getCode(), 1, price.getDonor()*100);
+							userIncomeAgent.changeIncomeAccount(userId, price.getDonor()*100, 1, UserIncomeAccountLogTypeEnum.recharge_flower_back_income, String.valueOf(order.getId()),
+									UserIncomeAccountLogTypeEnum.recharge_flower_back_income.getDesc());
+						}else if(price.getDonor_times() ==  RechargeOrderDonorTimesEnum.every.getCode()){
+							userNoWithdrawalBoundsContract.updateBalance(userId, AccountType.GENERAL.getCode(), 1, price.getDonor()*100);
+							userIncomeAgent.changeIncomeAccount(userId, price.getDonor()*100, 1, UserIncomeAccountLogTypeEnum.recharge_flower_back_income, String.valueOf(order.getId()),
+									UserIncomeAccountLogTypeEnum.recharge_flower_back_income.getDesc());
+						}else if(price.getDonor_times() ==  RechargeOrderDonorTimesEnum.nothing.getCode()){
+							
+						}else if(price.getDonor_times() ==  RechargeOrderDonorTimesEnum.repetition_desc.getCode() && !checkFirstRecharge(userId) ){
+							userNoWithdrawalBoundsContract.updateBalance(userId, AccountType.GENERAL.getCode(), 1, price.getDonor()*100);
+							userIncomeAgent.changeIncomeAccount(userId, price.getDonor()*100, 1, UserIncomeAccountLogTypeEnum.recharge_flower_back_income, String.valueOf(order.getId()),
+									UserIncomeAccountLogTypeEnum.recharge_flower_back_income.getDesc());
+						}
+					}
+					
+				}
+				
+				
+				RedFlowerOrderEntity o = new RedFlowerOrderEntity();
+				o.setOrder_id(order.getId());
+				o.setUpdate_time(date);
+				o.setStatus(1);
+				redFlowerOrderContract.update(o);
+				Map<String, Object> data = new HashMap<>();
+				data.put("channel", channelCode);
+				data.put("signData", result.getData());
+				return ActionResult.success(data);
+			}else{
+				return  ActionResult.fail(result.getCode(), result.getMsg());
+			}
+		}
+
+		PayAccessDto access = new PayAccessDto();
+		access.setUser_id(user.getUserid());
+		access.setNickname(user.getNickname());
+		access.setMobile(user.getMobile());
+		access.setOrder_id(order.getId());
+		access.setInitialPrice((long)price.getMoney());
+		String fm = Tools.formatDouble2PercentToString(mon);
+		access.setSubject("[小红花充值：" + fm + "元]");
+		access.setDescription("用户账户小红花充值花费：" + fm + "元");
+		access.setMoney((long) mon);
+		access.setPay_channel(PayChannelEnum.getByCode(channelCode));
+		access.setType(PayTypeEnum.recharge_red_flower);
+		access.setApp_type(header.getOs_type());
+		access.setApp_channel(header.getChannel());
+		access.setApp_version(header.getVersion());
+		access.setPackage_name(header.getPackageName());
+		return ServiceHelper.dealPayData(payAgent.preparePay(access), PayChannelEnum.getByCode(channelCode));
+	
+
+	}
+
+	
+	private boolean checkFirstRecharge(long userid) throws Exception{
+		/*
+		PageModel pageModel = PageModel.getPageModel();
+		pageModel.addQuery(Restrictions.eq("status", 1));
+		pageModel.addQuery(Restrictions.eq("user_id", userid));
+		List< RedFlowerOrderEntity>list = redFlowerOrderContract.load(pageModel);
+		return Tools.isNull(list);
+		*/
+		UserBO userBo = userAgent.findById(userid);
+		boolean currentFlag = false;
+		if(Tools.isNotNull(userBo)){
+			currentFlag = Tools.getDayTime(userBo.getCreateTime())== Tools.getDayTime(new Date())? true:false;
+		}		
+		return currentFlag && userFirstRechargeLogContract.checkFirstRecharge(userid, FirstPayTypeEnum.all.getCode());
+		
+	}
+	
+	
+	/**
+	 * 检查充值额度是否超过指定值
+	 * @param userid
+	 * @return
+	 * @throws Exception
+	 */
+	private boolean checkChargeLimit(long userid) throws Exception{
+		PageModel pageModel = PageModel.getLimitModel(0, 1);
+		
+		/*
+		pageModel.addQuery(Restrictions.eq("status",1));
+		pageModel.addQuery(Restrictions.eq("user_id",userid));
+		pageModel.asc("id");
+		List<UserPayActionEntity> orderList = userPayActionContract.load(pageModel);
+		if(Tools.isNotNull(orderList)){
+			if(orderList.get(0).getMoney()>=10000L){
+				return true;
+			}
+		}
+		*/
+		
+		pageModel.addQuery(Restrictions.eq("status",1));
+		pageModel.addQuery(Restrictions.eq("user_id",userid));
+		pageModel.addQuery(Restrictions.ge("price",10000));
+		List<RechargeOrderEntity> orderList = rechargeOrderContract.load(pageModel);
+		if(Tools.isNotNull(orderList)){
+				return true;
+		}
+		List<RedFlowerOrderEntity> flowerList =redFlowerOrderContract.load(pageModel);
+		if(Tools.isNotNull(flowerList)){
+				return true;
+		}
+		
+		pageModel.clearAll();
+		pageModel.addLimitField(0, 50);
+		pageModel.addProjection(Projections.sum("money").as("totalMoney"));
+		pageModel.addQuery(Restrictions.eq("status",1));
+		pageModel.addQuery(Restrictions.eq("user_id",userid));
+		long limit = 50000L;
+		boolean chargeLimitFalg = false;
+		List<Map<String, Object>> maps = userPayActionContract.loadGroupBy(pageModel);
+		if (Tools.isNotNull(maps)) {
+			for(Map<String, Object> map:maps){
+				if (Tools.isNotNull(map)) {
+					long totalMoney = Tools.parseLong(map.get("totalMoney"));
+					if(totalMoney>=limit){
+						chargeLimitFalg = true;
+					}
+				}
+			}
+		}
+		
+		return chargeLimitFalg;
+	}
+	
+}

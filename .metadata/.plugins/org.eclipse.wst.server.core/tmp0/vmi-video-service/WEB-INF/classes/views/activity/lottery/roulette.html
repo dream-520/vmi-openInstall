@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1,user-scalable=no" />
+<title></title>
+<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/reset.css')}"/>
+<script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+<script src="$!{Const.getCdn()}/js/roulette/awardRotate.js"></script>
+<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+<!-- 安卓手机底部返回键事件 -->
+<script src="$!{Const.getCdn()}/js/client/requestGoBack_android.js" type="text/javascript" charset="utf-8"></script>
+<!--zoom.js适配屏幕-->
+<script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	//适用于底部某个tab设置为H5时，APP启动太快，H5资源没有加载完就被显示出来
+	/*function webChangeIn(){
+		location.reload();
+	}*/
+</script>
+
+<script type="text/javascript">
+var turnplate={
+		restaraunts:[],				//大转盘奖品名称
+		colors:[],					//大转盘奖品区块对应背景颜色
+		outsideRadius:115,			//大转盘外圆的半径
+		textRadius:95,				//大转盘奖品位置距离圆心的距离
+		insideRadius:0,			//大转盘内圆的半径
+		startAngle:0,				//开始角度
+		bRotate:false				//false:停止;ture:旋转
+};
+
+$(document).ready(function(){
+  var award = 0;
+  $.ajax({
+    url : '${rc.contextPath}/api/roulette/total',
+    type : 'post',
+    timeout : 10000,
+    dataType : 'json',
+    cache : false,
+    contentType: 'application/json;charset=utf-8',
+    headers: {
+      'header-encrypt-code' : '$!{encrypt}'
+    },
+    success : function(result){
+      if(0 == result.code){
+        $("#totalPrice").text(result.data);
+      }else {
+        alert(result.codemsg);
+      }
+    },
+    error : function(){
+      alert('网络超时，请检查您的网络设置！');
+    }
+  });
+
+  turnplate.restaraunts = $!{wheels};
+  turnplate.colors = ["#ffa89f", "#f9d1c7", "#ffa89f", "#f9d1c7","#ffa89f", "#f9d1c7","#ffa89f", "#f9d1c7"];
+	var startRotate = function(){
+		$('#wheelcanvas').stopRotate();
+		$('#wheelcanvas').rotate({
+			angle:0,
+			animateTo:180
+		}); 
+
+
+		$.ajax({
+			url : '${rc.contextPath}/web/lottery/roulette/commit',
+			type : 'post',
+			timeout : 10000,
+			dataType : 'json',
+			cache : false,
+			contentType: 'application/json;charset=utf-8',
+			headers: {
+				'header-encrypt-code' : '$!{encrypt}'
+			},
+			success : function(result){
+			  if(0 == result.code){
+          rotateFn({
+            item : result.data.index,
+            txt : result.data.text
+          });
+          award = result.data.award;
+				}else if(21010 == result.code){
+          //抽奖余额不足
+          $('#wheelcanvas').stopRotate();
+          showAlert('dialog2');
+          turnplate.bRotate = !turnplate.bRotate;
+				}else{
+          $('#wheelcanvas').stopRotate();
+				  alert(result.codemsg);
+          turnplate.bRotate = !turnplate.bRotate;
+				}
+			},
+			error : function(){
+				//如果出错了，则弹出提示，并且。。。
+				$('#wheelcanvas').stopRotate();
+				alert('网络超时，请检查您的网络设置！');
+			}
+		});
+	}
+
+	//旋转转盘 item:奖品位置; txt：提示语;
+	var rotateFn = function (result){
+		var angles = result.item * (360 / turnplate.restaraunts.length) - (360 / (turnplate.restaraunts.length*2));
+		if(angles<270){
+			angles = 270 - angles; 
+		}else{
+			angles = 360 - angles + 270;
+		}
+		$('#wheelcanvas').drawLottery({
+			angle:0,
+			animateTo:angles+1800,
+			duration:8000,
+			callback:function (){
+				$(".dialog_txt1").html(result.txt);
+				
+				if(result.txt.indexOf("参与")>0){
+					$(".dialog_txt2").html("很遗憾您没有中奖，再试试吧");
+				}else{
+					$(".dialog_txt2").html("手气真好，再试试吧");
+				}
+				showAlert("dialog");
+				turnplate.bRotate = !turnplate.bRotate;
+        $("#totalPrice").text(award + parseInt($("#totalPrice").text()));
+			}
+		});
+	};
+
+	$('.choujiang').click(function (){
+		if(turnplate.bRotate) return;
+		turnplate.bRotate = !turnplate.bRotate;
+		startRotate();
+	});
+	
+	$('#tryAgainBtn').click(function (){
+		if(turnplate.bRotate) return;
+		turnplate.bRotate = !turnplate.bRotate;
+		hideAlert("dialog");
+		startRotate();
+	});
+});
+
+function rnd(n, m){
+	var random = Math.floor(Math.random()*(m-n+1)+n);
+	return random;
+}
+
+function showAlert(id){
+	$('#'+id).show();
+	$('#overmask').show();
+}
+
+function hideAlert(id){
+	$('#'+id).hide();
+	$('#overmask').hide();
+}
+
+//跳转到充钻app内页
+function gotoZuanFragment(){
+	//mobileType 安卓1 ios2
+	if(mobileType == 1){
+		window.target.gotoAppPage('WalletFragment','{"strValue1":0}');
+		hideAlert("dialog2");
+	}else if(mobileType == 2){
+		window.webkit.messageHandlers.myWallet.postMessage(0);
+		hideAlert("dialog2");
+	}
+}
+//页面所有元素加载完毕后执行drawRouletteWheel()方法对转盘进行渲染
+window.onload=function(){
+  screenFix(320); //适配屏幕
+  $("body").append('<div id="overmask"></div>');
+  setTimeout("screenFix(320)",100);
+  setTimeout("drawRouletteWheel()",100);
+};
+
+function drawRouletteWheel() {    
+  var canvas = document.getElementById("wheelcanvas");    
+  if (canvas.getContext) {
+	  //根据奖品个数计算圆周角度
+	  var arc = Math.PI / (turnplate.restaraunts.length/2);
+	  var ctx = canvas.getContext("2d");
+	  
+	  //在给定矩形内清空一个矩形
+	  ctx.save();
+	  ctx.clearRect(0,0,240,240);
+	 
+	  ctx.scale(2,2);
+	  //strokeStyle 属性设置或返回用于笔触的颜色、渐变或模式
+	  ctx.lineWidth=0;
+	  ctx.strokeStyle = "#ff7493";  //扇形分割线颜色
+	  //font 属性设置或返回画布上文本内容的当前字体属性
+	  ctx.font = '12px Microsoft YaHei';
+	  for(var i = 0; i < turnplate.restaraunts.length; i++) {
+		  var angle = turnplate.startAngle + i * arc;
+		  ctx.fillStyle = turnplate.colors[i];
+		  ctx.beginPath();
+		  ctx.arc(160, 160, turnplate.outsideRadius, angle, angle + arc, false);    
+		  ctx.arc(160, 160, turnplate.insideRadius, angle + arc, angle, true);
+		  ctx.fill();
+		  ctx.stroke();
+		  //锁画布(为了保存之前的画布状态)
+		  ctx.save();   
+		  
+		  //----绘制奖品开始----
+		  //ctx.fillStyle = "#AE6112";  //字体颜色
+		  if(i % 2 == 0){
+			ctx.fillStyle = "#333";
+		  }else if(i % 2 == 1){
+			ctx.fillStyle = "#fff";
+		  }
+		  var text = turnplate.restaraunts[i];
+		  var line_height = 60;
+		  //translate方法重新映射画布上的 (0,0) 位置
+		  ctx.translate(160 + Math.cos(angle + arc / 2) * turnplate.textRadius, 160 + Math.sin(angle + arc / 2) * turnplate.textRadius);
+		  
+		  //rotate方法旋转当前的绘图
+		  ctx.rotate(angle + arc / 2 + Math.PI / 2);
+		  
+		  /** 下面代码根据奖品类型、奖品名称长度渲染不同效果，如字体、颜色、图片效果。(具体根据实际情况改变) **/
+		  
+			//在画布上绘制填色的文本。文本的默认颜色是黑色
+			//measureText()方法返回包含一个对象，该对象包含以像素计的指定字体宽度
+			ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+		  
+		  //添加对应图标
+		  var img = '';
+	      if(text.indexOf("参与")>=0){
+	        img= document.getElementById("thanks_icon");
+	        ctx.drawImage(img,-14,14,30,30);
+	      }else if(text.indexOf("华为")>=0){
+	        img= document.getElementById("huawei");
+	        ctx.drawImage(img,-14,14,30,30);
+	      }else if(text.indexOf("iPhoneX")>=0){
+	        img= document.getElementById("apple");
+	        ctx.drawImage(img,-14,14,30,30);
+	      }else if(text.indexOf("钻")>=0){
+	        img= document.getElementById("vouchers_icon");
+	        ctx.drawImage(img,-14,14,30,30);
+	      }
+			  //把当前画布返回（调整）到上一个save()状态之前
+			  ctx.restore();
+			  //----绘制奖品结束----
+		  }
+		  ctx.save();
+		  
+		  //画环形
+		  ctx.beginPath();
+		  ctx.lineWidth=2;
+		  ctx.strokeStyle = "#893e22";
+	//	  ctx.arc(285,285,275,0,2*Math.PI);
+		  ctx.arc(160,160,115,0,2*Math.PI);
+		  ctx.stroke();
+		  ctx.restore();
+  } 
+}
+</script>
+<style type="text/css">
+body{
+	position: relative;
+	height: 100%;
+	width: 100%;
+}
+.main {margin: 0 auto;max-width: 720px;}
+.center {position: relative;}
+.circle{position:absolute;z-index:1;width:100%;height:570px;top:-110px;left:0;}
+.item{position:absolute;/*top:178px;*/top:198px;left:0;width: 100%;}
+.choujiang{width: 80px;height: 80px;position:absolute;z-index:1;/*top: 294px;*/top: 314px;left: 160px;margin-left:-40px;background:url('$!{Const.getCdn()}/img/activity/roulette/start_icon.png') no-repeat;background-size:100% 100%;cursor:pointer;}
+.pan{width: 300px;height: 300px;background:url('$!{Const.getCdn()}/img/activity/roulette/zhuanpan_bg.png') no-repeat;background-size:100% 100%;position:absolute;z-index:-1;/*top: 190px;*/top: 210px;left: 50%;margin-left:-150px;}
+
+
+#overmask{display:none;position:absolute;height:100%;width:100%;background:#000;opacity: 0.5; -moz-opacity: 0.5; -webkit-opacity: 0.5; -khtml-opacity: 0.5;filter:alpha(opacity=50);z-index:2;top: 0;left: 0;}
+
+/*中奖弹框&钻不足弹框*/
+.dialog{display:none;text-align: center; width:256px;height: 170px;background-color:#fff; position:absolute;top:50%;margin-top:-170px;left:50%;margin-left:-128px;border-radius: 6px;-webkit-border-radius:6px;overflow:hidden;z-index:3;}
+.dialog .close{width:18px;height:18px;background:url('$!{Const.getCdn()}/img/public/closeIcon_black.png') no-repeat;background-size:100% 100%;display:block;position:absolute;right:9px;top:9px;cursor:pointer;}
+.dialog .dialog_footer{width: 100%; margin-top: 25.6px;margin-left: 22px;}
+.dialog .dialog_footer a{float: left;font-size: 16px;text-align: center;width: 94px;height: 32px;line-height: 28px;border-radius: 16px;-webkit-border-radius:16px;border: 2px solid #FF87AE;}
+.dialog .dialog_footer a.dialog_cancel{color:#FF87AE;background: #fff;margin-right: 12px;}
+.dialog .dialog_footer a.dialog_sure{color:#fff;background: #FF87AE;margin-left: 12px;}
+
+/*中奖弹框*/
+.dialog .dialog_txt1{margin-top:38px;margin-bottom:13px;text-align:center;color: #333;}
+/*钻不足弹框*/
+.dialog2_content{color: #333;font-size: 18px;text-align: center;padding-top: 58px;}
+
+/*活动规则*/
+.rule{color: #fff;text-align: left;position:absolute;z-index:1;width:90%;/*top:514px;*/top:534px;left:5%;}
+.rule h4{font-size: 14px;padding-bottom: 8px;}
+.rule p{font-size: 12px;padding-bottom: 8px;}
+
+/*总获奖钱数*/
+.totalPrice{text-align:center;color: #fff;font-size:18px;position: absolute;z-index:1;width:90%;/*top:402px;*/top:422px;left:5%;}
+.totalPrice>p{margin-bottom: 20px;}
+a.totalPriceBtn{display:block;width: 230px;margin: 0 auto;}
+</style>
+</head>
+
+<body onselectstart="return false;" style="background:#769AFD;">
+<div id="header"></div>
+<div class="main">
+	<div class="center">
+		<!--背景图-->
+		<img src="$!{Const.getCdn()}/img/activity/roulette/roulette_bg.png" width="100%" />
+		<!-- 获得总钱数 -->
+		<div class="totalPrice">
+			<p>总获奖：<span id="totalPrice"></span>金币</p>
+			<a class="totalPriceBtn" onclick="gotoZuanFragment()"><img src="$!{Const.getCdn()}/img/activity/roulette/btn.png"/></a>
+		</div>
+
+		<!--轮盘区域-->
+		<div class="circle" style="overflow: hidden;">
+			<canvas class="item" id="wheelcanvas" width="640" height="640"></canvas>
+			<div class="pan"></div><!--转盘大背景图-->
+			<div class="choujiang"></div>
+		</div>
+		<!--规则说明-->
+		<div class="rule">
+			<h4>活动规则</h4>
+			<p>1、每个用户每天有3次免费抽奖机会；</p>
+			<p>2、每次抽奖需要消耗20钻石；</p>
+			<p>3、中奖后直接奖励到对应的账户上，您可以申请提现或者充值时用于抵扣（1金币=1元）；	</p>
+			<p>4、活动过程中若出现作弊行为，则取消用户的奖励；</p>
+			<p>5、本活动最终解释权归官方平台</p>
+		</div>
+		
+	</div>
+</div>
+<div id="dialog" class="dialog">
+	<span class="close" onclick="hideAlert('dialog');"></span>
+	<p class="dialog_txt1"></p>
+	<p class="dialog_txt2"></p>
+	<div class="dialog_footer">
+		<a class="dialog_cancel" onclick="hideAlert('dialog');">取消</a>
+		<a class="dialog_sure" id="tryAgainBtn">再试试</a>
+	</div>
+</div>
+<div id="dialog2" class="dialog">
+	<span class="close" onclick="hideAlert('dialog2');"></span>
+	<p class="dialog2_content">您的钻余额不足，请充值</p>
+	<div class="dialog_footer clear">
+		<a class="dialog_cancel" onclick="hideAlert('dialog2');">取消</a>
+		<a class="dialog_sure" onclick="gotoZuanFragment()">确定</a>
+	</div>
+</div>
+<div id="overmask"></div>
+<img src="$!{Const.getCdn()}/img/activity/roulette/thanks_icon.png" id="thanks_icon" style="display: none;"/>
+<img src="$!{Const.getCdn()}/img/activity/roulette/apple.png" id="apple" style="display: none;"/>
+<img src="$!{Const.getCdn()}/img/activity/roulette/huawei.png" id="huawei" style="display: none;"/>
+<img src="$!{Const.getCdn()}/img/activity/roulette/vouchers_icon.png" id="vouchers_icon" style="display: none;"/>
+
+</body>
+</html>

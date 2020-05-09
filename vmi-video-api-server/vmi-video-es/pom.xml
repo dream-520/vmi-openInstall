@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.tigerjoys.vmi</groupId>
+		<artifactId>vmi-video-api-server</artifactId>
+
+		<version>0.0.58.vmi-SNAPSHOT</version>
+		
+	</parent>
+	<artifactId>vmi-video-es</artifactId>
+	<name>vmi-video-es</name>
+	<url>http://maven.apache.org</url>
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		
+		<elasticsearch_version>6.8.6</elasticsearch_version>
+	</properties>
+	<distributionManagement>
+		<repository>
+			<id>releases</id>
+			<name>Internal Releases</name>
+			<url>http://repo.appleflying.com/repository/maven-releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>Snapshots</id>
+			<name>Internal Snapshots</name>
+			<url>http://repo.appleflying.com/repository/maven-snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+	
+	<dependencies>
+		<dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-high-level-client</artifactId>
+            <version>${elasticsearch_version}</version>
+        </dependency>
+		<dependency>
+		    <groupId>com.tigerjoys.nbs</groupId>
+		    <artifactId>nbs-api-common</artifactId>
+			<exclusions>
+	            <exclusion>
+                   	<groupId>log4j</groupId>
+                   	<artifactId>log4j</artifactId>
+               	</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.tigerjoys.vmi</groupId>
+			<artifactId>vmi-video-interface</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.tigerjoys.vmi</groupId>
+			<artifactId>vmi-video-common</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<!-- 打包source文件为jar文件 -->
+		    <plugin>
+	           	<artifactId>maven-source-plugin</artifactId>
+	          	<version>2.1</version>
+	           	<configuration>
+	       	    	<attach>true</attach>
+	            	<encoding>UTF-8</encoding>
+		    	</configuration>
+	           	<executions>
+	               	<execution>
+	                    <phase>compile</phase>
+	                    <goals>
+	                    	<goal>jar</goal>
+	                	</goals>
+	            	</execution>
+	        	</executions>
+	    	</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- 指定jdk版本 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>${java_source_version}</source>
+					<target>${java_source_version}</target>
+					<encoding>${project.build.sourceEncoding}</encoding>
+					<fork>true</fork>
+					<meminitial>128m</meminitial>
+					<maxmem>512m</maxmem>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<skip>${skip_maven_test}</skip>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

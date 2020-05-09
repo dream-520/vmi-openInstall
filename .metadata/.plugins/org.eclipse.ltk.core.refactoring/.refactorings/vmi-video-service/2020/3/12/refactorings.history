@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;AnchorToUserEvaluationDto.java&apos; to &apos;com.tigerjoys.shark.miai.dto.service.AnchorHelperAutoDialDto.java&apos;&#x0D;&#x0A;- Original project: &apos;vmi-video-service&apos;&#x0D;&#x0A;- Destination element: &apos;com.tigerjoys.shark.miai.dto.service.AnchorHelperAutoDialDto.java&apos;&#x0D;&#x0A;- Original element: &apos;com.tigerjoys.shark.miai.dto.service.AnchorToUserEvaluationDto.java&apos;" description="Copy compilation unit" destination="/src\/main\/java&lt;com.tigerjoys.shark.miai.dto.service{AnchorHelperAutoDialDto.java" element1="/src\/main\/java&lt;com.tigerjoys.shark.miai.dto.service{AnchorToUserEvaluationDto.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1584411527977" units="1" version="1.0"/>
+</session>

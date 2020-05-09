@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="$!{Const.getCdn()}/css/subscribe/appointment.css">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/myReset.css">
+  <title>预约大V</title>
+</head>
+
+<body>
+  <div id="shell">
+    <div class="wrap">
+
+      <div id="navHead">
+        <span id="goBack">
+          <a href="">
+            <img src="$!{Const.getCdn()}/img/activity/goddess/back.png" alt="" onclick="gotoAppBack()">
+          </a>
+        </span>
+        <span class="daystar">预约大V</span>
+        <span class="pastStar">
+          <a href="${rc.contextPath}/web/subscribe/user">我的预约</a>
+        </span>
+      </div>
+      <div class="main" id="main">
+        <img class="bgText" src="$!{Const.getCdn()}/img/subscribe/bgText.png" alt="">
+        <p class="introduce">
+          金牌大V是精心挑选的高质量大V。可使用一键预约功能进行群发，预约时间10分钟起，半小时内大V回应，如超过时间，费用退回账户中。
+        </p>
+      </div>
+      <div class="list">
+        <ul class="anchorList">
+          #foreach($anchor in $!{anchors})
+          <li>
+            <img class="photo" src="$!{anchor.photo}" alt="" onclick="gotoHomePage('$!{anchor.userid}')">
+            <p class="listName">$!{anchor.nickname}</p>
+          </li>
+          #end
+        </ul>
+      </div>
+      <!-- 按钮 -->
+      <p id="subscribe"></p>
+
+      <!-- 预约弹窗 -->
+      <div id="popLayer"></div>
+      <div id="popBox">
+        <div class="model" id="model">
+          <img class="close" src="$!{Const.getCdn()}/img/subscribe/close.png" alt="">
+          <p class="title">预约选择</p>
+          <p class="lang">请选择聊天时长</p>
+          <span id="btn1">10分钟</span>
+          <span id="btn2" class="first">20分钟</span>
+          <span id="btn3">30分钟</span>
+          <p class="act">费用:<i id="change">200</i>钻</p>
+          <p class="exp">半小时后无大V应答，费用自动退回</p>
+          <span id="defineOff">取消</span>
+          <span id="defineOk">确定</span>
+        </div>
+
+        <div class="modelBy" id="modelBy">
+          <p class="titleBy">您的余额不足</p>
+          <div class="button">
+            <span id="defineOffBy">取消</span>
+            <span id="defineOkBy" onclick="gotoWalletFragmentH5()">去购买</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 消息提醒 -->
+  <div id='message'></div>
+
+  <script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+  <script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+  <script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+  <script>
+    var httpHeader = '$!{encrypt}';
+    var commit = '${rc.contextPath}/web/subscribe/index/commit';
+
+
+    // page1 > 一键预约
+    $('#subscribe').on('click', function () {
+      $('#model').show();
+      $("#popBox").show();
+      $("#popLayer").show();
+    })
+
+    $('.close').on('click', function () {
+      $('#model').hide();
+      $("#popBox").hide();
+      $("#popLayer").hide();
+    })
+    //预约选择
+    $('#btn1').on('click', function () {
+      $('#change').text('100');
+      $(this).addClass('bg').siblings().removeClass('bg');
+      $(this).siblings().removeClass('first');
+    })
+    $('#btn2').on('click', function () {
+      $('#change').text('200');
+      $(this).addClass('bg').siblings().removeClass('bg');
+      $(this).siblings().removeClass('first');
+    })
+    $('#btn3').on('click', function () {
+      $('#change').text('300');
+      $(this).addClass('bg').siblings().removeClass('bg');
+      $(this).siblings().removeClass('first');
+    })
+
+    // 弹窗取消按钮
+    $('#defineOff').on('click', function () {
+      $('#model').hide()
+      $("#popBox").hide();
+      $("#popLayer").hide();
+    })
+
+    // 余额不足弹窗隐藏
+    $('#defineOffBy').on('click', function () {
+      $('#modelBy').hide();
+      $('#model').hide();
+      $("#popBox").hide();
+      $("#popLayer").hide();
+    })
+
+    //
+    $('#defineOk').on('click', function () {
+      // 点击确定有钻，扣钻成功进入等待页面
+      var params = {
+        moneys: $('#change').text()
+      }
+
+      $.ajax({
+        url: commit,
+        method: 'POST',
+        async: true,
+        cache: false,
+        dataType: 'json',
+        contentType: 'application/json;charset=utf-8',
+        headers: {
+          'header-encrypt-code': httpHeader
+        },
+        data: JSON.stringify(params),
+        success(data) {
+          console.log(data, 'data');
+          if (data.code == 0) {
+            $('#message').show().html('预约成功');
+            var dataUrl = data.data;
+            window.location.href = '' + dataUrl + '';
+            setTimeout(function () {
+              $('#message').hide();
+              $('#model').hide();
+              $("#popBox").hide();
+              $("#popLayer").hide();
+            }, 1000)
+          } else if (data.code == 10902) {
+            $('#message').show().html('已经进行预约了');
+            setTimeout(function () {
+              $('#message').hide();
+              $('#model').hide();
+              $("#popBox").hide();
+              $("#popLayer").hide();
+            }, 2000)
+          } else if (data.code == 10900) {
+            $('#model').hide();
+            $('#modelBy').show();
+          }
+        },
+        error: function (err) {
+          console.log(err);
+        }
+      });
+    })
+
+    // 跳转到'钻石列表'页面 
+    function gotoWalletFragmentH5() {
+      if (mobileType == 1) {
+        var actionUrl = "$!{Const.getWebSite()}/api/income/zuanList";
+        // closeCurrentWindow();
+        window.target.gotoAppPage('WebSingleSaveFragment', JSON.stringify({
+          "strValue1": actionUrl,
+          "strValue2": "我的钱包"
+        }));
+      } else if (mobileType == 2) {
+        window.location.href = "${rc.contextPath}/api/income/zuanList";
+      }
+    }
+
+
+    //女神主页
+    function gotoHomePage(userid) {
+      console.log(userid, '女神主页')
+      var userParamAndroid = {
+        "strValue1": userid
+      };
+      var userParamWebkit = {
+        "personId": userid
+      };
+      if (mobileType == 1) {
+        window.target.gotoAppPage('HomepageFragment', JSON.stringify(userParamAndroid));
+      } else if (mobileType == 2) {
+        window.webkit.messageHandlers.showPersonHomePage.postMessage(userParamWebkit);
+      }
+    }
+
+    // ios 头部导航偏移调整
+    var navHead = document.getElementById('navHead');
+    var main = document.getElementById('main');
+    if (mobileType == 1) {
+      navHead.style.paddingTop = '0.1rem';
+    } else if (mobileType == 2) {
+      navHead.style.paddingTop = '0.5rem';
+      main.style.marginTop = '0.7rem';
+    }
+  </script>
+</body>
+
+</html>

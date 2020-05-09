@@ -1,0 +1,52 @@
+<!--
+	百宝箱--仅支持ios
+-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" name="viewport" />
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/common.css"/>
+		<title></title>
+		<style type="text/css">
+			.mainBox{margin-top: 64px;position: relative;}
+			.mainBox li.item{position: absolute;top: 15px;left: 12px;text-align: center;}
+			.mainBox li.item img{width: 105px;height: auto;margin-bottom: 5px;}
+			.mainBox li.item p{font-size: 15px;color: #333;}
+		</style>
+	</head>
+	<body>
+		<div id="ios_statusBar"></div><!--ios顶部状态栏-->
+		<div id="navigationBar" class="navigationBar_ios">
+			<img src="$!{Const.getCdn()}/img/public/backIcon_black.png" class="navBackBtn" onclick="navBackBtnAction()"/>
+			<p class="navTile">百宝箱</p>
+		</div>
+		<ul class="mainBox clear">
+			<li class="item" onclick="gotoAppointSite()">
+				<img src="$!{Const.getCdn()}/img/appointsite/building.png"/>
+				<p>场馆预定</p>
+			</li>
+		</ul>
+		<script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js" type="text/javascript" charset="utf-8"></script>
+		<!--zoom.js适配屏幕-->
+		<script src="$!{Const.getCdn()}/js/public/zoom/zoom.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//适配屏幕
+				setTimeout(function(){
+					screenFix(375);
+				},500);
+			});
+			//导航栏返回键
+			function navBackBtnAction() {
+				window.webkit.messageHandlers.backPage.postMessage(0);
+			}
+			
+			//跳转到“场馆预定页”
+			function gotoAppointSite(){
+				window.location.href = "${rc.contextPath}/web/appointsite/home?showBackBtn=1"
+			}
+		</script>
+	</body>
+</html>

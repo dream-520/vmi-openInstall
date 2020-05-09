@@ -1,0 +1,130 @@
+<!-- ios发现板块：头像+昵称列表 支持下拉刷新 重新取20-30个数据-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/reset.css')}"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/common.css')}"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/js/mescroll/mescroll.min.css')}"/>
+		<script src="$!{Const.getCdn('/js/mescroll/mescroll.min.js')}" type="text/javascript" charset="utf-8"></script>
+		<title></title>
+		<style type="text/css">
+			#ios_statusBar{background-color:#ff4646;}
+			#navigationBar{background-color:#ff4646;}
+			#navigationBar p.navTitle{color: #fff;}
+			
+			.mescroll{position: fixed;top: 64px;bottom: 0;height: auto; /*如设置bottom:50px,则需height:auto才能生效*/}
+			.data-list{}
+			.data-list li{float: left;width: 130px;padding-top: 25px;margin: 0 28px;}
+			.data-list li div.user_img{width: 130px;height: 130px;border-radius: 50%;-webkit-border-radius: 50%;background: #D9D9D9 no-repeat center;background-size: 100%; margin: 0 auto;margin-bottom: 15px;}
+			.data-list li p.user_name{font-size: 15px;color: #333;width: 130px;height: 18px; overflow: hidden;white-space:nowrap; text-overflow: ellipsis;}
+		</style>
+	</head>
+	<body>
+		<div id="ios_statusBar"></div><!--ios顶部状态栏-->
+		<div id="navigationBar">
+			<p class="navTitle">发现</p>
+		</div>
+		<!--滑动区域-->
+		<div id="mescroll" class="mescroll">
+			<!--展示上拉加载的数据列表-->
+			<ul id="dataList" class="data-list clear">
+			</ul>
+		</div>
+		
+		
+		<script src="$!{Const.getCdn('/js/public/jquery/jquery-2.1.4.min.js')}" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				//适配屏幕
+				setTimeout(function(){
+					screenFix(375)
+				},500);
+				resetNavigationBar(); //设置顶部header"发现"
+				
+				var mescroll = new MeScroll("mescroll", {
+					down: {
+						callback: function(mescroll) {
+							//下拉刷新的回调,默认重置上拉加载列表为第一页(down的auto默认true,初始化Mescroll之后会自动执行到这里,而mescroll.resetUpScroll会触发up的callback)
+							mescroll.resetUpScroll();
+						}
+					},
+					up:{
+						callback: getListData, //上拉回调,此处可简写; 相当于 callback: function (page) { getListData(page); }
+					}
+				});
+				
+				function getListData(page){
+					getListDataFromNet(page.num, page.size, function(curPageData){
+						//page.num组件默认1, page.size组件默认10
+						//联网成功的回调,隐藏下拉刷新和上拉加载的状态;
+						//方法三(推荐): 您有其他方式知道是否有下一页 hasNext
+						mescroll.endSuccess(curPageData.length, false); //必传参数(当前页的数据个数, 是否有下一页true/false)
+						
+						//设置列表数据,因为配置了emptyClearId,第一页会清空dataList的数据,所以setListData应该写在最后;
+						setListData(curPageData);
+					}, function(){
+						//联网失败的回调,隐藏下拉刷新和上拉加载的状态;
+					    mescroll.endErr();
+					});
+				}
+				
+				function getListDataFromNet(pageNum,pageSize,successCallback,errorCallback) {
+					$.ajax({
+						url : '${rc.contextPath}/web/discovery/anchors',
+						type: 'post',
+						timeout: 10000,
+						dataType: 'json',
+						cache: false,
+						contentType: 'application/json;charset=utf-8',
+						headers: {
+							'header-encrypt-code': '$!{encrypt}'
+						},
+						success: function(data){
+							successCallback(data.data);
+							//console.log(data.data[0].userid)
+						},
+						error: errorCallback
+					});
+				}
+				
+				/*设置列表数据*/
+				function setListData(curPageData){
+					var listDom=document.getElementById("dataList");
+					//首先进行删除操作处理
+					var nodelist = listDom.childNodes;
+					for(var i = nodelist.length-1;i>=0;i--) {
+						listDom.removeChild(nodelist[i]);
+					}
+					//然后进行添加操作处理
+					for (var i = 0; i < curPageData.length; i++) {
+						var pd=curPageData[i];
+						var useridString = pd.userid;
+						console.log(useridString)
+						
+						var str='<div class="user_img" style="background-image: url('+pd.photo+');" onclick="gotoUserHomePage(\''+useridString+'\')">'+'</div>';
+						str+='<p class="user_name">'+pd.nickName+'</p>';
+						
+						var liDom=document.createElement("li");
+						liDom.innerHTML=str;
+						listDom.appendChild(liDom);
+					}
+				}
+				
+			});
+			/*跳转到个人主页*/
+			function gotoUserHomePage(userid){
+				console.log(userid)
+				var userParamIos = {
+					"personId": userid
+				};
+				window.webkit.messageHandlers.showPersonHomePage.postMessage(userParamIos);
+			}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<meta name="format-detection" content="telephone=no">
+		<meta name="full-screen" content="yes">
+		<meta name="x5-fullscreen" content="true">
+		<meta name="applicable-device" content="mobile">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="$!{Const.getCdn()}/css/activity/goddess/reset.css">
+  <link rel="stylesheet" href="$!{Const.getCdn()}/css/activity/goddess/girlStar.css">
+  <title>每日女神之星</title>
+
+</head>
+
+<body>
+
+  <div id="wrap">
+    <div id="navHead">
+      <span id="goBack">
+        <a href="javascript :history.back(-1)">
+          <img src="./img/back.png" alt="">
+        </a>
+
+      </span>
+      <span class="daystar">每日女神之星</span>
+      <span class="pastStar">
+        <a href="./past.html">往期</a>
+      </span>
+    </div>
+    <div id="header">
+      <img class="bcImg" src="img/background.png" alt="">
+      <ul class="cent" id='cent'>
+        <!-- <li class="phase" id="issue">第x期</li> -->
+        <!-- <li class="time">距离活动结束还剩</li> -->
+        <!-- <li id="hour_show"></li> -->
+      </ul>
+    </div>
+
+    <div class="starList">
+      <ul class="vote" id='vote'>
+        <!-- <li class="flex" id="voteList">
+          <span class="ap">
+            <img class="imgA" src="$!{Const.getCdn()}/img/activity/goddess/Rectangle 2.png" alt="" />
+          </span>
+          <img class="imgB" src="./img/25-1.png" alt="" />
+          <span class="spanD">
+            <i class="Nickname">兰溪</i>
+            <i id='starList'>
+              <img class="starClass" src="./img/star+.png" alt="">
+              <img class="starClass" src="./img/star+.png" alt="">
+              <img class="starClass" src="./img/star+.png" alt="">
+              <img class="starClass" src="./img/star+.png" alt="">
+              <img class="starClass" src="./img/star+.png" alt="">
+            </i>
+            <i class="charm">魅力</i>
+          </span>
+          <span id="btnGo">
+            <img class="binImg" src="./img/Rectangle.png" alt="" />
+          </span>
+        </li> -->
+
+
+      </ul>
+    </div>
+
+    <div class="girlShow" id="girlShow">
+      <!-- 背景层 -->
+      <div id="popLayer"></div>
+      <div id="popBox">
+        <!-- <div class="close" id='close'></div> -->
+        <!-- <div class="content" id="content"> -->
+
+        <!-- <img src="./img/25-1.png" alt="" class="voteImg">
+          <p id="nickname">昵称</p>
+          <p id="come">为你的女神加油，瓜分奖金</p>
+          <input type="number" value="10" id="num">
+          <span id="flower">小红花</span>
+          <p id="moreVotes">投票越多，瓜分奖金越多</p>
+          <p id="over">剩余:-小红花
+            <a href="">去购买</a>
+          </p>
+          <div id="sure" class="sure"></div> -->
+
+        <!-- </div> -->
+      </div>
+    </div>
+
+    <div>
+      <ul class="explain">
+        <li class="til" id='til'>活动说明</li>
+        <li>1、所有用户均可参加投票；</li>
+        <li>2、每天中午12点出结果，并开始新的一期投票；</li>
+        <li>3、投出冠军大V的用户可瓜分所有投票奖金，奖金直接返钻到账户中，可用于和大V视频聊天；</li>
+        <li>4、每位用户投票不限，大V的魅力值是按照大V本身的收益和投票数之和进行排序；</li>
+        <li>5、本活动最终解释权归官方所有；</li>
+      </ul>
+    </div>
+  </div>
+</body>
+
+</html>
+<script src="$!{Const.getCdn()}/js/activity/goddess/jquery.js"></script>
+<script src="$!{Const.getCdn()}/js/activity/goddess/viewport.js"></script>
+<script src="$!{Const.getCdn()}/js/activity/goddess/girlStar.js"></script>

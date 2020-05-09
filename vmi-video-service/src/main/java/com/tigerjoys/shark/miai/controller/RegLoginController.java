@@ -1,0 +1,288 @@
+package com.tigerjoys.shark.miai.controller;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
+import org.shark.miai.common.enums.AppNameEnum;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.alibaba.fastjson.JSONObject;
+import com.tigerjoys.nbs.common.ActionResult;
+import com.tigerjoys.nbs.common.beans.Produce;
+import com.tigerjoys.nbs.common.utils.JsonHelper;
+import com.tigerjoys.nbs.common.utils.Tools;
+import com.tigerjoys.nbs.common.utils.encry.AESCipher;
+import com.tigerjoys.nbs.common.utils.validate.ValidateUtils;
+import com.tigerjoys.nbs.web.BaseController;
+import com.tigerjoys.nbs.web.annotations.Login;
+import com.tigerjoys.nbs.web.annotations.NoLogin;
+import com.tigerjoys.nbs.web.annotations.NoSign;
+import com.tigerjoys.nbs.web.annotations.UserClientService;
+import com.tigerjoys.nbs.web.context.RequestUtils;
+import com.tigerjoys.shark.miai.Const;
+import com.tigerjoys.shark.miai.agent.IIOSUserSmsAgent;
+import com.tigerjoys.shark.miai.agent.IUserAgent;
+import com.tigerjoys.shark.miai.agent.dto.UserBO;
+import com.tigerjoys.shark.miai.agent.dto.transfer.UserModifyDto;
+import com.tigerjoys.shark.miai.dto.service.ThirdRegistDto;
+import com.tigerjoys.shark.miai.enums.ErrorCodeEnum;
+import com.tigerjoys.shark.miai.inter.contract.IAppLoginContract;
+import com.tigerjoys.shark.miai.inter.contract.IUserContract;
+import com.tigerjoys.shark.miai.inter.contract.IUserLogoutLogContract;
+import com.tigerjoys.shark.miai.inter.entity.AppLoginEntity;
+import com.tigerjoys.shark.miai.inter.entity.UserLogoutLogEntity;
+import com.tigerjoys.shark.miai.service.IRegLoginService;
+
+/**
+ * 登录注册
+ * @author lipeng
+ *
+ */
+@Controller
+@RequestMapping(value="/api",produces=Produce.TEXT_ENCODE)
+public class RegLoginController extends BaseController {
+	
+	
+	@Autowired
+	private IRegLoginService regLoginService;//注册登录服务
+	
+	@Autowired
+	private IUserAgent userAgent;//注册登录服务
+	
+	@Autowired
+	private IUserContract userContract;//注册登录服务
+	
+	@Autowired
+	private IAppLoginContract appLoginContract;//注册登录服务
+	
+	@Autowired
+	private IIOSUserSmsAgent iOSUserSmsAgent;
+	
+	
+	@Autowired
+	private IUserLogoutLogContract  userLogoutLogContract;
+	
+	private final Random random = new Random();
+	/**
+	 * 注册 - 发送手机验证码
+	 * @param body
+	 * @return
+	 * @throws Exception
+	 */
+	@NoLogin
+	@UserClientService("login")
+	@RequestMapping(value = "/sendLoginCode",method=RequestMethod.POST)
+	public @ResponseBody ActionResult regSendCode(@RequestBody String body) throws Exception {
+		JSONObject json = JsonHelper.toJsonObject(body);
+		
+		//兼容IOS的审核 by chengang 2017年11月8日 10:31:23
+		String mobile = json.getString("mobile");
+		if(iOSUserSmsAgent.getUserSmsList().containsKey(mobile)) {
+		//if(Const.checkIOS()) {
+			return ActionResult.success("验证码已发送！");
+		}
+		//机器人手机号拦截发送验证码的处理
+		if(Const.robotPhone.contains(mobile)) {
+			return ActionResult.success("验证码已发送！");
+		}
+		
+		return regLoginService.regSendCode(mobile);
+	}
+	
+	/**
+	 * 登录前获得登录方式
+	 */
+	@NoLogin
+	@UserClientService("login")
+	@RequestMapping(value="/loginWay",method=RequestMethod.POST)
+	public @ResponseBody ActionResult getLoginWay() throws Exception {
+		return regLoginService.getLoginWay();
+	}
+	
+	/**
+	 * 手机号登录
+	 */
+	@NoLogin
+	@UserClientService("login")
+	@RequestMapping(value="/mobileLogin",method=RequestMethod.POST)
+	public @ResponseBody ActionResult mobileLogin(@RequestBody String body ) throws Exception {
+		return regLoginService.mobileLogin(JsonHelper.toJsonObject(body));
+	}
+	
+	/**
+	 * 微信或者QQ登录
+	 */
+	@NoLogin
+	@UserClientService("login")
+	@RequestMapping(value="/thirdLogin",method=RequestMethod.POST)
+	public @ResponseBody ActionResult thirdLogin(@Valid @RequestBody ThirdRegistDto dto , HttpServletRequest request , BindingResult result) throws Exception {
+		
+		if(result.hasFieldErrors()){ //判断验证是否出错.
+			ValidateUtils.printError(result);
+			return ActionResult.fail(ErrorCodeEnum.parameter_error.getCode(),ErrorCodeEnum.parameter_error.getDesc());
+		}
+		
+		if (dto.getFr() == 4) {
+			//拿不到clientid 数据异常
+			if (Tools.isNull(RequestUtils.getCurrent().getHeader().getClientId())) {
+				return ActionResult.fail(ErrorCodeEnum.db_error.getCode() , ErrorCodeEnum.db_error.getDesc());
+			}
+			dto.setOpenid(RequestUtils.getCurrent().getHeader().getClientId());
+		}
+		
+		UserBO user = userAgent.findByUsername(dto.getOpenid());
+		
+		//注销账号处理方法
+		if (user!=null&&user.getStatus()==-1) {
+			UserLogoutLogEntity logoutLog =  userLogoutLogContract.findById(user.getUserid());
+			if (logoutLog!=null) {
+				long day = (System.currentTimeMillis()-Tools.getDayTime(logoutLog.getCreate_time()))/Tools.DAY_MILLIS;
+				if (day<=180) {
+					return ActionResult.fail(ErrorCodeEnum.user_already_logout.getCode() , ErrorCodeEnum.user_already_logout.getDesc());
+				}else{
+					Map<String,Object> updateStatement = new HashMap<>();
+					updateStatement.put("mobile", null);
+					userContract.updateById(updateStatement, user.getUserid());
+					UserModifyDto modify = new UserModifyDto();
+					modify.setUserid(user.getUserid());
+					String username = user.getUsername()+"-"+random.nextInt(9999);
+					modify.setUserName(username);
+					userAgent.updateUser(modify);
+					AppLoginEntity appLogin = appLoginContract.findByProperty("openid", user.getUsername());
+					if (appLogin!=null) {
+						AppLoginEntity temp = new AppLoginEntity();
+						temp.setId(appLogin.getId());
+						temp.setOpenid(username);
+						appLoginContract.update(temp);
+					}
+					user = null;
+				}
+			}
+		}
+		
+		if (user!=null && user.isWaiter()) {
+			if (RequestUtils.getCurrent().getHeader().getOs_type()==1 &&!RequestUtils.getCurrent().getHeader().getPackageName().equals("com.tjhj.dvzs")) {
+				return ActionResult.fail(ErrorCodeEnum.only_user_can_login.getCode() , ErrorCodeEnum.only_user_can_login.getDesc());
+			}
+			if (RequestUtils.getCurrent().getHeader().getOs_type()==2 && !RequestUtils.getCurrent().getHeader().getPackageName().equals("com.zdkj.lttool")) {
+				return ActionResult.fail(ErrorCodeEnum.only_user_can_login.getCode() , ErrorCodeEnum.only_user_can_login.getDesc());
+			}
+		}
+		if (RequestUtils.getCurrent().getHeader().getPackageName().equals("com.tjhj.dvzs") || RequestUtils.getCurrent().getHeader().getPackageName().equals("com.zdkj.lttool")) {
+			if (dto.getFr() != 4) {
+				if (user==null||!user.isWaiter()) {
+					return ActionResult.fail(ErrorCodeEnum.only_V_can_login.getCode() , ErrorCodeEnum.only_V_can_login.getDesc());
+				}
+			}
+		}
+		if (user == null) {
+			dto.setIfRegLogin(true);
+		}else{
+			dto.setIfRegLogin(false);
+		}
+		if (dto.getVip()==1) {
+			regLoginService.loginVipUser(dto);
+		}
+		return ActionResult.success(regLoginService.login(dto));
+		
+	}
+	
+	/**
+	 * 自动登录
+	 * @param body
+	 * @return
+	 * @throws Exception
+	 */
+	@NoLogin
+	@UserClientService("login")
+	@RequestMapping(value="/autoLogin",method=RequestMethod.POST)
+	public  @ResponseBody ActionResult autoLogin(@RequestBody(required=false) String body) throws Exception {
+		if (RequestUtils.getCurrent().getHeader().getOs_type()==1) {//只判断安卓
+			if(RequestUtils.getCurrent().getHeader().getVersioncode()<10) {//版本号小于10 显示用户不存在
+				return ActionResult.fail(ErrorCodeEnum.user_isnull.getCode() , ErrorCodeEnum.user_isnull.getDesc());
+			}
+		}
+		Integer pushchannel = 0;
+		JSONObject json = JsonHelper.toJsonObject(body);
+		if (Tools.isNotNull(json)) {
+			pushchannel = json.getInteger("pushchannel");
+		}
+		return ActionResult.success(regLoginService.autoLogin(RequestUtils.getCurrent().getHeader().getToken(),pushchannel));
+	}
+	
+	/**
+	 * 退出登录
+	 */
+	@Login
+	@UserClientService("login")
+	@RequestMapping(value="/loginout",method=RequestMethod.POST)
+	public @ResponseBody ActionResult loginout(@RequestBody(required=false) String body ,HttpServletRequest request) throws Exception {
+		
+		return regLoginService.loginout(request);
+	}
+	
+	/**
+	 * 添加用户协议页转接
+	 * @return
+	 */
+	@NoLogin
+	@RequestMapping(value="/login/protocol", produces=Produce.TEXT_HTML)
+	public String showUserAgreement(Model model) {
+		String packageName = RequestUtils.getCurrent().getHeader().getPackageName();
+		String path=Const.getProtocol(packageName);
+		if(Tools.isNull(path)){
+			model.addAttribute("appName",AppNameEnum.getByDesc(packageName));
+			return "protocol/protocol_model";
+		}
+		return path;
+	}
+	
+	/**
+	 * 完善信息注册登录
+	 */
+	@NoLogin
+	@NoSign
+	@UserClientService("login")
+	@RequestMapping(value="/regLogin",method=RequestMethod.POST)
+	public @ResponseBody ActionResult regLogin(@RequestParam("parameters") String parameters , @RequestParam("pictures") MultipartFile pictures) throws Exception {
+		parameters = AESCipher.aesDecryptString(parameters);
+		return regLoginService.regLogin(JsonHelper.toJsonObject(parameters) , pictures);
+	}
+	
+	/**
+	 * 账号注销
+	 */
+	@Login
+	@UserClientService("login")
+	@RequestMapping(value="/userLogout",method=RequestMethod.POST)
+	public @ResponseBody ActionResult logout(HttpServletRequest request) throws Exception {
+		return regLoginService.userLogout(request);
+	}
+	
+	/**
+	 * 一键登录
+	 */
+	@NoLogin
+	@UserClientService("login")
+	@RequestMapping(value="/oneKeyLogin",method=RequestMethod.POST)
+	public @ResponseBody ActionResult oneKeyLogin(@RequestBody String body,HttpServletRequest request) throws Exception {
+		
+		return regLoginService.oneKeyLogin(JsonHelper.toJsonObject(body));
+	}
+	
+}

@@ -1,0 +1,299 @@
+<!--姻缘对对碰-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1,user-scalable=no" />
+	<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/reset.css')}"/>
+	<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/common.css')}"/>
+	<title>姻缘对对碰</title>
+	<style type="text/css">
+		#ios_statusBar{background-color:#ff4646;}
+		#navigationBar{background-color:#ff4646;}
+		#navigationBar p.navTitle{color: #fff;}
+	
+		body{position: relative; background: url("$!{Const.getCdn('/img/discovery/fate/bg1.png')}") no-repeat; background-size: cover;-webkit-background-size: cover;background-position:0 62px; padding-top: 230px;padding-bottom: 10px;}
+		.draw {width: 320px; height: 320px; margin: 0 auto;background: url($!{Const.getCdn('/img/discovery/fate/bg2.png')}) no-repeat;background-size: cover;-webkit-background-size: cover;}
+		.draw ul{ padding:0 20px; padding-top: 11px;padding-left: 21px;}
+		.draw .item {float: left;margin-top:10px; width: 86px; height: 86px;border-radius:16px;-webkit-border-radius: 16px;border: 3px solid #fff;background-repeat: no-repeat; background-size: cover;-webkit-background-size:cover;}
+		.draw .item.active{border-color:#04a9ec;}
+		/*.draw .item.active{border:0;position: relative;}
+		.draw .item.active:after{content: "";position:absolute;top: 0;left: 0;right: 0;bottom: 0;z-index: 10;border-radius:16px;-webkit-border-radius: 16px;background-color:#FFF;opacity: 0.3; -moz-opacity: 0.3; -webkit-opacity: 0.3;filter:alpha(opacity=30);}}*/
+		.draw .item:nth-of-type(2),.draw .item:nth-of-type(5),.draw .item:nth-of-type(8){margin: 0 10px;margin-top:10px; }
+		/*#drawBtn img,#thankIcon img{ width: 82px; height: 82px;border-radius:16px;-webkit-border-radius:16px;}*/
+		.draw .draw-btn {display: inline-block; width:100%; }
+		
+		/*中奖弹框&钻不足弹框*/
+		.dialog{display:none;text-align: center; width:256px;height: 170px;background:#fff;position:absolute;top:50%;margin-top:-70px;left:50%;margin-left:-128px;border-radius: 6px;-webkit-border-radius:6px;overflow:hidden;z-index:3;}
+		.dialog .close{width:18px;height:18px;background:url("$!{Const.getCdn('/img/public/closeIcon_black.png')}") no-repeat;background-size:100% 100%;display:block;position:absolute;right:9px;top:9px;cursor:pointer;}
+		.dialog .dialog_footer{width:100%;position: absolute;bottom: 18px;}
+		.dialog .dialog_footer a{float: left;font-size: 16px;text-align: center;width: 94px;height: 32px;line-height: 28px;border-radius: 16px;-webkit-border-radius:16px;border: 2px solid #FF87AE;}
+		.dialog .dialog_footer a.dialog_cancel{color:#FF87AE;background: #fff;margin-right: 12px;margin-left:12px;}
+		.dialog .dialog_footer a.dialog_sure{color:#fff;background: #FF87AE;margin-left: 12px;}
+		#overmask{display:none;position:absolute;height:100%;width:100%;background:#000;opacity: 0.5; -moz-opacity: 0.5; -webkit-opacity: 0.5; -khtml-opacity: 0.5;filter:alpha(opacity=50);z-index:2;top: 0;left: 0;}
+		/*中奖弹框 dialog_y：中奖；dialog_n：谢谢参与*/
+		.dialog_n .dialog_txt1{margin-top:38px;margin-bottom:13px;text-align:center;color: #333;}
+		
+		.dialog_y{height:auto;min-height:280px;padding:0 10px;}
+		.userInfo{display:none;}
+		.dialog_y .userInfo img.userPhoto{width:66px;height:66px;border-radius: 33px;-webkit-border-radius:33px;margin-top:25px;margin-bottom:5px;}
+		.dialog_y .userInfo p.userName{color: #666;font-size: 15px;padding-bottom:10px;}
+		.dialog_y .dialog_txt1,.dialog_y .dialog_txt2{margin-bottom:8px;text-align:center;color: #666;font-size: 17px;}
+		/*.dialog_y .dialog_txt2{font-size: 15px;}*/
+		.dialog_txt3{display:none;color: #666;}
+		.dialog_y .dialog_footer{width:100%;position: relative;bottom:0;margin-top:12px;margin-bottom:12px;}
+		/*超过三次弹框*/
+		.dialog2_content{color: #333;font-size: 18px;text-align: center;padding-top:46px;}
+		
+		/*活动规则*/
+		.rule{color: #fff;text-align: left;padding-top: 25px;width: 330px;margin: 0 auto;}
+		.rule h4{font-size: 14px;padding-bottom: 8px;}
+		.rule p{font-size: 12px;padding-bottom: 8px;}
+	</style>
+</head>
+
+<body>
+<div id="ios_statusBar"></div><!--ios顶部状态栏-->
+<div id="navigationBar">
+	<p class="navTitle">发现</p>
+</div>
+<div class="draw" id="lottery">
+	<ul class="clear">
+		#foreach($wheel in $wheels)
+			#if($!{wheel.index} == 1)
+				<li class="item lottery-unit lottery-unit-1" style="background-image: url($!{wheel.photo});"></li>
+			#elseif($!{wheel.index} == 2)
+				<li class="item lottery-unit lottery-unit-2" style="background-image: url($!{wheel.photo});"></li>
+			#elseif($!{wheel.index} == 3)
+				<li class="item lottery-unit lottery-unit-3" style="background-image: url($!{wheel.photo});"></li>
+			#elseif($!{wheel.index} == 4)
+				<li class="item lottery-unit lottery-unit-4" style="background-image: url($!{wheel.photo});"></li>
+				<li class="item lottery-unit lottery-unit-9" id="drawBtn" style="background-image: url($!{Const.getCdn('/img/discovery/fate/drawBtn.png')})")></li>
+			#elseif($!{wheel.index} == 5)
+				<li class="item lottery-unit lottery-unit-5" style="background-image: url($!{wheel.photo});"></li>
+			#elseif($!{wheel.index} == 6)
+				<li class="item lottery-unit lottery-unit-6" style="background-image: url($!{wheel.photo});"></li>
+			#elseif($!{wheel.index} == 7)
+				<li class="item lottery-unit lottery-unit-7" style="background-image: url($!{wheel.photo});"></li>
+				<li class="item lottery-unit lottery-unit-8" id="thankIcon" style="background-image: url($!{Const.getCdn('/img/discovery/fate/thankIcon.png')})";></li>
+			#end
+		#end
+	</ul>
+</div>
+
+<!--弹框 dialog：中奖弹窗（包含谢谢参与），dialog2：超过3次-->
+<div id="dialog" class="dialog">
+	<span class="close" onclick="hideAlert('dialog');"></span>
+	<div class="userInfo" onclick="gotoHomePage(userid)">
+		<img class="userPhoto" src=""/>
+		<p class="userName"></p>
+	</div>
+	<p class="dialog_txt1"></p><!--恭喜/谢谢参与-->
+	<p class="dialog_txt3">可以加她私聊哦~有惊喜！</p>
+	<div class="dialog_footer clear">
+		<a class="dialog_cancel" onclick="hideAlert('dialog');">取消</a>
+		<a class="dialog_sure" id="tryAgainBtn">再来一次</a>
+	</div>
+</div>
+<div id="dialog2" class="dialog">
+	<span class="close" onclick="hideAlert('dialog2');"></span>
+	<p class="dialog2_content">今天的次数用完了</br> 请明天再试吧</p>
+	<div class="dialog_footer clear">
+		<a class="dialog_cancel" onclick="hideAlert('dialog2');">取消</a>
+		<a class="dialog_sure" onclick="hideAlert('dialog2')">确定</a>
+	</div>
+</div>
+<div id="overmask"></div>
+<!--规则说明-->
+<div class="rule">
+	<h4>活动规则</h4>
+	<p>1、每个用户都有资格参加该活动；</p>
+	<p>2、每个用户每天有3次机会；</p>
+	<p>3、匹配成功后，可点击头像查看对方的详细信息；</p>
+</div>
+<script src="$!{Const.getCdn('/js/public/jquery/jquery-2.1.4.min.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+//var userList = [];
+var userList = new Array();
+#foreach($wheel in $wheels)
+  userList.push('$!{wheel.userid}');
+#end
+console.log(userList);
+//======九宫格抽奖相关开始======
+var click = false;
+var pos = 0;
+var des;
+var award;
+var userid;
+var userPhoto;
+var userName;
+var error = 0;
+var lottery = {
+	index: -1,    //当前转动到哪个位置，起点位置
+	count: 0,     //总共有多少个位置
+	timer: 0,     //setTimeout的ID，用clearTimeout清除
+	speed: 20,    //初始转动速度
+	times: 0,     //转动次数
+	cycle: 50,    //转动基本次数：即至少需要转动多少次再进入抽奖环节
+	prize: -1,    //中奖位置
+	init: function(id) {
+		if ($('#' + id).find('.lottery-unit').length > 0) {
+			$lottery = $('#' + id);
+			$units = $lottery.find('.lottery-unit');
+			this.obj = $lottery;
+			this.count = $units.length;
+			$lottery.find('.lottery-unit.lottery-unit-10').addClass('active');
+		};
+	},
+	roll: function() {
+		var index = this.index;
+		var count = this.count;
+		var lottery = this.obj;
+		$(lottery).find('.lottery-unit.lottery-unit-' + index).removeClass('active');
+		index += 1;
+		if (index > count - 1) {
+			index = 0;
+		};
+		$(lottery).find('.lottery-unit.lottery-unit-' + index).addClass('active');
+		this.index = index;
+		return false;
+	},
+	stop: function(index) {
+		this.prize = index;
+		return false;
+	}
+};
+function roll() {
+	lottery.times += 1;
+	lottery.roll(); //转动过程调用的是lottery的roll方法，这里是第一次调用初始化
+	
+	if (lottery.times > lottery.cycle + 10 && lottery.prize == lottery.index) {
+		clearTimeout(lottery.timer);
+		lottery.prize = -1;
+		lottery.times = 0;
+		click = false;
+		//弹窗相关
+		$(".dialog_txt1").html(des);
+		//$(".dialog_txt2").html(award);
+		if(pos != 8){
+			//非谢谢参与的弹框
+			$("#dialog").addClass("dialog_y").removeClass("dialog_n");
+			$(".userPhoto").attr("src",userPhoto);
+			$(".userName").html(userName);
+			$(".userInfo").show();
+			$(".dialog_txt3").show();
+		}else{
+			$("#dialog").addClass("dialog_n").removeClass("dialog_y");
+			$(".userInfo").hide();
+			$(".dialog_txt3").hide();
+		}
+		setTimeout(function(){
+			showAlert('dialog'); 
+		}, 1000);
+	} else {
+		if (lottery.times < lottery.cycle) {
+			lottery.speed -= 10;
+		} else if (lottery.times == lottery.cycle) {
+			lottery.prize = pos;
+		} else {
+			if (lottery.times > lottery.cycle + 10 && ((lottery.prize == 0 && lottery.index == 7) || lottery.prize == lottery.index + 1)) {
+				lottery.speed += 110;
+			} else {
+				lottery.speed += 20;
+			}
+		}
+		if (lottery.speed < 40) {
+			lottery.speed = 40;
+		};
+		lottery.timer = setTimeout(roll, lottery.speed); //循环调用
+	}
+	return false;
+}
+//======九宫格抽奖相关结束======
+//跳转到个人主页
+function gotoHomePage(userid) {
+	console.log(userid);
+	var userParamAndroid = {
+		"strValue1":userid
+	};
+	var userParamWebkit = {
+		"personId": userid
+	};
+	if(mobileType == 1) {
+		window.target.gotoAppPage('HomepageFragment',JSON.stringify(userParamAndroid));
+	} else if(mobileType == 2) {
+		window.webkit.messageHandlers.showPersonHomePage.postMessage(userParamWebkit);
+	}
+}
+//显示/隐藏弹框
+function showAlert(id){
+	$('#'+id).show();
+	$('#overmask').show();
+}
+
+function hideAlert(id){
+	$('#'+id).hide();
+	$('#overmask').hide();
+}
+window.onload = function(){
+	//适配屏幕
+	setTimeout(function(){
+		screenFix(375)
+	},100);
+	resetNavigationBar(); //设置顶部header"发现"
+	//初始化转盘
+	setTimeout("lottery.init('lottery')",110);
+	$('#drawBtn,#tryAgainBtn').click(function() {
+		if (click) { //click控制一次抽奖过程中不能重复点击抽奖按钮，后面的点击不响应
+			return false;
+		} else {
+			$.ajax({
+				url : '${rc.contextPath}/web/discovery/fate/commit',
+				type : 'post',
+				timeout : 10000,
+				dataType : 'json',
+				cache : false,
+				contentType: 'application/json;charset=utf-8',
+				headers: {
+					'header-encrypt-code' : '$!{encrypt}'
+				},
+				data:JSON.stringify(userList),
+				success : function(result){
+				  if(0 == result.code){
+					  pos = result.data.index;
+					  des = result.data.des;
+					  award = result.data.award;
+					  userid = result.data.userid;
+					  userPhoto = result.data.photo;
+					  userName = result.data.nickName;
+					  //console.log(pos+","+des+","+award)
+					  lottery.speed = 100;
+					  //转圈过程不响应click事件，会将click置为false
+					  roll(); 
+					  hideAlert('dialog');
+					  //一次抽奖完成后，设置click为true，可继续抽奖
+					  click = true; 
+				  } else if(21010 == result.code){
+			        //抽奖超过3次后
+					  error = 1;
+					  showAlert('dialog2');
+					  hideAlert("dialog");
+				  } else {
+					  error = 2;
+				  }
+				},
+				error : function(){
+					//如果出错了，则弹出提示，并且。。。
+					error = 3;
+					alert('网络超时，请检查您的网络设置！');
+				}
+		    });
+		}
+	});
+};
+</script>
+</body>
+</html>

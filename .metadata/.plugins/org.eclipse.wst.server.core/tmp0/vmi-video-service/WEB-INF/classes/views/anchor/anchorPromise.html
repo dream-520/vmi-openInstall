@@ -1,0 +1,57 @@
+<!--主播绿色直播承诺书-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/common.css"/>
+		<!--辨别设备 mobileType 安卓：1，IOS：2-->
+		<script src="$!{Const.getCdn()}/js/public/device/device.js" type="text/javascript" charset="utf-8"></script>
+		<!--client.js与安卓/IOS交互的事件-->
+		<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+		<!-- 安卓手机底部返回键事件 -->
+		<script src="$!{Const.getCdn()}/js/client/requestGoBack_android.js" type="text/javascript" charset="utf-8"></script>
+		<title></title>
+		<style type="text/css">
+			.txtBox{padding: 14px;padding-top: 80px;text-align: left;}
+			.txtBox p{font-size:14px;color: #666;line-height:24px;text-indent: 28px;}
+		</style>
+	</head>
+	<body>
+		<div id="ios_statusBar"></div><!--ios顶部状态栏-->
+		<div id="navigationBar">
+			<img src="$!{Const.getCdn()}/img/public/backIcon_black.png" class="navBackBtn" onclick="navBackBtnAction()"/>
+			<p class="navTitle">${appName}主播绿色直播承诺书</p>
+		</div>
+		<div class="txtBox">
+			<p>本APP平台是全国最大的真人互动一对一视频聊天社区，为主播（大V）提供娱乐演艺、一对一视频聊天交友平台。</p>
+			<p>本人具有演艺特长，致力于本平台上的长期发展，以逐步提高演艺水平和知名度。</p>
+			<p>本人仔细阅读并理解承诺书之内容，同意并做出以下承诺：</p>
+			<p>1、本人同意并保证本平台官方审核期间，提交真实和完整的资料，并如实反应个人的演艺特长，如存在任何虚假、欺诈，本平台有权随时取消主播资格。 </p>
+			<p>2、本人同意并保证在本平台直播期间，遵纪守法、绿色直播、不涉黄、不擦边，并严格遵守本平台的各项管理条例。</p>
+			<p>3、本人同意并保证全力维护本平台的品牌形象，无论在任何时间、地点均不从事任何有损本平台品牌形象之行为。</p>
+			<p>4、本人同意并保证在本平台直播期间，绝不进行其他平台的广告宣传，绝不引导用户到其他竞品平台。</p>
+			<p>5、本人同意若有违反本承诺书中的任何保证，愿意承担因此产生的所有责任，包括但不限于本平台中的封禁账号、违规处罚、罚扣分成、赔偿本平台或其他第三方损失以及其他相关的法律责任。</p>
+			<p>6、本人保证在签署本成活书时已详细阅读并理解了本承诺书的全部内容，同意无条件遵守此承诺书，且在完全自愿情况下签订本承诺书。</p>
+		</div>
+		<script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js" type="text/javascript" charset="utf-8"></script>
+		<!--zoom.js适配屏幕-->
+		<script src="$!{Const.getCdn()}/js/public/zoom/zoom.js" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn()}/js/public/common.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			//导航栏返回按钮事件：返回到"我的"页面（APP底部tab最后一个）
+			function navBackBtnAction(){
+				gotoAppBack();
+			}
+			$(document).ready(function(){
+				//适配屏幕
+				setTimeout(function(){
+					screenFix(375);
+				},200);
+				//"导航栏"写在H5端时使用：安卓/ios的状态栏高度不一样
+				resetNavigationBar(); //定义在common.js中
+			});
+		</script>
+	</body>
+</html>

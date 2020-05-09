@@ -1,0 +1,121 @@
+<!--文明公约-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/common.css"/>
+		<!-- 安卓手机底部返回键事件 -->
+		<script src="$!{Const.getCdn()}/js/client/requestGoBack_android.js" type="text/javascript" charset="utf-8"></script>
+		<title>文明公约</title>
+		<style type="text/css">
+			.mainBox{background-color: #704ade;padding-top: 28px;}
+			.box{width: 345px;margin: 0 auto;margin-bottom: 20px; border-radius: 4px;-webkit-border-radius: 4px;background-color: #fff;text-align:left;box-shadow: rgba(158,45,4,0.3) 0 2px 8px;}
+			.box h1.boxTitle{font-weight: normal; position: relative;top:7px;width: 100%;height: 66px;background: url($!{Const.getCdn()}/img/activity/civilProtocol/civil_titleBG.png) no-repeat center;background-size: 100%;-webkit-background-size: 100%;}
+			.box h1.boxTitle p{text-align: center; position: absolute;width: 100%;bottom:12px;left: 50%;margin-left:-50%;font-size: 18px;color: #fff;}
+			
+			.box1 ul{padding:18px 15px 16px 15px;}
+			.box1 ul li{font-size: 10px;color: #333;padding-bottom: 4px;line-height: 20px;}
+			
+			.box2{height: 240px;}
+			.scrollBox{width: 250px;height: 144px;position: relative;top: 20px;left: 50%;margin-left: -125px;overflow: hidden;}
+			.scrollBox ul{position: absolute;top: 0;left: 0; width: 100%;height: 100%;}
+			.scrollBox ul li{float: left;width: 25%;height:24px;line-height: 24px;font-size: 12px;color: #333;text-align: center;}
+		
+			.noAnchor{display:none;font-size: 12px;color: #999;text-align: center;padding-top: 70px;}
+		
+			.tip{font-size: 11px;color: #fff;text-align: center;width: 294px;margin: 0 auto;line-height: 22px;}
+			.tip1{padding-bottom: 36px;}
+			.tip2{background-color: #572cd6;padding: 12px 0;width: 100%;}
+		</style>
+	</head>
+	<body>
+		<img src="$!{Const.getCdn()}/img/activity/civilProtocol/civil_topImg.png"/> 
+		<div class="mainBox">
+			<div class="box box1">
+				<h1 class="boxTitle">
+					<p>文明公约</p>
+				</h1>
+				<ul>
+					<li>1.严禁讨论任何涉及政治等敏感话题；</li>
+					<li>2.严禁任何违反国家法律法规的内容和行为；</li>
+					<li>3.严禁讨论和传播含有裸露色情，暴力违法，毒品赌博相关等行为；</li>
+					<li>4.严禁任何违反社会公德，扰乱公共秩序的行为；</li>
+					<li>5.严禁视频聊天过程中双方和多方进行产品销售，服务购买等任何交易行为；</li>
+					<li>6.严厉禁止未满18周岁未成年人使用本平台；</li>
+					<li>7.严禁进行任何广告宣传或以任何方式引导用户至第三方平台；</li>
+					<li>8.严禁任何方式冒充本平台官方人员；</li>
+					<li>9.严禁散布任何对本平台不利的言论；</li>
+					<li>10.严禁相互添加微信、QQ等第三方社交账号，由此造成的任何损失，平台概不负责！</li>
+				</ul>
+			</div>
+			<!--取消主播资格ID-->
+			<div class="box box2">
+				<h1 class="boxTitle">
+					<p>取消用户资格ID</p>
+				</h1>
+				<!--有相关主播ID时显示-->
+				<div class="scrollBox">
+					<ul class="anchorList"></ul>
+				</div>
+				<!--没有相关主播ID时显示-->
+				<p class="noAnchor">暂无被取消资格的用户</p>
+			</div>
+			<!--禁封主播ID-->
+			<div class="box box2">
+				<h1 class="boxTitle">
+					<p>禁封用户ID</p>
+				</h1>
+				<!--有相关主播ID时显示-->
+				<div class="scrollBox">
+					<ul class="anchorList"></ul>
+				</div>
+				<!--没有相关主播ID时显示-->
+				<p class="noAnchor">暂无被禁封的用户</p>
+			</div>
+			<p class="tip tip1">以上条例将严格执行如有用户违反平台方将予其最低24小时最高永久封停的处罚</p>
+			<p class="tip tip2">本文明公约最终解释权归平台所有&nbsp;本公约将不断完善更新<br />感谢各位用户对本平台的支持</p>
+		</div>
+		<script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js" type="text/javascript" charset="utf-8"></script>
+		<!--zoom.js适配屏幕-->
+		<script src="$!{Const.getCdn()}/js/public/zoom/zoom.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			function autoScroll(obj){
+		        $(obj).find("ul").animate({
+		          top : "-24px"
+		        },2000,function(){
+		          $(this).css({top : "0px"}).find("li:eq(0),li:eq(1),li:eq(2)").appendTo(this);
+		        })
+		    }
+			$(document).ready(function(){
+				//适配屏幕
+				setTimeout(function(){
+					screenFix(375);
+				},500);
+				setInterval('autoScroll(".scrollBox")',5000); //滚动列表
+				/*随机生成的30个主播ID*/
+				for (var i = 0; i < 30; i++) {
+					$('.anchorList').append('<li></li>');
+				};
+				var randomNum = function MathRand() { 
+					var Num=""; 
+					for(var i=0;i<6;i++) 
+						{ 
+							Num+=Math.floor(Math.random()*10); 
+						} 
+						return Num;
+					}
+				$(".anchorList").children('li').html(randomNum);
+				
+				//主播ID星号代替
+				var anchorList = $(".anchorList li");
+				for (var i = 0; i < anchorList.length; i++) {
+					var oldAnchorId = anchorList[i].innerHTML;
+					var newAnchorId = oldAnchorId.substr(0, 4) + '***';
+					anchorList[i].innerHTML = newAnchorId;
+				}
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.0.RELEASE</version>
+		<relativePath/>
+	</parent>
+
+	<groupId>com.tigerjoys.vmi</groupId>
+	<artifactId>vmi-video-service</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>${project.artifactId}</name>
+	<description>Vmi Sevice Interface Project</description>
+	
+	<distributionManagement>
+		<repository>
+			<id>releases</id>
+			<name>Internal Releases</name>
+			<url>http://repo.appleflying.com/repository/maven-releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>Snapshots</id>
+			<name>Internal Snapshots</name>
+			<url>http://repo.appleflying.com/repository/maven-snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<properties>
+		<!-- nbs -->
+		<nbs_common_version>0.0.6-SNAPSHOT</nbs_common_version>
+		<nbs_mybatis_version>0.0.6-SNAPSHOT</nbs_mybatis_version>
+		<nbs_web_common_version>0.0.6-SNAPSHOT</nbs_web_common_version>
+
+		<!-- shark -->
+		<vmi_video_api_version>0.0.58.vmi-SNAPSHOT</vmi_video_api_version>
+
+		<!-- Common libs -->
+		<velocity_version>1.7</velocity_version>
+		<velocity_tools_version>2.0</velocity_tools_version>
+		<spring_boot_velocity_version>1.4.2.RELEASE</spring_boot_velocity_version>
+		<xiaomi_push_version>0.0.9-SNAPSHOT</xiaomi_push_version>
+		<ant_contrib_version>1.0b3</ant_contrib_version>
+		<!-- mysql -->
+		<alibaba_druid_version>1.1.21</alibaba_druid_version>
+		<!-- Log libs -->
+		<logback_ext_spring_version>0.1.1</logback_ext_spring_version>
+		<!-- Test libs -->
+		<easymock_version>3.0</easymock_version>
+		<jmockit_version>0.999.8</jmockit_version>
+		<dbunit_version>2.5.1</dbunit_version>
+		<!-- Build args -->
+		<argline>-server -Xms64m -Xmx64m -XX:PermSize=64m -XX:MaxPermSize=64m</argline>
+		<skip_maven_deploy>false</skip_maven_deploy>
+		<skip_maven_test>true</skip_maven_test>
+		<project.build.sourceEncoding>${file_encoding}</project.build.sourceEncoding>
+		<!-- for maven compiler plugin -->
+		<maven_compiler_plugin_version>2.3.2</maven_compiler_plugin_version>
+		<!-- spring boot 未知错误需要加上这个，不然第一行一直报一个未知错误 -->
+        <maven-jar-plugin.version>3.0.0</maven-jar-plugin.version>
+		<java_source_version>1.8</java_source_version>
+		<java_target_version>1.8</java_target_version>
+		<file_encoding>UTF-8</file_encoding>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<!-- velocity支持   Spring 4.x ,SpringBoot 1.4之后就不再支持 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-velocity</artifactId>
+			<version>${spring_boot_velocity_version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.tigerjoys.nbs</groupId>
+			<artifactId>nbs-api-common</artifactId>
+			<version>${nbs_common_version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.tigerjoys.nbs</groupId>
+			<artifactId>nbs-api-mybatis-core</artifactId>
+			<version>${nbs_mybatis_version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.tigerjoys.nbs</groupId>
+			<artifactId>nbs-api-web-common</artifactId>
+			<version>${nbs_web_common_version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.tigerjoys.vmi</groupId>
+			<artifactId>vmi-video-interface</artifactId>
+			<version>${vmi_video_api_version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.tigerjoys.vmi</groupId>
+			<artifactId>vmi-video-agent</artifactId>
+			<version>${vmi_video_api_version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.tigerjoys.vmi</groupId>
+			<artifactId>vmi-video-common</artifactId>
+			<version>${vmi_video_api_version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.tigerjoys.vmi</groupId>
+			<artifactId>vmi-video-es</artifactId>
+			<version>${vmi_video_api_version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid</artifactId>
+			<version>${alibaba_druid_version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>ognl</groupId>
+		    <artifactId>ognl</artifactId>
+		    <version>3.1.11</version>
+		</dependency>
+		<!-- log -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>log4j-over-slf4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.logback-extensions</groupId>
+			<artifactId>logback-ext-spring</artifactId>
+			<version>${logback_ext_spring_version}</version>
+		</dependency>
+		<!-- commons -->
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.1</version>
+		</dependency>
+		<!-- json -->
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.9.12</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<version>1.9.12</version>
+		</dependency>
+		<!-- velocity -->
+		<dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity</artifactId>
+			<version>${velocity_version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity-tools</artifactId>
+			<version>${velocity_tools_version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>servlet-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- 小米推送 -->
+		<dependency>
+			<groupId>com.xiaomi.miliao</groupId>
+			<artifactId>xmpush-server-api</artifactId>
+			<version>${xiaomi_push_version}</version>
+		</dependency>
+		<dependency>
+	    	<groupId>ant-contrib</groupId>
+	    	<artifactId>ant-contrib</artifactId>
+	    	<version>${ant_contrib_version}</version>
+	    </dependency>
+		<!-- Test libs -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-launcher</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.easymock</groupId>
+			<artifactId>easymock</artifactId>
+			<version>${easymock_version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.jmockit</groupId>
+			<artifactId>jmockit</artifactId>
+			<version>${jmockit_version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.easymock</groupId>
+			<artifactId>easymockclassextension</artifactId>
+			<version>${easymock_version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.dbunit</groupId>
+			<artifactId>dbunit</artifactId>
+			<version>${dbunit_version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- EXCL 两种方式 -->
+		<dependency>
+			<groupId>net.sourceforge.jexcelapi</groupId>
+			<artifactId>jxl</artifactId>
+			<version>2.6.12</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.15</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>3.15</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.alipay</groupId>
+			<artifactId>alipay-sdk-java</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<plugins>
+			<!-- 指定jdk版本 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${java_source_version}</source>
+					<target>${java_source_version}</target>
+					<encoding>${file_encoding}</encoding>
+					<fork>true</fork>
+					<meminitial>128m</meminitial>
+					<maxmem>512m</maxmem>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<executable>true</executable>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<configuration>
+					<encoding>${file_encoding}</encoding>
+					<useDefaultDelimiters>false</useDefaultDelimiters>
+					<delimiters>
+						<delimiter>$[*]</delimiter>
+					</delimiters>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<skip>${skip_maven_test}</skip>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+	            <artifactId>maven-antrun-plugin</artifactId>
+	            <executions>
+	                <execution>
+	                    <phase>prepare-package</phase>
+	                    <goals>
+	                        <goal>run</goal>
+	                    </goals>
+	                    <configuration>
+	                        <tasks>
+	                        	<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.runtime.classpath" />
+	                        	<echo message="run package ${profiles.active} ..."/>
+	                        	<if>
+	                        		<equals arg1="${profiles.active}" arg2="dev"/>
+	                        		<then>
+	                        			<echo message="this is ${profiles.active} skip copy files ..."/>
+	                        		</then>
+	                        		<else>
+	                        			<copy todir="${project.build.outputDirectory}" overwrite="true">
+			                                <fileset dir="src/main/resources/${profiles.active}_conf"/>
+			                           	</copy>
+	                        		</else>
+		                        </if>
+	                        </tasks>
+	                    </configuration>
+	                </execution>
+	            </executions>
+	        </plugin>
+		</plugins>
+		<resources>
+	  		<resource>
+	  			<directory>src/main/resources</directory>
+	  			<excludes>
+	  				<exclude>application*.yml</exclude>
+	  				<exclude>*.properties</exclude>
+	  				<exclude>prod_conf/*</exclude>
+	  				<exclude>dev_conf/*</exclude>
+	  				<exclude>test_conf/*</exclude>
+	  				<exclude>doc/*</exclude>
+	  			</excludes>
+	  		</resource>
+	  		<resource>
+	  			<directory>src/main/resources</directory>
+	  			<filtering>true</filtering>
+	  			<includes>
+	  				<include>application-${profiles.active}.yml</include>
+	  				<include>application.yml</include>
+	  				<include>*.properties</include>
+	  			</includes>
+	  		</resource>
+	  	</resources>
+	</build>
+	
+	<profiles>
+		<profile>
+			<id>dev</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<profiles.active>dev</profiles.active>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>prod</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<profiles.active>prod</profiles.active>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>test</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<profiles.active>test</profiles.active>
+			</properties>
+		</profile>
+	</profiles>
+	
+</project>

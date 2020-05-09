@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="cache-control" content="no-cache" />
+	<meta content="width=device-width, initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"
+		name="viewport" />
+	<meta content="telephone=yes" name="format-detection" />
+	<meta content="email=no" name="format-detection" />
+	<title>蜜聊一对一视频聊天</title>
+	<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/share/miliao.css" />
+	<style type="text/css">
+		.button {
+			z-index: 10000;
+			position: absolute;
+			left: calc((100% - 60%px) / 2);
+			bottom: 16%;
+			width: 60%;
+			height: auto;
+			display: block;
+			background: url("$!{Const.getCdn()}/img/share/milao/btn.png");
+			background-size: cover;
+		}
+
+		/* 苹果下载提醒 */
+		#message {
+			width: 50%;
+			height: 5%;
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			display: none;
+			z-index: 11;
+			color: rgba(255, 254, 253, 1);
+			font-size: 20px;
+			margin: auto;
+			text-align: center;
+			background: rgb(41, 36, 36);
+			border-radius: 20px;
+			line-height: 36px;
+		}
+	</style>
+
+</head>
+
+<body>
+	<div id="mcover" onClick="document.getElementById('mcover').style.display='';">
+		<img src="$!{Const.getCdn()}/img/share/milao/tishi.png">
+	</div>
+	<img class="button" onClick="appDown()" src="$!{Const.getCdn()}/img/share/milao/btn.png">
+	<!-- 密聊背景图片 -->
+	<img class="bg-img" src="$!{Const.getCdn()}/img/share/milao/MiBg.png">
+
+	<!-- 消息提醒 -->
+	<div id='message'></div>
+
+	<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/reset.css')}" />
+	<script src="$!{Const.getCdn('/js/public/jquery/jquery-2.1.4.min.js')}" type="text/javascript" charset="utf-8">
+	</script>
+	<script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script>
+	<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+	<script>
+		//do 判断浏览器
+		// document.getElementById('mcover').style.display='block';//显示
+		// document.getElementById('mcover').style.display='';//隐藏
+
+		$(document).ready(function () {
+			//适配屏幕
+			setTimeout(function () {
+				screenFix(375);
+			}, 500);
+			//"导航栏"写在H5端时使用：安卓/ios的状态栏高度不一样
+			resetNavigationBar(); //定义在common.js中
+		});
+
+		//判断是否微信登陆
+		function isWeiXin() {
+			var ua = window.navigator.userAgent.toLowerCase();
+			// console.log(ua);//mozilla/5.0 (iphone; cpu iphone os 9_1 like mac os x) applewebkit/601.1.46 (khtml, like gecko)version/9.0 mobile/13b143 safari/601.1
+			if (ua.match(/MicroMessenger/i) == 'micromessenger') {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		//判断是否qq登陆
+		function isQQ() {
+			var ua = window.navigator.userAgent.toLowerCase();
+			if (ua.match(/QQ/i) == "qq") {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		function appDown() {
+			if (isWeiXin() || isQQ()) {
+				document.getElementById('mcover').style.display = 'block';
+			} else {
+				var downloadUrl = "";
+				//alert("test:"+downloadUrl);
+				if (mobileType == 1) {
+					// downloadUrl = "http://noss.yoyo.liaomeivideo.com/upload/app/android/apk/11.apk";
+					downloadUrl = "http://47.95.194.184/apk/miliao_5.0.0.apk";
+				} else if (mobileType == 2) {
+					// downloadUrl = "http://vapi.yoyo.liaomeivideo.com/vmi-video-service/web/distributionApp/4";
+
+					var $message = $('#message');
+					$message.html('暂不支持苹果下载！');
+					$message.show();
+					setTimeout(function () {
+						$message.hide();
+					}, 3000)
+
+					return
+				}
+				//alert("testend:"+downloadUrl);
+				window.location.href = downloadUrl;
+			}
+		}
+	</script>
+</body>
+
+</html>

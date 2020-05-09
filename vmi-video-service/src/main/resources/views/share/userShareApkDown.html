@@ -1,0 +1,227 @@
+<!--分享出去的 在微信，QQ等打开的 带有下载链接的页面-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+		<meta name="screen-orientation" content="portrait" />
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+		<meta name="format-detection" content="telephone=no">
+		
+		<title>$!{appName}</title>
+		<script type="text/javascript" charset="UTF-8" src="//res.cdn.openinstall.io/openinstall.js"></script>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/reset.css" />
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/js/swiper/swiper-3.4.2.min.css" />
+		<script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn()}/js/swiper/swiper-3.4.2.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn()}/js/public/zoom/zoom.js" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn()}/js/public/device/device.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			body {
+				max-width: 640px;
+				min-width: 320px;
+				margin: 0 auto;
+			}
+		
+			
+			.swiper-slide {
+				background-color: #F8F8FC;
+				text-align: center;
+				width: 100%;
+				position: relative;
+			}
+			
+			.swiper-pagination-bullet {
+				background-color: transparent;
+				border: 1px solid #fff;
+				opacity: 1;
+			}
+			
+			.swiper-pagination-bullet-active {
+				background: #fff;
+			}
+			
+			.download_btn {
+				position: absolute;
+				bottom:72px;
+				left: 50%;
+				margin-left: -100px;
+				width: 200px;
+				height: 46px;
+				line-height: 46px;
+				background-color: #fff;
+				border-radius: 23px;
+				-webkit-border-radius: 23px;
+			}
+			
+			.download_btn a {
+				display: block;
+				width: 100%;
+				color: #ff3b5e;
+				font-size: 18px;
+			}
+			
+			.txtGroup {
+				color: #333;
+				font-size: 17px;
+				line-height: 34px;
+				width: 100%;
+				position: absolute;
+				top: 263px;
+				left: 50%;
+				margin-left: -50%;
+			}
+			
+			.tipsdown {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			-webkit-tap-highlight-color: transparent;
+			-webkit-user-select: none;
+			user-select: none;
+			
+				position: fixed;
+				top: 0;
+				right: 0;
+				left: 0;
+				bottom: 0;
+				z-index: 1001;
+				background: rgba(0, 0, 0, 0.5);
+				display: none;
+			}
+			
+			.tipsdown img {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			-webkit-tap-highlight-color: transparent;
+			-webkit-user-select: none;
+			user-select: none;
+			
+			position: relative;
+			width: 100%;
+			height: 50%;
+			/* display: none; */
+			
+				/*width: 5.88rem;*/
+				/*height: 3.02rem;*/
+				position: absolute;
+				top: .49rem;
+				right: .32rem;
+			}
+			
+		</style>
+	</head>
+	<body style="background: #FF6981;">
+		<div class="swiper-container">
+		    <div class="swiper-wrapper">
+		        <div class="swiper-slide">
+		        	<img src="$!{Const.getCdn()}/img/share/otherPlatform/bg1.png"/>
+		        	<div class="txtGroup">
+		        		<p>我是一个美丽的人<br />邀请你一起和美女约会<br /></p>
+		        	</div>
+		        	<div class="download_btn"><a class="downloadButton" >立即下载</a></div>
+		        </div>
+		        <div class="swiper-slide">
+		        	<img src="$!{Const.getCdn()}/img/share/otherPlatform/bg2.png"/>
+		        	<div class="download_btn"><a class="downloadButton" >立即下载</a></div>
+		        </div>
+		        <div class="swiper-slide">
+		        	<img src="$!{Const.getCdn()}/img/share/otherPlatform/bg3.png"/>
+		        	<div class="download_btn"><a class="downloadButton" >立即下载</a></div>
+		        </div>
+		    </div>
+		   
+		    <div id="tipsdown" class="tipsdown">
+			<img src="$!{Const.getCdn()}/img/share/enterprise/fenxiangtishi@2x.png" alt="">
+			</div>
+		   
+		    <!-- 如果需要分页器 -->
+		    <div class="swiper-pagination"></div>
+		</div>
+		
+		<script>
+			$(document).ready(function() {
+				//适配屏幕
+				setTimeout(function(){
+					screenFix(375);
+				},500);
+	
+				var mySwiper = new Swiper('.swiper-container', {
+					direction: 'horizontal',
+					loop: false,
+					pagination: '.swiper-pagination'
+	
+				});
+			});
+	
+			function $id(id) {
+				    return document.getElementById(id);
+			}
+			  
+			function downAppBut() {
+				var downloadUrl = "";
+				if(mobileType == 1) {
+					downloadUrl = "$!{apkPath}";
+				} else if(mobileType == 2) {
+					      if (/qq|weibo|baidu/i.test(navigator.userAgent)) {
+					       		$id('tipsdown').style.display = 'block';
+					        	return;
+					      }else{
+					    	  	//downloadUrl = "itms-services://?action=download-manifest&url=$!{iosPath}";
+					    	  	downloadUrl = "https://itunes.apple.com/cn/app/id1498882755";
+					      }
+					
+				}
+				window.location.href = downloadUrl;
+			}
+		 </script>
+
+ 
+  
+<script type="text/javascript">
+	
+	
+	var data = {"inviteKey":"$!{inviteCode}"};//也可以是js Object
+	
+	
+	new OpenInstall({
+		
+	    //appKey必选参数，openinstall平台为每个应用分配的ID
+	    appKey : "$!{appKey}",
+		
+	    
+	    // _pkgId:"5944407939956293864",
+	    onready : function() {
+			var m = this;
+			var buttonList = document.getElementsByClassName("downloadButton");
+			//button.style.visibility = "visible";
+
+			//在app已安装的情况尝试拉起app
+			//m.schemeWakeup();
+			//用户点击某个按钮时(假定按钮id为downloadButton)，安装app
+			for(var i=0;i<buttonList.length;i++){
+				buttonList[i].style.visibility = "visible";
+				buttonList[i].onclick = function() {
+					if(mobileType == 2) {
+					      if (/qq|weibo|baidu/i.test(navigator.userAgent)) {
+					       		$id('tipsdown').style.display = 'block';
+					        	return;
+					  		}
+					}
+					m.wakeupOrInstall();
+					return false;
+				}
+			}
+			
+	
+		}
+	    
+	
+	}, data);
+	
+</script>
+		 
+</body>
+</html>

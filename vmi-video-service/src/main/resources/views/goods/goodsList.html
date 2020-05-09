@@ -1,0 +1,110 @@
+<!--领取商品：商品列表页,展示用户获得的价值xxx元的礼包列表
+	入口：我的钱包-领取商品（安卓简易版本）/ 签到满一个月后也可以领取
+	$!{Const.getCdn('')}
+	$!{Const.getWebSite()} 路径地址
+-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/reset.css')}"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/common.css')}"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/goods/goods.css')}"/>
+		<!--辨别设备 mobileType 安卓：1，IOS：2-->
+		<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+		<!-- 安卓手机底部返回键事件 -->
+		<script src="$!{Const.getCdn('/js/client/requestGoBack_android.js')}" type="text/javascript" charset="utf-8"></script>
+		<title>领取商品</title>
+	</head>
+	<body>
+		<div id="ios_statusBar"></div><!--ios顶部状态栏-->
+		<div id="navigationBar">
+			<img src="$!{Const.getCdn('/img/public/backIcon_black.png')}" class="navBackBtn" onclick="navBackBtnAction()"/>
+			<p class="navTitle">领取商品</p>
+			<div class="navRightLink">
+				<a onclick="gotoRecordPage()">记录</a><a onclick="gotoRulePage()">说明</a>
+			</div>
+		</div>
+		<div class="mainBox_hasNav">
+			#if($groupList.size()==0)
+			<!--part01_是否有豪礼包的列表-->
+			<p class="giftList_n">您还没有领取机会哦，超值豪礼，等你来拿~</p> <!--没有领取资格时显示-->
+			#else
+			<!--有领取资格时显示-->
+			<ul class="giftList_y">
+				<!-- 循环li -->
+				#foreach($group in $groupList)
+					<li onclick="gotoDetailFragment($!{group.group_id},$!{group.id})">
+						<p>$!{group.group_detail}</p>
+						<span>领取</span>
+					</li>
+				#end
+			</ul>
+			#end
+			<!--part02_所有商品列表-->
+			<ul class="allGoodsList clear">
+				#foreach($commodity in $commodityList)
+					 <!--后台配置的图片最好剪裁一下   循环li-->
+					<li>
+						<div class="pic"><img src="$!{commodity.photo}" /></div> <!-- 商品图片 -->
+						<p>$!{commodity.name}</p>
+					</li>
+				#end
+			</ul>
+		</div>
+		<script src="$!{Const.getCdn('/js/public/jquery/jquery-2.1.4.min.js')}" type="text/javascript" charset="utf-8"></script>
+		<!--zoom.js适配屏幕-->
+		<script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			//导航栏返回按钮事件
+			function navBackBtnAction(){
+				gotoAppBack();
+			};
+			//安卓：APP返回到h5时响应的事件
+		   function updateUserInfo(str) {
+			   window.location.reload();
+		   }
+			//跳转到"goodsDetail.html"
+			function gotoDetailFragment(group_id,id){
+				if(mobileType = 1){
+				   var detailUrl = "$!{Const.getWebSite()}/api/commodity/getCommodityListOfGroup?group_id="+group_id+"&id="+id;
+				   closeCurrentWindow();
+				   window.target.gotoAppPage('WebSingleSaveFragment',JSON.stringify({"strValue1":detailUrl}));
+			   	}else if(mobileType = 2){
+				   window.location.href = "${rc.contextPath}/api/commodity/getCommodityListOfGroup?group_id="+group_id+"&id="+id;
+			   	}
+			};
+			//跳转到"商品记录页面"
+			function gotoRecordPage(){
+				if(mobileType = 1){
+				   var recordUrl = "$!{Const.getWebSite()}/api/commodity/getRecord"
+				   closeCurrentWindow();
+				   window.target.gotoAppPage('WebSingleSaveFragment',JSON.stringify({"strValue1":recordUrl}));
+			   	}else if(mobileType = 2){
+				   window.location.href = "${rc.contextPath}/api/commodity/getRecord"
+			   	}
+			};
+			//跳转到"商品说明页面"
+			function gotoRulePage(){
+				if(mobileType = 1){
+				   var ruleUrl = "$!{Const.getWebSite()}/api/commodity/rule"
+				   closeCurrentWindow();
+				   window.target.gotoAppPage('WebSingleSaveFragment',JSON.stringify({"strValue1":ruleUrl}));
+			   	}else if(mobileType = 2){
+				   window.location.href = "${rc.contextPath}/api/commodity/rule"
+			   	}
+			};
+			$(document).ready(function(){
+				//适配屏幕
+				setTimeout(function(){
+					screenFix(375);
+				},300);
+				//"导航栏"写在H5端时使用：安卓/ios的状态栏高度不一样
+				resetNavigationBar(); //定义在common.js中
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,373 @@
+<!-- 绑定手机号 -->
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+	<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/myReset.css')}" />
+	<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/common.css')}" />
+	<!-- layer.css/js与弹窗相关插件 -->
+	<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/js/layer_mobile/layer.css')}" />
+	<script src="$!{Const.getCdn('/js/layer_mobile/layer.js')}" type="text/javascript" charset="utf-8"></script>
+	<style type="text/css">
+		body {
+			background: #fafafa;
+		}
+
+		.mainBox_hasNav {
+			width: 100%;
+			height: 13.34rem;
+			background: url('$!{Const.getCdn()}/img/wallet/bindBg.png') no-repeat center;
+			background-size: 100% 100%;
+			position: relative;
+		}
+		
+		.mainBox_hasNavTel {
+			width: 100%;
+			height: 13.34rem;
+			background: url('$!{Const.getCdn()}/img/wallet/bindTelBg.png') no-repeat center;
+			background-size: 100% 100%;
+			position: relative;
+		}
+
+
+		.buyInfo {
+			background-color: #fff;
+			line-height: 50px;
+			font-size: 16px;
+			padding: 0 13px;
+			border-bottom: 10px solid #eee;
+		}
+
+		.buyInfo p:nth-of-type(2) {
+			color: #666;
+		}
+
+		.payWay {
+			background-color: #fafafa;
+			position: absolute;
+			top: 65%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			-webkit-transform: translate(-50%, -50%);
+			/* for Chrome || Safari */
+			-moz-transform: translate(-50%, -50%);
+			/* for Firefox */
+			-ms-transform: translate(-50%, -50%);
+			/* for IE */
+			-o-transform: translate(-50%, -50%);
+			/* for Opera */
+			border-radius: 10px;
+			height: 7rem;
+			width: 6.5rem;
+		}
+
+		.payWay li {
+			font-size: 14px;
+			border-bottom: 1px solid #eee;
+			margin: 0 0.2rem;
+			vertical-align: middle;
+			text-align: left;
+		}
+
+		.payWay li label {
+			display: block;
+			width: 100%;
+			height: 1rem;
+			line-height: 1rem;
+		}
+
+		/* 支付方式选中状态 */
+		.payWay input[type="radio"]+i.radioCircle {
+			width: 22px;
+			height: 22px;
+			display: inline-block;
+			border-radius: 11px;
+			-webkit-border-radius: 11px;
+			border: 1px solid #bbb;
+			position: absolute;
+			right: 13px;
+			top: 50%;
+			margin-top: -11px;
+		}
+
+		.payWay input[type="radio"]:checked+i.radioCircle {
+			background: url('$!{Const.getCdn()}/img/public/radioChecked_icon.png') no-repeat;
+			background-position: 0 0;
+			background-size: contain;
+			border: none;
+		}
+
+		.payBtn {
+			position: absolute;
+			bottom: 10%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			-webkit-transform: translate(-50%, -50%);
+			/* for Chrome || Safari */
+			-moz-transform: translate(-50%, -50%);
+			/* for Firefox */
+			-ms-transform: translate(-50%, -50%);
+			/* for IE */
+			-o-transform: translate(-50%, -50%);
+			/* for Opera */
+			width: 50%;
+			line-height: 0.8rem;
+			font-size: 0.35rem;
+			color: #fff;
+			background: url('$!{Const.getCdn()}/img/wallet/bindOK.png') no-repeat center;
+			background-size: 100% 100%;
+			text-align: center;
+		}
+
+		.recodeBtn {
+			position: absolute;
+			color: #fafafa;
+			right: 4%;
+			top: 3%;
+			background: #999;
+			border-radius: 6px;
+			width: 2rem;
+			height: 0.6rem;
+			text-align: center;
+			line-height: 0.6rem;
+			font-size: 0.3rem;
+		}
+
+		.pleaseTel {
+			font-size: 0.32rem;
+			color: #470909;
+		}
+
+		#mobile {
+			border: none;
+			font-size: 17px;
+			color: #666;
+			background: #fafafa;
+		}
+
+		#recode {
+			border: none;
+			font-size: 17px;
+			color: #666;
+			background: #fafafa;
+		}
+	</style>
+	<title>绑定手机号</title>
+
+</head>
+
+<body>
+	<!--  
+		<div id="ios_statusBar" style="display:block"></div>
+		<div id="navigationBar" class="navigationBar_ios">
+			<img src="$!{Const.getCdn('/img/public/backIcon_black.png')}" class="navBackBtn" onclick="navBackBtnAction()"/>
+			<p class="navTitle">请绑定手机号</p>
+		</div>
+		-->
+	<div class="mainBox_hasNav" id="background">
+		<ul class="payWay">
+			<li>
+				<label for="zfb">
+					<span class='pleaseTel'></span>
+					<span><input type="text" name="mobile" placeholder="请输入手机号" id="mobile" /></span>
+					<a id="btn" onclick="getReCode(this)" class="recodeBtn">获取验证码</a>
+				</label>
+			</li>
+			<li>
+				<label for="wx">
+					<span class='pleaseTel'></span>
+					<span><input type="text" name="recode" placeholder="请输入验证码" id="recode" /></span>
+				</label>
+			</li>
+			<a onclick="modifyAction()" class="payBtn">确定</a>
+		</ul>
+	</div>
+
+</body>
+
+</html>
+<script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+<script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+<!--zoom.js适配屏幕-->
+<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+<!-- 判断手机型号 安卓1，iOS2 -->
+<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+<!-- client.js与客户端定义的事件 -->
+<script type="text/javascript">
+	var httpHeader = '$!{encrypt}';
+	//验证码倒计时
+	function invokeSettime(obj) {
+		var countdown = 60;
+		settime(obj);
+
+		function settime(obj) {
+			if (countdown == 0) {
+				$(obj).attr("disabled", false);
+				$(obj).text("获取验证码");
+				countdown = 60;
+				return;
+			} else {
+				$(obj).attr("disabled", true);
+				$(obj).text("(" + countdown + ") s 重新发送");
+				countdown--;
+			}
+			setTimeout(function () {
+				settime(obj)
+			}, 1000)
+		}
+	}
+
+	// 顶部|底部 导航栏返回事件
+	function requestGoBack() {
+		gotoAppBack();
+	}
+
+	function getReCode(obj) {
+		var mobile = $('#mobile').val()
+		if (!(/^1(3|4|5|7|8|9)\d{9}$/.test(trim(mobile)))) {
+			layer.open({
+				content: '请输入正确的手机号',
+				skin: 'msg',
+				time: 2 //2秒后自动关闭
+			});
+			return;
+		}
+
+		invokeSettime(obj);
+		var param = {
+			"mobile": mobile
+		}
+		$.ajax({
+			url: '${rc.contextPath}/api/userSafe/bindingMobile',
+			type: 'post',
+			data: JSON.stringify(param),
+			contentType: 'application/json;charset=utf-8',
+			headers: {
+				'header-encrypt-code': httpHeader
+			},
+			dataType: "json",
+			success: function (ret) {
+				//提示
+				if (ret.code == 0) {
+					//提示
+					layer.open({
+						content: '发送成功',
+						skin: 'msg',
+						time: 2 //2秒后自动关闭
+					});
+
+				} else {
+					//提示
+					layer.open({
+						content: ret.codemsg,
+						skin: 'msg',
+						time: 2 //2秒后自动关闭
+					});
+				}
+			},
+			complete: function () {
+
+			}
+		});
+	};
+	// 立即支付按钮事件
+	function modifyAction() {
+		var mobile = $('#mobile').val();
+		var recode = $('#recode').val();
+
+		if (!(/^1(3|4|5|7|8|9)\d{9}$/.test(trim(mobile)))) {
+			layer.open({
+				content: '请输入正确的手机号',
+				skin: 'msg',
+				time: 2 //2秒后自动关闭
+			});
+			return;
+		}
+
+		if ('' == trim(recode)) {
+			layer.open({
+				content: '验证码不能为空',
+				skin: 'msg',
+				time: 2 //2秒后自动关闭
+			});
+			return;
+		}
+
+
+		var param = {
+			"mobile": mobile,
+			"recode": recode,
+		}
+		$.ajax({
+			url: '${rc.contextPath}/api/userSafe/updateMobile',
+			type: 'post',
+			data: JSON.stringify(param),
+			contentType: 'application/json;charset=utf-8',
+			headers: {
+				'header-encrypt-code': httpHeader
+			},
+			dataType: "json",
+			success: function (ret) {
+				if (ret.code == 0) {//ret.data.data
+					//提示
+					layer.open({
+						content: '绑定成功',
+						skin: 'msg',
+						time: 2 //2秒后自动关闭
+					});
+					setTimeout(function () {
+						gotoAppBack();
+					}, 4 * 1000);
+				} else {
+					//提示
+					layer.open({
+						content: ret.codemsg,
+						skin: 'msg',
+						time: 2 //2秒后自动关闭
+					});
+				}
+			},
+			complete: function () {
+
+			}
+		});
+	}
+
+
+	function trim(str) {
+		return str.replace(/(^\s*)|(\s*$)/g, "");
+	}
+	
+	//picFlag 1是vip背景图是话费，0不是vip背景图是积分
+	var picFlag = '${picFlag}';
+	if (picFlag == 1) {
+		$('#background').addClass('mainBox_hasNavTel').siblings().removeClass('mainBox_hasNav');
+	} else if (picFlag == 0) {
+		return
+	}
+
+	//跳转到'签到任务'页面 返回上一页
+	// 1是vip用户跳转领话费页面，0返回积分签到页面
+	var phoneMoneyFlag = '${phoneMoneyFlag}';
+	var phoneUrl = '${phoneUrl}';
+
+	function gotoAppBack() {
+		if (mobileType == 1) {
+			if (phoneMoneyFlag == 1) {
+				window.location.href = phoneUrl;
+			} else if (phoneMoneyFlag == 0) {
+				window.target.action(1);
+			}else{
+				window.target.action(1);
+			}			
+			// var actionUrl = "$!{Const.getWebSite()}/api/signTask/init";
+		} else if (mobileType == 2) {
+			window.webkit.messageHandlers.backPage.postMessage(0);
+			// window.location.href = "${rc.contextPath}/api/signTask/init";
+		}
+	}
+</script>

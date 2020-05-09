@@ -1,0 +1,39 @@
+<!--分享出去的 在微信，QQ等打开的 带有下载链接的页面:适用安卓简版-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+		<meta name="screen-orientation" content="portrait" />
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+		<meta name="format-detection" content="telephone=no">
+		<title>$!{appName}</title>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/reset.css')}" />
+		<script src="$!{Const.getCdn('/js/public/jquery/jquery-2.1.4.min.js')}" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+	</head>
+	<body>
+		<img src="$!{Const.getCdn('/img/share/otherPlatform_androidSimple/downLoad.png')}" onclick="appinstall()"/>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				//适配屏幕
+				setTimeout(function(){
+					screenFix(375);
+				},300);
+			});
+			
+			function appinstall() {
+				var downloadUrl = "";
+				if(mobileType == 1) {
+					downloadUrl = "http://a.app.qq.com/o/simple.jsp?pkgname=com.ydwx.yoyo";
+				} else if(mobileType == 2) {
+					downloadUrl = "https://itunes.apple.com/us/app/id1329177066";
+				}
+				window.location.href = downloadUrl;
+			}
+		</script>
+		
+	</body>
+</html>

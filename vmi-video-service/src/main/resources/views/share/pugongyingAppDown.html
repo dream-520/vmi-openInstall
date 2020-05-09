@@ -1,0 +1,84 @@
+<html>
+    <head>
+        <title>测试安装 Demo</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+        <meta name="vip-short-url" content="https://zc.pgyer.com/6mJT" />
+        <meta name="vip-auto" content="1" />
+    </head>
+    <body>
+        <div style="max-width:400px;">
+            <h1>示例样式</h1>
+            <h4>带有进度条的按钮</h4>
+            <div style="max-width:300px;padding:5px;">
+                <!-- 从这里开始复制 安装样式 代码 -->
+                <style type="text/css">
+                    .demo1-btn {
+                        min-width: 76px;
+                        height: 30px;
+                        color: rgb(255, 255, 255);
+                        background-image:linear-gradient(to right, transparent 100%, rgb(200, 200, 200) 100%);
+                        background-color: rgb(52, 120, 246);
+                        border-radius: 15px;
+                        border: 1px solid rgb(200, 200, 200);
+                        font-size: 14px;
+                        line-height: 28px;
+                        text-align: center;
+                        padding: 0px 20px;
+                        outline: none;
+                    }
+                    .demo1-btn:active {
+                        background-color: rgb(50, 115, 230);
+                    }
+                </style>
+                <button role="vip.install" class="demo1-btn" id="install-button">安装</button>
+                <script type="text/javascript" src="https://zc.pgyer.com/static/sdk/vip.min.js"></script>
+                <script type="text/javascript">
+                    var button = document.getElementById('install-button');
+                    var currentProgress = 100;
+                    var progressTimer = null;
+
+                    function setProgress(progress) {
+                        progress = progress > 100 ? 100 : progress;
+                        progress = progress < 0 ? 0 : progress;
+                        currentProgress = progress;
+                        activeProgress();
+                    }
+
+                    function activeProgress () {
+                        if (currentProgress < 95) {
+                            currentProgress++;
+                            clearTimeout(progressTimer);
+                            progressTimer = setTimeout(activeProgress, 250);
+                        }
+                        button.setAttribute('style', 'background-image:linear-gradient(to right, transparent ' + currentProgress + '%, rgb(200, 200, 200) ' + currentProgress + '%);');
+                    }
+
+                    setProgress(currentProgress);
+                    progressTimer = setTimeout(activeProgress, 250);
+
+                    signSDK.onPhaseChange = function (phase) {
+                        setProgress(phase.progress);
+                        if (phase.phase === 0) {
+                            button.disabled = true;
+                            button.innerHTML = '正在准备';
+                        } else if (phase.phase === 1) {
+                            button.disabled = true;
+                            button.innerHTML = '安装描述文件以完成验证';
+                        } else if (phase.phase === 2) {
+                            button.disabled = true;
+                            button.innerHTML = '正在验证设备';
+                        } else if (phase.phase === 3) {
+                            button.disabled = true;
+                            button.innerHTML = '打开后点击安装即可安装';
+                        } else if (phase.phase === -1) {
+                            button.disabled = false;
+                            button.innerHTML = '安装失败, 重新安装';
+                        }
+                    }
+                </script>
+                <!-- 复制 安装样式 代码结束 -->
+            </div>
+        </div>
+    </body>
+<html>

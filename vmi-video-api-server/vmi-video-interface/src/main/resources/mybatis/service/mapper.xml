@@ -1,0 +1,656 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//ibatis.apache.org//DTD Config 3.0//EN"
+  "http://ibatis.apache.org/dtd/ibatis-3-config.dtd">
+
+<configuration>
+  <settings>
+    <!-- 将下划线字段名称映射为驼峰变量  -->
+    <!-- <setting name="mapUnderscoreToCamelCase" value="true" /> -->
+
+    <!-- mybatis进行延迟加载 -->
+    <setting name="lazyLoadingEnabled" value="false"/>
+  </settings>
+
+  <typeAliases>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.SendSmsEntity" alias="sendSms"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserEntity" alias="user"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.DeviceEntity" alias="device"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserDeviceRefEntity" alias="userDeviceRef"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.SequenceEntity" alias="sequence"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserFriendsEntity" alias="userFriends"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.AdminEntity" alias="admin"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.AdminLogEntity" alias="adminLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.AdminMenuEntity" alias="adminMenu"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.AdminRoleEntity" alias="adminRole"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.AdminRoleMenuEntity" alias="adminRoleMenu"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserToOtherEntity" alias="userToOther"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.SysConfigEntity" alias="sysConfig"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppLoginEntity" alias="appLogin"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserMemoEntity" alias="userMemo"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.TaskEntity" alias="task"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.TaskUserCompleteEntity" alias="taskUserComplete"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppAreaEntity" alias="appArea"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserOnlineLogEntity" alias="userOnlineLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.RechargeChannelEntity" alias="rechargeChannel"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.RechargePriceEntity" alias="rechargePrice"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserDiamondAccountEntity" alias="userDiamondAccount"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserDiamondAccountLogEntity" alias="userDiamondAccountLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.CashFlowEntity" alias="cashFlow"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.MessageTemplateEntity" alias="messageTemplate"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.BannerEntity" alias="banner"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.BannerGroupEntity" alias="bannerGroup"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppVersionEntity" alias="appVersion"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppChannelEntity" alias="appChannel"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppPackageEntity" alias="appPackage"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.BussinessMessageEntity" alias="bussinessMessage"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.StaticUserRemainCashEntity" alias="staticUserRemainCash"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserGeoEntity" alias="userGeo"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserExtensionEntity" alias="userExtension"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserBalanceAccountEntity" alias="userBalanceAccount"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserBalanceAccountLogEntity" alias="userBalanceAccountLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserBlacklistEntity" alias="userBlacklist"/>
+    <!-- 统计 -->
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsUserRechargeEntity" alias="statisticsUserRecharge"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsUserTotalEntity" alias="statisticsUserTotal"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.FirstLoginLogEntity" alias="firstLoginLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.FirstShareLogEntity" alias="firstShareLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserLoginLogEntity" alias="userLoginLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserDynamicEntity" alias="userDynamic"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserDynamicContentEntity" alias="userDynamicContent"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserDynamicFavorEntity" alias="userDynamicFavor"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserPhotoResourceEntity" alias="userPhotoResource"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserCreditScoreEntity" alias="userCreditScore"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserPayActionEntity" alias="userPayAction"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.RechargeOrderEntity" alias="rechargeOrder"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserInformEntity" alias="userInform"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserVideoAuthEntity" alias="userVideoAuth"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserIncomeAccountEntity" alias="userIncomeAccount"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserIncomeAccountLogEntity" alias="userIncomeAccountLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserIncomeWithdrawalEntity" alias="userIncomeWithdrawal"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.CouponEntity" alias="coupon"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.CouponTemplateEntity" alias="couponTemplate"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.VipEntity" alias="vip"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.VipCategoryEntity" alias="vipCategory"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.VipLogEntity" alias="vipLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.VipSingleEntity" alias="vipSingle"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserInviteEntity" alias="userInvite"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserInviteMappingEntity" alias="userInviteMapping"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserInvitecodeEntity" alias="userInvitecode"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.ProxyEntity" alias="proxy"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.ProxyTransEntity" alias="proxyTrans"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.ProxyWithdramEntity" alias="proxyWithdram"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.TalentVipCategoryEntity" alias="talentVipCategory"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.TalentVipEntity" alias="talentVip"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.TalentVipLogEntity" alias="talentVipLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserCreditScoreLogEntity" alias="userCreditScoreLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserCharmEntity" alias="userCharm"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserMypageActivityEntity" alias="userMypageActivity"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserFriendsAddLogEntity" alias="userFriendsAddLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserCharmEntity" alias="userCharm"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.SmsDelayQueueEntity" alias="smsDelayQueue"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserLookContactsLogEntity" alias="userLookContactsLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.BadgePriceEntity" alias="badgePrice"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserHonestyBadgeEntity" alias="userHonestyBadge"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserHonestyBadgeLogEntity" alias="userHonestyBadgeLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.TalentVacuateEntity" alias="talentVacuate"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserTalentVipStatisticsEntity" alias="userTalentVipStatistics"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppointSiteEntity" alias="appointSite"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppointSiteOrderEntity" alias="appointSiteOrder"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.MeetstrangerNoticeEntity" alias="meetstrangerNotice"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.TalentPriceEntity" alias="talentPrice"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.HomePopEntity" alias="homePop"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.RedFlowerEntity" alias="redFlower"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.RedFlowerAccountEntity" alias="redFlowerAccount"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserBgPictureEntity" alias="userBgPicture"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.HomePopLogEntity" alias="homePopLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserPrivacySecurityEntity" alias="userPrivacySecurity"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserScvcAccountEntity" alias="userScvcAccount"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserScvcAccountLogEntity" alias="userScvcAccountLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserVideoChatRecordEntity" alias="userVideoChatRecord"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserVideoChatRecordLogEntity" alias="userVideoChatRecordLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.HotCategoryEntity" alias="hotCategory"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserSvipEntity" alias="userSvip"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserChargeDataLogEntity" alias="userChargeDataLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.PaySvipFlowEntity" alias="paySvipFlow"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.TalentLevelEntity" alias="talentLevel"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserLuckyDrawLogEntity" alias="userLuckyDrawLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserTypeFeedbackEntity" alias="userLuckyDrawLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.TopHeadInfoEntity" alias="topHeadInfo"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UploadAppEntity" alias="uploadApp"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserRegLogEntity" alias="userRegLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.DownloadStatisticsEntity" alias="downloadStatistics"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.StaticDownloadChannelEntity" alias="staticDownloadChannel"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.StaticDownloadVisitEntity" alias="staticDownloadVisit"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.ShareVipCardEntity" alias="shareVipCard"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserRightCheckedLogEntity" alias="userRightCheckedLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.WorldCupBetLogEntity" alias="worldCupBetLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.WorldCupGameEntity" alias="worldCupGame"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserChatGiftEntity" alias="userChatGift"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserChatGiftLogEntity" alias="userChatGiftLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.RouletteWheelLogEntity" alias="rouletteWheelLog"/>
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.RechargeCustomCategoryEntity" alias="rechargeCustomCategory" />
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.RechargeCustomMobileEntity" alias="rechargeCustomMobile" />
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.RechargeCustomPriceEntity" alias="rechargeCustomPrice" />
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.EnergyCustomCategoryEntity" alias="energyCustomCategory" />
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.EnergyCustomMobileEntity" alias="energyCustomMobile" />
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.EnergyCustomPriceEntity" alias="energyCustomPrice" />
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.EnergyOrderEntity" alias="energyOrder" />
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserEnergyAccountEntity" alias="userEnergyAccount" />
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserEnergyAccountLogEntity" alias="userEnergyAccountLog" />
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserTextChatRecordEntity" alias="userTextChatRecord" />
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsUserEnergyRechargeEntity" alias="statisticsUserEnergyRecharge" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorOnlineEntity" alias="anchorOnline" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.BSequenceEntity" alias="bSequence" />
+ 	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VchatRoomEntity" alias="vchatRoom" />
+ 	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VUserInfoEntity" alias="vUserInfo" />
+ 	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppLabelEntity" alias="appLabel" />
+ 	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorEvaluationLogEntity" alias="anchorEvaluationLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorEvaluationStatisticsEntity" alias="anchorEvaluationStatistics" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.ShortVideoEntity" alias="shortVideo" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.ShortVideoPraiseLogEntity" alias="shortVideoPraiseLog" />
+ 	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserLevelEntity" alias="userLevel" />
+ 	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorIntimateRankingsEntity" alias="anchorIntimateRankings" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AaPEntity" alias="aaP" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AaPdEntity" alias="aaPd" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AVEntity" alias="aV" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AMOnlineEntity" alias="aMOnline" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AMPageEntity" alias="aMPage" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AMDayTimesEntity" alias="aMDayTimes" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AMDayTotalEntity" alias="aMDayTotal" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AMDayIncomeEntity" alias="aMDayIncome" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserSignCardEntity" alias="userSignCard" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserSignLogEntity" alias="userSignLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserSignRechargeEntity" alias="userSignRecharge" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.CommodityEntity" alias="commodity" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.CommodityGroupEntity" alias="commodityGroup" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.CommodityShipmentsEntity" alias="commodityShipments" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.CommodityGroupRelationshipEntity" alias="commodityGroupRelationship" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserPayTimerEntity" alias="userPayTimer" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppTabEntity" alias="appTab" />
+  	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.ShortVideoWatchDayLogEntity" alias="shortVideoWatchDayLog" />
+  	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppStartSendMsgEntity" alias="appStartSendMsg" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppStartMsgUserEntity" alias="appStartMsgUser" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.GlobalBroadcastEntity" alias="globalBroadcast" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VGiftEntity" alias="vGift" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VPageEntity" alias="vPage" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VRobotInfoEntity" alias="vRobotInfo" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VRobotLoginLogEntity" alias="vRobotLoginLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VUserDataEntity" alias="vUserData" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VUserGiftEntity" alias="vUserGift" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VUserGiftListEntity" alias="vUserGiftList" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VUserGiftStatEntity" alias="vUserGiftStat" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VUserInfoEntity" alias="vUserInfo" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VUserOnlineEntity" alias="vUserOnline" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VUserOnlineStatEntity" alias="vUserOnlineStat" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VUserOnlineStatMoneyEntity" alias="vUserOnlineStatMoney" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VUserOnlineStatTimesEntity" alias="vUserOnlineStatTimes" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VUserPageEntity" alias="vUserPage" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.IosDistributionDetailEntity" alias="iosDistributionDetail" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.IosDistributionPlatformEntity" alias="iosDistributionPlatform" />
+ 	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.ShortVideoTranscodeEntity" alias="shortVideoTranscode" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsUserDataStreamEntity" alias="statisticsUserDataStream" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsUserVchatDataEntity" alias="statisticsUserVchatData" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorTimeStatisticsEntity" alias="anchorTimeStatistics" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorIncomeCheckEntity" alias="anchorIncomeCheck" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsUserPayEntity" alias="statisticsUserPay" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserMobileAskEntity" alias="userMobileAsk" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.VchatChannelEntity" alias="vchatChannel" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppControllEntity" alias="appControll" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorIncomeInitiativeCheckEntity" alias="anchorIncomeInitiativeCheck" />
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorIncomeInitiativePayEntity" alias="anchorIncomeInitiativePay" />
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorToUserEvaluationLogEntity" alias="anchorToUserEvaluationLog" />
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsPlatformAllowanceEntity" alias="statisticsPlatformAllowance" />
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsUserCallAnchorCheckEntity" alias="statisticsUserCallAnchorCheck" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsAnchorUserTotalCheckEntity" alias="statisticsAnchorUserTotalCheck" />
+    <typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsUserPayAnalysisEntity" alias="statisticsUserPayAnalysis" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorImageEntity" alias="anchorImage" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsAnchorDataStreamEntity" alias="statisticsAnchorDataStream" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppAllowanceUserEntity" alias="appAllowanceUser" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorRecvUserEntity" alias="anchorRecvUser" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorApplyPushEntity" alias="anchorApplyPush" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserChatGiftStatisticsEntity" alias="userChatGiftStatistics" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.MessageUserReadEntity" alias="messageUserRead" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppAllowanceMoneyUserEntity" alias="appAllowanceMoneyUser" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppRankingEntity" alias="appRanking" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.FreeVideoChatExperienceEntity" alias="freeVideoChatExperience" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserChatGiftLogFakeEntity" alias="userChatGiftLogFake" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserChatGiftStatisticsFakeEntity" alias="userChatGiftStatisticsFake" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppAllowanceUserShowEntity" alias="appAllowanceUserShow" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorIntimateRankingsFakeEntity" alias="anchorIntimateRankingsFake" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppMsgDetailEntity" alias="appMsgDetail" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppIosDeviceUdidEntity" alias="appIosDeviceUdid" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsAnchorTransUserPayIncomeEntity" alias="statisticsAnchorTransUserPayIncome" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppAreaCityEntity" alias="appAreaCity" />
+
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserDiamondPriceWatchLogEntity" alias="userDiamondPriceWatchLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserChatTurntableEntity" alias="userChatTurntable" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserChatTurntableLogEntity" alias="userChatTurntableLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserFirstRechargeLogEntity" alias="userFirstRechargeLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.DeviceBaseStationEntity" alias="deviceBaseStation" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserNoWithdrawalBoundsEntity" alias="userNoWithdrawalBounds" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorAudioEntity" alias="anchorAudio" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.ActivityStarAnchorEntity" alias="activityStarAnchor" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.ActivityStarIssueEntity" alias="activityStarIssue" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.ActivityStarUserPrizeEntity" alias="activityStarUserPrize" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.ActivityStarUserVoteEntity" alias="activityStarUserVote" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.RedFlowerPriceEntity" alias="redFlowerPrice" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.RedFlowerOrderEntity" alias="redFlowerOrder" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.RedFlowerAccountLogEntity" alias="redFlowerAccountLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorVideoCheckEntity" alias="anchorVideoCheck" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorVideoCheckWarnEntity" alias="anchorVideoCheckWarn" />
+	
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserTextChatInfoLogEntity" alias="userTextChatInfoLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorShutEntity" alias="anchorShut" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorOnlineTimeStatisticsEntity" alias="anchorOnlineTimeStatistics" />
+	
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.HomePopVersionLogEntity" alias="homePopVersionLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppVersionUpgradePopEntity" alias="appVersionUpgradePop" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserPaySendDiamondEntity" alias="userPaySendDiamond" />
+	
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorLevelManagerEntity" alias="anchorLevelManager" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorLevelMonitorEntity" alias="anchorLevelMonitor" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorLevelCheckEntity" alias="anchorLevelCheck" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppSendMessageUserEntity" alias="appSendMessageUser" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserVchatExperienceIncomeLogEntity" alias="userVchatExperienceIncomeLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorTagEntity" alias="anchorTag" />
+	<!-- 签到任务 -->
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserPointAccountEntity" alias="userPointAccount" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserPointAccountLogEntity" alias="userPointAccountLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserSignControlEntity" alias="userSignControl" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserTaskEntity" alias="userTask" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserTaskLogEntity" alias="userTaskLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserTaskLogEntity" alias="userTaskLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppMsgSceneUserEntity" alias="appMsgSceneUser" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppMsgSceneDetailEntity" alias="appMsgSceneDetail" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.RootUserRegLogEntity" alias="rootUserRegLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorRobotSendGiftEntity" alias="anchorRobotSendGift" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppShamDailEntity" alias="appShamDail" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorDeductEntity" alias="anchorDeduct" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.LaborEntity" alias="labor" />
+	
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.GuardVipCategoryEntity" alias="guardVipCategory" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.GuardVipOrderEntity" alias="guardVipOrder" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorDefendEntity" alias="anchorDefend" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorDefendLogEntity" alias="anchorDefendLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsLaborAnchorTransEntity" alias="statisticsLaborAnchorTrans" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.KuaiShouAdDataEntity" alias="kuaiShouAdData" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.KuaiShouAdConfirmEntity" alias="kuaiShouAdConfirm" />
+	
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserTextChatHistoryEntity" alias="userTextChatHistory" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.MessagePushTemplateEntity" alias="messagePushTemplate" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserCanCallLogEntity" alias="userCanCallLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserInviteCpsIncomeLogEntity" alias="userInviteCpsIncomeLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserInviteCpsStatisticsEntity" alias="userInviteCpsStatistics" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.PayUserRecordEntity" alias="payUserRecord" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsAnchorOutputEntity" alias="statisticsAnchorOutput" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.PayUserLabelEntity" alias="payUserLabel" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsCpsIncomeDailyEntity" alias="statisticsCpsIncomeDaily" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsCpsShareDailyEntity" alias="statisticsCpsShareDaily" />
+ 	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppDailysqlEntity" alias="appDailysql" />
+ 	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.SlotMachineLogEntity" alias="slotMachineLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserChatGiftBoxEntity" alias="userChatGiftBox" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserChatGiftBoxLogEntity" alias="userChatGiftBoxLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorSubscribeEntity" alias="anchorSubscribe" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserBlackRoomEntity" alias="userBlackRoom" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserWeekcardAccountEntity" alias="userWeekcardAccount" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserWeekcardAccountLogEntity" alias="userWeekcardAccountLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserDailyWeekcardEntity" alias="userDailyWeekcard" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorSuperSubscribeEntity" alias="anchorSuperSubscribe" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorSuperSubscribeUserEntity" alias="anchorSuperSubscribeUser" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorSuperSubscribeDetailEntity" alias="anchorSuperSubscribeDetail" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.StatisticsPayActUserEntity" alias="statisticsPayActUser" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.BuyDialExperienceOrderEntity" alias="buyDialExperienceOrder" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.FreeVideoChatExperienceLogEntity" alias="freeVideoChatExperienceLog" /> 
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppDownloadTimesEntity" alias="appDownloadTimes" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.GlobalBroadcastVipEntity" alias="globalBroadcastVip" />
+	
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserAudioChatInfoLogEntity" alias="userAudioChatInfoLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserBuyWatchPopLogEntity" alias="userBuyWatchPopLog" />
+	
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserTariffeAccountEntity" alias="userTariffeAccount" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserTariffeAccountLogEntity" alias="userTariffeAccountLog" />
+
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserPhotoRefuseLogEntity" alias="userPhotoRefuseLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.CopyUserEntity" alias="copyUserEntity" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.CopyUserTextChatInfoLogEntity" alias="copyUserTextChatInfoLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.CopyUserChatGiftLogEntity" alias="copyUserChatGiftLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.CopyUserEntity" alias="copyUser" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.CopyUserPayActionEntity" alias="copyUserPayAction" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.CopyUserInformEntity" alias="copyUserInform" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppDailScenceEntity" alias="appDailScence" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.ThirdPartySpreadEntity" alias="thirdPartySpread" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorContactEntity" alias="anchorContact" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorContactLookEntity" alias="anchorContactLook" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorAppointEntity" alias="anchorAppoint" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorAppointUserEntity" alias="anchorAppointUser" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserLogoutLogEntity" alias="userLogoutLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AnchorUserGreetEntity" alias="anchorUserGreet" />
+	
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppPayVipUserEntity" alias="appPayVipUser" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.AppPayVipUserAnchorEntity" alias="appPayVipUserAnchor" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.IosUserLoginSmsEntity" alias="iosUserLoginSms" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserPhotoCheckedLogEntity" alias="userPhotoCheckedLog" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserAutoDialForbiddenEntity" alias="userAutoDialForbidden" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.UserSpecialRechargeEntity" alias="userSpecialRecharge" />
+	<typeAlias type="com.tigerjoys.shark.miai.inter.entity.ForbiddenRechargeEntity" alias="forbiddenRecharge" />
+  </typeAliases>
+
+  <mappers>
+    <mapper resource="mybatis/service/send-sms-mapper.xml"/>
+    <mapper resource="mybatis/service/user-mapper.xml"/>
+    <mapper resource="mybatis/service/device-mapper.xml"/>
+    <mapper resource="mybatis/service/user-device-ref-mapper.xml"/>
+    <mapper resource="mybatis/service/sequence-mapper.xml"/>
+    <mapper resource="mybatis/service/user-friends-mapper.xml"/>
+    <mapper resource="mybatis/service/admin-mapper.xml"/>
+    <mapper resource="mybatis/service/admin-log-mapper.xml"/>
+    <mapper resource="mybatis/service/admin-menu-mapper.xml"/>
+    <mapper resource="mybatis/service/admin-role-mapper.xml"/>
+    <mapper resource="mybatis/service/admin-role-menu-mapper.xml"/>
+    <mapper resource="mybatis/service/user-to-other-mapper.xml"/>
+    <mapper resource="mybatis/service/sys-config-mapper.xml"/>
+    <mapper resource="mybatis/service/app-login-mapper.xml"/>
+    <mapper resource="mybatis/service/user-memo-mapper.xml"/>
+    <mapper resource="mybatis/service/task-mapper.xml"/>
+    <mapper resource="mybatis/service/task-user-complete-mapper.xml"/>
+    <mapper resource="mybatis/service/app-area-mapper.xml"/>
+    <mapper resource="mybatis/service/user-online-log-mapper.xml"/>
+    <mapper resource="mybatis/service/recharge-channel-mapper.xml"/>
+    <mapper resource="mybatis/service/recharge-price-mapper.xml"/>
+    <mapper resource="mybatis/service/user-diamond-account-mapper.xml"/>
+    <mapper resource="mybatis/service/user-diamond-account-log-mapper.xml"/>
+    <mapper resource="mybatis/service/cash-flow-mapper.xml"/>
+    <mapper resource="mybatis/service/message-template-mapper.xml"/>
+    <mapper resource="mybatis/service/banner-mapper.xml"/>
+    <mapper resource="mybatis/service/banner-group-mapper.xml"/>
+    <mapper resource="mybatis/service/app-version-mapper.xml"/>
+    <mapper resource="mybatis/service/app-channel-mapper.xml"/>
+    <mapper resource="mybatis/service/app-package-mapper.xml"/>
+    <mapper resource="mybatis/service/bussiness-message-mapper.xml"/>
+    <mapper resource="mybatis/service/static-user-remain-cash-mapper.xml"/>
+    <mapper resource="mybatis/service/user-geo-mapper.xml"/>
+    <mapper resource="mybatis/service/user-extension-mapper.xml"/>
+    <mapper resource="mybatis/service/user-balance-account-mapper.xml"/>
+    <mapper resource="mybatis/service/user-balance-account-log-mapper.xml"/>
+    <mapper resource="mybatis/service/user-blacklist-mapper.xml"/>
+    <!--统计-->
+    <mapper resource="mybatis/service/statistics-user-recharge-mapper.xml"/>
+    <mapper resource="mybatis/service/statistics-user-total-mapper.xml"/>
+    <mapper resource="mybatis/service/first-login-log-mapper.xml"/>
+    <mapper resource="mybatis/service/first-share-log-mapper.xml"/>
+    <mapper resource="mybatis/service/user-login-log-mapper.xml"/>
+    <mapper resource="mybatis/service/user-dynamic-mapper.xml"/>
+    <mapper resource="mybatis/service/user-dynamic-content-mapper.xml"/>
+    <mapper resource="mybatis/service/user-dynamic-favor-mapper.xml"/>
+    <mapper resource="mybatis/service/user-photo-resource-mapper.xml"/>
+    <mapper resource="mybatis/service/user-credit-score-mapper.xml"/>
+    <mapper resource="mybatis/service/user-pay-action-mapper.xml"/>
+    <mapper resource="mybatis/service/recharge-order-mapper.xml"/>
+    <mapper resource="mybatis/service/credit-score-configure-mapper.xml"/>
+    <mapper resource="mybatis/service/user-inform-mapper.xml"/>
+    <mapper resource="mybatis/service/user-video-auth-mapper.xml"/>
+    <mapper resource="mybatis/service/user-income-account-mapper.xml"/>
+    <mapper resource="mybatis/service/user-income-account-log-mapper.xml"/>
+    <mapper resource="mybatis/service/user-income-withdrawal-mapper.xml"/>
+    <mapper resource="mybatis/service/coupon-mapper.xml"/>
+    <mapper resource="mybatis/service/coupon-template-mapper.xml"/>
+    <mapper resource="mybatis/service/vip-mapper.xml"/>
+    <mapper resource="mybatis/service/vip-category-mapper.xml"/>
+    <mapper resource="mybatis/service/vip-log-mapper.xml"/>
+    <mapper resource="mybatis/service/vip-single-mapper.xml"/>
+    <mapper resource="mybatis/service/user-invite-mapper.xml"/>
+    <mapper resource="mybatis/service/user-invite-mapping-mapper.xml"/>
+    <mapper resource="mybatis/service/user-invitecode-mapper.xml"/>
+    <mapper resource="mybatis/service/proxy-mapper.xml"/>
+    <mapper resource="mybatis/service/proxy-trans-mapper.xml"/>
+    <mapper resource="mybatis/service/proxy-withdram-mapper.xml"/>
+    <mapper resource="mybatis/service/talent-vip-category-mapper.xml"/>
+    <mapper resource="mybatis/service/talent-vip-mapper.xml"/>
+    <mapper resource="mybatis/service/talent-vip-log-mapper.xml"/>
+    <mapper resource="mybatis/service/user-credit-score-log-mapper.xml"/>
+    <mapper resource="mybatis/service/user-charm-mapper.xml"/>
+    <mapper resource="mybatis/service/user-mypage-activity-mapper.xml"/>
+    <mapper resource="mybatis/service/user-friends-add-log-mapper.xml"/>
+    <mapper resource="mybatis/service/user-charm-mapper.xml"/>
+    <mapper resource="mybatis/service/sms-delay-queue-mapper.xml"/>
+    <mapper resource="mybatis/service/user-look-contacts-log-mapper.xml"/>
+    <mapper resource="mybatis/service/badge-price-mapper.xml"/>
+    <mapper resource="mybatis/service/user-honesty-badge-mapper.xml"/>
+    <mapper resource="mybatis/service/user-honesty-badge-log-mapper.xml"/>
+    <mapper resource="mybatis/service/talent-vacuate-mapper.xml"/>
+    <mapper resource="mybatis/service/user-talent-vip-statistics-mapper.xml"/>
+    <mapper resource="mybatis/service/appoint-site-mapper.xml"/>
+    <mapper resource="mybatis/service/appoint-site-order-mapper.xml"/>
+    <mapper resource="mybatis/service/meetstranger-notice-mapper.xml"/>
+    <mapper resource="mybatis/service/talent-price-mapper.xml"/>
+    <mapper resource="mybatis/service/home-pop-mapper.xml"/>
+    <mapper resource="mybatis/service/red-flower-mapper.xml"/>
+    <mapper resource="mybatis/service/red-flower-account-mapper.xml"/>
+    <mapper resource="mybatis/service/user-bg-picture-mapper.xml"/>
+    <mapper resource="mybatis/service/home-pop-log-mapper.xml"/>
+    <mapper resource="mybatis/service/user-privacy-security-mapper.xml"/>
+    <mapper resource="mybatis/service/user-scvc-account-mapper.xml"/>
+    <mapper resource="mybatis/service/user-scvc-account-log-mapper.xml"/>
+    <mapper resource="mybatis/service/user-video-chat-record-mapper.xml"/>
+    <mapper resource="mybatis/service/user-video-chat-record-log-mapper.xml"/>
+    <mapper resource="mybatis/service/hot-category-mapper.xml"/>
+    <mapper resource="mybatis/service/user-svip-mapper.xml"/>
+    <mapper resource="mybatis/service/user-charge-data-log-mapper.xml"/>
+    <mapper resource="mybatis/service/pay-svip-flow-mapper.xml"/>
+    <mapper resource="mybatis/service/talent-level-mapper.xml"/>
+    <mapper resource="mybatis/service/user-lucky-draw-log-mapper.xml"/>
+    <mapper resource="mybatis/service/user-type-feedback-mapper.xml"/>
+    <mapper resource="mybatis/service/top-head-info-mapper.xml"/>
+    <mapper resource="mybatis/service/upload-app-mapper.xml"/>
+    <mapper resource="mybatis/service/user-reg-log-mapper.xml"/>
+    <mapper resource="mybatis/service/download-statistics-mapper.xml"/>
+    <mapper resource="mybatis/service/static-download-channel-mapper.xml"/>
+    <mapper resource="mybatis/service/static-download-visit-mapper.xml"/>
+    <mapper resource="mybatis/service/share-vip-card-mapper.xml"/>
+    <mapper resource="mybatis/service/user-right-checked-log-mapper.xml"/>
+    <mapper resource="mybatis/service/world-cup-bet-log-mapper.xml"/>
+    <mapper resource="mybatis/service/world-cup-game-mapper.xml"/>
+    <mapper resource="mybatis/service/user-chat-gift-mapper.xml"/>
+    <mapper resource="mybatis/service/user-chat-gift-log-mapper.xml"/>
+    <mapper resource="mybatis/service/roulette-wheel-log-mapper.xml"/>
+    <mapper resource="mybatis/service/recharge-custom-category-mapper.xml"/>
+    <mapper resource="mybatis/service/recharge-custom-mobile-mapper.xml"/>
+    <mapper resource="mybatis/service/recharge-custom-price-mapper.xml"/>
+    <mapper resource="mybatis/service/energy-custom-category-mapper.xml"/>
+    <mapper resource="mybatis/service/energy-custom-mobile-mapper.xml"/>
+    <mapper resource="mybatis/service/energy-custom-price-mapper.xml"/>
+    <mapper resource="mybatis/service/energy-order-mapper.xml"/>
+    <mapper resource="mybatis/service/user-energy-account-mapper.xml"/>
+    <mapper resource="mybatis/service/user-energy-account-log-mapper.xml"/>
+    <mapper resource="mybatis/service/user-text-chat-record-mapper.xml"/>
+    <mapper resource="mybatis/service/statistics-user-energy-recharge-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-online-mapper.xml"/>
+	<mapper resource="mybatis/service/b-sequence-mapper.xml"/>
+	<mapper resource="mybatis/service/vchat-room-mapper.xml"/>
+	<mapper resource="mybatis/service/v-user-info-mapper.xml"/>
+	<mapper resource="mybatis/service/app-label-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-evaluation-log-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-evaluation-statistics-mapper.xml"/>
+	<mapper resource="mybatis/service/short-video-mapper.xml"/>
+	<mapper resource="mybatis/service/short-video-praise-log-mapper.xml"/>
+	<mapper resource="mybatis/service/user-level-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-intimate-rankings-mapper.xml"/>
+	<mapper resource="mybatis/service/aa-p-mapper.xml"/>
+	<mapper resource="mybatis/service/aa-pd-mapper.xml"/>
+	<mapper resource="mybatis/service/a-v-mapper.xml"/>
+	<mapper resource="mybatis/service/a-m-online-mapper.xml"/>
+	<mapper resource="mybatis/service/a-m-page-mapper.xml"/>
+	<mapper resource="mybatis/service/a-m-day-times-mapper.xml"/>
+	<mapper resource="mybatis/service/a-m-day-total-mapper.xml"/>
+	<mapper resource="mybatis/service/a-m-day-income-mapper.xml"/>
+	<mapper resource="mybatis/service/user-sign-card-mapper.xml"/>
+	<mapper resource="mybatis/service/user-sign-log-mapper.xml"/>
+	<mapper resource="mybatis/service/user-sign-recharge-mapper.xml"/>
+	<mapper resource="mybatis/service/commodity-mapper.xml"/>
+	<mapper resource="mybatis/service/commodity-group-mapper.xml"/>
+	<mapper resource="mybatis/service/commodity-shipments-mapper.xml"/>
+	<mapper resource="mybatis/service/commodity-group-relationship-mapper.xml"/>
+	<mapper resource="mybatis/service/user-pay-timer-mapper.xml"/>
+	<mapper resource="mybatis/service/app-tab-mapper.xml"/>
+	<mapper resource="mybatis/service/short-video-watch-day-log-mapper.xml"/>
+	<mapper resource="mybatis/service/app-start-send-msg-mapper.xml"/>
+	<mapper resource="mybatis/service/app-start-msg-user-mapper.xml"/>
+	<mapper resource="mybatis/service/global-broadcast-mapper.xml"/>
+	<mapper resource="mybatis/service/v-gift-mapper.xml"/>
+	<mapper resource="mybatis/service/v-page-mapper.xml"/>
+	<mapper resource="mybatis/service/v-robot-info-mapper.xml"/>
+	<mapper resource="mybatis/service/v-robot-login-log-mapper.xml"/>
+	<mapper resource="mybatis/service/v-user-data-mapper.xml"/>
+	<mapper resource="mybatis/service/v-user-gift-mapper.xml"/>
+	<mapper resource="mybatis/service/v-user-gift-list-mapper.xml"/>
+	<mapper resource="mybatis/service/v-user-gift-stat-mapper.xml"/>
+	<mapper resource="mybatis/service/v-user-info-mapper.xml"/>
+	<mapper resource="mybatis/service/v-user-online-mapper.xml"/>
+	<mapper resource="mybatis/service/v-user-online-stat-mapper.xml"/>
+	<mapper resource="mybatis/service/v-user-online-stat-money-mapper.xml"/>
+	<mapper resource="mybatis/service/v-user-online-stat-times-mapper.xml"/>
+	<mapper resource="mybatis/service/v-user-page-mapper.xml"/>
+	<mapper resource="mybatis/service/ios-distribution-detail-mapper.xml"/>
+	<mapper resource="mybatis/service/ios-distribution-platform-mapper.xml"/>
+	<mapper resource="mybatis/service/short-video-transcode-mapper.xml"/>
+	<mapper resource="mybatis/service/statistics-user-data-stream-mapper.xml"/>
+	<mapper resource="mybatis/service/statistics-user-vchat-data-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-time-statistics-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-income-check-mapper.xml"/>
+	<mapper resource="mybatis/service/statistics-user-pay-mapper.xml"/>
+	<mapper resource="mybatis/service/user-mobile-ask-mapper.xml"/>
+	<mapper resource="mybatis/service/vchat-channel-mapper.xml"/>
+	<mapper resource="mybatis/service/app-controll-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-income-initiative-check-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-income-initiative-pay-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-to-user-evaluation-log-mapper.xml"/>
+	<mapper resource="mybatis/service/statistics-platform-allowance-mapper.xml"/>
+	<mapper resource="mybatis/service/statistics-user-call-anchor-check-mapper.xml"/>
+	<mapper resource="mybatis/service/statistics-anchor-user-total-check-mapper.xml"/>
+	<mapper resource="mybatis/service/statistics-user-pay-analysis-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-image-mapper.xml"/>
+	<mapper resource="mybatis/service/statistics-anchor-data-stream-mapper.xml"/>
+	<mapper resource="mybatis/service/app-allowance-user-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-recv-user-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-apply-push-mapper.xml"/>
+	<mapper resource="mybatis/service/user-chat-gift-statistics-mapper.xml"/>
+	<mapper resource="mybatis/service/message-user-read-mapper.xml"/>
+	<mapper resource="mybatis/service/app-allowance-money-user-mapper.xml"/>
+	<mapper resource="mybatis/service/app-ranking-mapper.xml"/>
+	<mapper resource="mybatis/service/free-video-chat-experience-mapper.xml"/>
+	<mapper resource="mybatis/service/user-chat-gift-log-fake-mapper.xml"/>
+	<mapper resource="mybatis/service/user-chat-gift-statistics-fake-mapper.xml"/>
+	<mapper resource="mybatis/service/app-allowance-user-show-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-intimate-rankings-fake-mapper.xml"/>
+	<mapper resource="mybatis/service/app-msg-detail-mapper.xml"/>
+	<mapper resource="mybatis/service/app-ios-device-udid-mapper.xml"/>
+	<mapper resource="mybatis/service/statistics-anchor-trans-user-pay-income-mapper.xml"/>
+	<mapper resource="mybatis/service/app-area-city-mapper.xml"/>
+	<mapper resource="mybatis/service/user-diamond-price-watch-log-mapper.xml"/>
+	<mapper resource="mybatis/service/user-chat-turntable-mapper.xml"/>
+	<mapper resource="mybatis/service/user-chat-turntable-log-mapper.xml"/>
+	<mapper resource="mybatis/service/user-first-recharge-log-mapper.xml"/>
+	<mapper resource="mybatis/service/device-base-station-mapper.xml"/>
+	<mapper resource="mybatis/service/user-no-withdrawal-bounds-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-audio-mapper.xml"/>
+	<mapper resource="mybatis/service/activity-star-anchor-mapper.xml"/>
+	<mapper resource="mybatis/service/activity-star-issue-mapper.xml"/>
+	<mapper resource="mybatis/service/activity-star-user-prize-mapper.xml"/>
+	<mapper resource="mybatis/service/activity-star-user-vote-mapper.xml"/>
+	<mapper resource="mybatis/service/red-flower-price-mapper.xml"/>
+	<mapper resource="mybatis/service/red-flower-order-mapper.xml"/>
+	<mapper resource="mybatis/service/red-flower-account-log-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-video-check-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-video-check-warn-mapper.xml"/>
+	
+	<mapper resource="mybatis/service/user-text-chat-info-log-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-shut-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-online-time-statistics-mapper.xml"/>
+	
+	<mapper resource="mybatis/service/home-pop-version-log-mapper.xml"/>
+	<mapper resource="mybatis/service/app-version-upgrade-pop-mapper.xml"/>
+	<mapper resource="mybatis/service/user-pay-send-diamond-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-level-manager-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-level-monitor-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-level-check-mapper.xml"/>
+	<mapper resource="mybatis/service/app-send-message-user-mapper.xml"/>
+	<mapper resource="mybatis/service/user-vchat-experience-income-log-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-tag-mapper.xml"/>
+	<!-- 签到任务 -->
+	<mapper resource="mybatis/service/user-point-account-mapper.xml"/>
+	<mapper resource="mybatis/service/user-point-account-log-mapper.xml"/>
+	<mapper resource="mybatis/service/user-sign-control-mapper.xml"/>
+	<mapper resource="mybatis/service/user-task-mapper.xml"/>
+	<mapper resource="mybatis/service/user-task-log-mapper.xml"/>
+	<mapper resource="mybatis/service/app-msg-scene-user-mapper.xml"/>
+	<mapper resource="mybatis/service/app-msg-scene-detail-mapper.xml"/>
+	<mapper resource="mybatis/service/root-user-reg-log-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-robot-send-gift-mapper.xml"/>
+	<mapper resource="mybatis/service/app-sham-dail-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-deduct-mapper.xml"/>
+	<mapper resource="mybatis/service/labor-mapper.xml"/>
+	
+	<mapper resource="mybatis/service/guard-vip-category-mapper.xml"/>
+	<mapper resource="mybatis/service/guard-vip-order-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-defend-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-defend-log-mapper.xml"/>
+	<mapper resource="mybatis/service/statistics-labor-anchor-trans-mapper.xml"/>
+	<mapper resource="mybatis/service/kuai-shou-ad-data-mapper.xml"/>
+	<mapper resource="mybatis/service/kuai-shou-ad-confirm-mapper.xml"/>
+	<mapper resource="mybatis/service/user-text-chat-history-mapper.xml"/>
+	<mapper resource="mybatis/service/message-push-template-mapper.xml"/>
+	<mapper resource="mybatis/service/user-can-call-log-mapper.xml"/>
+	<mapper resource="mybatis/service/user-invite-cps-income-log-mapper.xml"/>
+	<mapper resource="mybatis/service/user-invite-cps-statistics-mapper.xml"/>
+	<mapper resource="mybatis/service/pay-user-record-mapper.xml"/>
+	<mapper resource="mybatis/service/statistics-anchor-output-mapper.xml"/>
+	<mapper resource="mybatis/service/pay-user-label-mapper.xml"/>
+	<mapper resource="mybatis/service/statistics-cps-income-daily-mapper.xml"/>
+	<mapper resource="mybatis/service/statistics-cps-share-daily-mapper.xml"/>
+	<mapper resource="mybatis/service/app-dailysql-mapper.xml"/>
+	<mapper resource="mybatis/service/slot-machine-log-mapper.xml"/>
+	<mapper resource="mybatis/service/user-chat-gift-box-mapper.xml"/>
+	<mapper resource="mybatis/service/user-chat-gift-box-log-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-subscribe-mapper.xml"/>
+	<mapper resource="mybatis/service/user-black-room-mapper.xml"/>
+	<mapper resource="mybatis/service/user-weekcard-account-mapper.xml"/>
+	<mapper resource="mybatis/service/user-weekcard-account-log-mapper.xml"/>
+	<mapper resource="mybatis/service/user-daily-weekcard-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-super-subscribe-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-super-subscribe-user-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-super-subscribe-detail-mapper.xml"/>
+	<mapper resource="mybatis/service/statistics-pay-act-user-mapper.xml"/>
+	<mapper resource="mybatis/service/buy-dial-experience-order-mapper.xml"/>
+	<mapper resource="mybatis/service/global-broadcast-vip-mapper.xml"/>
+	<mapper resource="mybatis/service/free-video-chat-experience-log-mapper.xml"/>
+	<mapper resource="mybatis/service/app-download-times-mapper.xml"/>
+	<mapper resource="mybatis/service/user-audio-chat-info-log-mapper.xml"/>
+	<mapper resource="mybatis/service/user-buy-watch-pop-log-mapper.xml"/>
+
+	<mapper resource="mybatis/service/user-tariffe-account-mapper.xml"/>
+	<mapper resource="mybatis/service/user-tariffe-account-log-mapper.xml"/>
+	<mapper resource="mybatis/service/user-photo-refuse-log-mapper.xml"/>
+	<mapper resource="mybatis/service/copy-user-mapper.xml"/>
+	<mapper resource="mybatis/service/copy-user-text-chat-info-log-mapper.xml"/>
+	<mapper resource="mybatis/service/copy-user-chat-gift-log-mapper.xml"/>
+	<mapper resource="mybatis/service/copy-user-pay-action-mapper.xml"/>
+	<mapper resource="mybatis/service/copy-user-inform-mapper.xml"/>
+	<mapper resource="mybatis/service/app-dail-scence-mapper.xml"/>
+	<mapper resource="mybatis/service/third-party-spread-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-contact-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-contact-look-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-appoint-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-appoint-user-mapper.xml"/>
+	<mapper resource="mybatis/service/user-logout-log-mapper.xml"/>
+	<mapper resource="mybatis/service/anchor-user-greet-mapper.xml"/>
+	
+	<mapper resource="mybatis/service/app-pay-vip-user-mapper.xml"/>
+	<mapper resource="mybatis/service/app-pay-vip-user-anchor-mapper.xml"/>
+	<mapper resource="mybatis/service/ios-user-login-sms-mapper.xml"/>
+	<mapper resource="mybatis/service/user-photo-checked-log-mapper.xml"/>
+	<mapper resource="mybatis/service/user-auto-dial-forbidden-mapper.xml"/>
+	<mapper resource="mybatis/service/user-special-recharge-mapper.xml"/>
+	<mapper resource="mybatis/service/forbidden-recharge-mapper.xml"/>
+  </mappers>
+
+</configuration>

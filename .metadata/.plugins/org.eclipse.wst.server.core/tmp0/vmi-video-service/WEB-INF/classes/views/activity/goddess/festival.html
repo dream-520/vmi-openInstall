@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <!-- <link rel="stylesheet" href="./css/reset.css"> -->
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/reset.css">
+  <!-- <link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/js/layer_mobile/layer.css')}" /> -->
+  <title>浓情中秋</title>
+  <style>
+    .wrap {
+      position: fixed;
+      width: 100%;
+      height: 7.2rem;
+      margin: 0 auto;
+
+      text-align: center;
+      /* background: #ebebeb; */
+    }
+
+    .wrap .imgBg {
+      width: 6.9rem;
+      height: 100%;
+    }
+
+    .wrap .festival {
+      text-align: center;
+      font-size: 0.6rem;
+    }
+
+    .wrap #closeImg {
+      width: 0.6rem;
+      height: 0.6rem;
+      position: absolute;
+      top: 3%;
+      right: 7%;
+    }
+
+    #festivalBtn img {
+      /* background: url('./img/festivalBtn.png') no-repeat center; */
+      /* background: url('$!{Const.getCdn()}/img/app/update/updateGo.png') no-repeat center; */
+      /* background-size: contain; */
+      /* height: 1rem; */
+      margin: -1.8rem auto 0.4rem;
+      width: 4rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrap">
+    <!-- <img class="imgBg" src="./img/festivalBg.png" alt=""> -->
+    <img class="imgBg" src="$!{Const.getCdn()}/img/activity/goddess/festivalBg.png" alt="">
+    <div>
+      <!-- <img id="closeImg" src="./img/girlClose.png" onclick="closeCurrentWindow()" alt=""> -->
+      <img id="closeImg" src="$!{Const.getCdn()}/img/activity/goddess/girlClose.png" onclick="closeCurrentWindow()"
+        alt="">
+    </div>
+
+    <div id="festivalBtn" onclick="gotoWalletFragment()">
+      <!-- <img src="./img/festivalBtn.png" alt=""> -->
+      <img src="$!{Const.getCdn()}/img/activity/goddess/festivalBtn.png" alt="">
+    </div>
+  </div>
+</body>
+
+</html>
+<script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+<!-- <script src="./js/viewport.js"></script> -->
+<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+<!-- <script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script> -->
+<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+  // 跳转到我的钱包
+  var RecordUrl = "$!{Const.getWebSite()}/api/income/zuanList?pricePage=1";
+  var RecordUrlA = "$!{rc.contextPath}/api/income/zuanList?pricePage=1";
+
+  //安卓1 ios2
+  //关闭功能
+  function closeCurrentWindow() {
+    if (mobileType == 1) {
+      window.target.action(2);
+    } else if (mobileType == 2) {
+      window.webkit.messageHandlers.backPage.postMessage(0);
+    }
+  }
+
+
+  //跳转到'钻石列表'页面 ==
+  function gotoWalletFragment() {
+    if (mobileType == 1) {
+      var actionUrl = "$!{Const.getWebSite()}/api/income/zuanList";
+      closeCurrentWindow();
+      window.target.gotoAppPage('WebSingleSaveFragment', JSON.stringify({
+        "strValue1": actionUrl,
+        "strValue2": "我的钱包"
+      }));
+    } else if (mobileType == 2) {
+      window.location.href = "${rc.contextPath}/api/income/zuanList";
+    }
+
+    // if (mobileType == 1) {
+    //   //closeCurrentWindow();
+    //   window.target.gotoAppPage('WebSingleSaveFragment', JSON.stringify({
+    //     "strValue1": RecordUrl,
+    //     "strValue2": '我的钱包',
+    //   }));
+    // } else if (mobileType == 2) {
+    //   window.webkit.messageHandlers.goToH5Page.postMessage({
+    //     "url": RecordUrl,
+    //     "title": '我的钱包',
+    //   });
+    // }
+  }
+</script>

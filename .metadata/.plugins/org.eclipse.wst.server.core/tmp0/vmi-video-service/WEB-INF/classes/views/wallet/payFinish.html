@@ -1,0 +1,81 @@
+<!-- 支付页面_目前仅供ios蜜聊使用 -->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/reset.css')}"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/common.css')}"/>
+		<style type="text/css">
+			.payFinishStatus{padding-top: 110px;padding-bottom: 115px;}
+			.payFinishStatus img{width: 100px;padding-bottom: 35px;}
+			.payFinishStatus p{font-size: 15px;color: #666;}
+			.okbtn{display: block;margin: 0 auto; width:200px;line-height: 45px;font-size: 16px;border-radius: 22.5px;-webkit-border-radius: 22.5px;
+				color: #fff; background: url($!{Const.getCdn()}/img/public/btnIcon.png) no-repeat center center;background-size: 100%;-webkit-background-size: 100%;
+			}
+		</style>
+		<title>支付结果</title>
+	</head>
+	<body>
+		<!--<div id="ios_statusBar" style="display:block"></div>
+		<div id="navigationBar" class="navigationBar_ios">
+			<img src="$!{Const.getCdn('/img/public/backIcon_black.png')}" class="navBackBtn" onclick="navBackBtnAction()"/>
+			<p class="navTitle">支付结果</p>
+		</div>-->
+		<div class="mainBox">
+		
+			#if($!{verifyResult})
+			<div class="payFinishStatus">
+				<img src="$!{Const.getCdn('/img/wallet/paySuccIcon.png')}" >
+				<p>支付成功</p>
+			</div>
+			#else
+			<div class="payFinishStatus">
+				<img src="$!{Const.getCdn('/img/wallet/payFailIcon.png')}" >
+				<p>支付失败，请重试</p>
+			</div>
+			#end
+			
+			<a onclick="OkAction()" class="okbtn">确定</a>
+		</div>
+		<script src="$!{Const.getCdn('/js/public/jquery/jquery-2.1.4.min.js')}"></script>
+		<script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script><!--zoom.js适配屏幕-->
+		<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script><!-- 判断手机型号 安卓1，iOS2 -->
+		<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			// 顶部导航栏返回事件
+			function navBackBtnAction(){
+				closeCurrentWindow();
+			}
+			 
+			function OkAction(){
+				closeCurrentWindow();
+			}
+			
+			
+			function closeCurrentWindow(){
+				if(mobileType == 1){
+					window.target.action(1);
+					/*
+					 var actionUrl = "$!{Const.getWebSite()}/api/income/zuanList";
+				      closeCurrentWindow();
+				      window.target.gotoAppPage('WebSingleSaveFragment', JSON.stringify({
+				        "strValue1": actionUrl,
+				        "strValue2": "我的钱包"
+				      }));
+				      */
+				}else if (mobileType == 2){
+					window.location.href = "${rc.contextPath}/api/income/zuanList";
+				}
+			}
+			
+			
+			$(function(){
+				setTimeout(function(){
+					screenFix(375);
+				},300);//适配屏幕
+				resetNavigationBar(); //定义在common.js中
+			});
+		</script>
+	</body>
+</html>

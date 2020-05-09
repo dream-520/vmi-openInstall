@@ -1,0 +1,140 @@
+package com.tigerjoys.shark.miai.controller;
+
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.shark.miai.common.enums.PlatformEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.tigerjoys.nbs.common.ActionResult;
+import com.tigerjoys.nbs.common.beans.Produce;
+import com.tigerjoys.nbs.common.utils.Tools;
+import com.tigerjoys.nbs.mybatis.core.page.PageModel;
+import com.tigerjoys.nbs.mybatis.core.sql.Restrictions;
+import com.tigerjoys.nbs.web.annotations.Login;
+import com.tigerjoys.nbs.web.annotations.TestEncrypt;
+import com.tigerjoys.nbs.web.context.BeatContext;
+import com.tigerjoys.nbs.web.context.RequestHeader;
+import com.tigerjoys.nbs.web.context.RequestUtils;
+import com.tigerjoys.nbs.web.context.UserDetails;
+import com.tigerjoys.shark.miai.agent.IPayAgent;
+import com.tigerjoys.shark.miai.agent.dto.PayAccessDto;
+import com.tigerjoys.shark.miai.agent.enums.PayChannelEnum;
+import com.tigerjoys.shark.miai.agent.enums.PayTypeEnum;
+import com.tigerjoys.shark.miai.enums.ErrorCodeEnum;
+import com.tigerjoys.shark.miai.inter.contract.IRechargeOrderContract;
+import com.tigerjoys.shark.miai.inter.contract.IRechargePriceContract;
+import com.tigerjoys.shark.miai.inter.entity.RechargeOrderEntity;
+import com.tigerjoys.shark.miai.inter.entity.RechargePriceEntity;
+import com.tigerjoys.shark.miai.utils.ServiceHelper;
+
+/**
+ * 微信充值相关的接口
+ * @author chengang
+ *
+ */
+@Login
+@Controller
+@RequestMapping(value = "/wx/charge", produces=Produce.TEXT_JSON)
+@TestEncrypt("naihnwhQOxMW3SSDjwBCalG8cAb7Z0o2/Vb65AsQC87EDBZACqpfpBvRClXVo0ejLhaGHw2TzHgXMG2eOSXxpev+snLZI6wd/mXRLfrpV2O9JiLuQmSDbt+rf89nAyBvNMbMUq4fs+owq/jW/RshRVNcEUZnTs94l6On+H26fLqTHBB4F5JDtxC9Rdn45gCYJAeCUh7bBh0Y+CsACOqnI93LNK+JxKtiq6liRU6t/Pn9zW4gS0IF43143o8FteAA907Lc7KpTNLCFVaFL3XPcnw6/cJTqNTKFMCD3Q2D0hEAIx9quXsfXCCZccaxmpZN11OdsvSOC7gr6kAOdjT4+v3zAY5sOPO+c4sHyHYwNUbZYMoMnJhB9hxxBkB4c8NliMwUxfthBAuJegn/t81Jb+/Qp5kSXVcLzDzCgvZWrBuRWDEGJ+IqAPcJDxUv6otqvx4g9qvszzFo1WFllVZ2r+X94LCHXLQ0GM+NOpzvS9DxDPXFBUgfelYacu+9A7Gv")
+public class WeixinChargeController {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(WeixinChargeController.class);
+	
+	@Autowired
+	private IRechargePriceContract rechargePriceContract;
+	
+	@Autowired
+	private IRechargeOrderContract rechargeOrderContract;
+	
+	@Autowired
+	private IPayAgent payAgent;
+
+	/**
+	 * 微信充值
+	 * @param request - HttpServletRequest
+	 * @return ActionResult
+	 */
+	@RequestMapping(value = "/pay")
+	@ResponseBody
+	public ActionResult charge(HttpServletRequest request) {
+		try {
+			RechargePriceEntity price = getRechargePrice();
+			if(price == null) {
+				return ActionResult.fail(ErrorCodeEnum.error.getCode(), "未获取到价格信息");
+			}
+
+			BeatContext context = RequestUtils.getCurrent();
+			RequestHeader header = context.getHeader();
+			UserDetails user = context.getUser();
+			Long userId = user.getUserid();
+			String nickname = Tools.isNull(user.getNickname()) ? "" : user.getNickname();
+			String mobile = Tools.isNull(user.getMobile()) ? "" : user.getMobile();
+			Date date = new Date();
+			
+			int mon = price.getMoney().intValue();
+			
+			RechargeOrderEntity order = new RechargeOrderEntity();
+			order.setCreate_time(date);
+			order.setUpdate_time(date);
+			order.setUser_id(userId);
+			order.setMobile(mobile);
+			order.setNickname(nickname);
+			order.setPrice_id(price.getId());
+			order.setPrice(price.getMoney());
+			order.setDiamond(price.getDiamond());
+			order.setDonor_type(price.getDonor_type());
+			order.setDonor_times(price.getDonor_times());
+			order.setDonor(price.getDonor());
+			order.setMoney(mon);
+			order.setIncome(0);
+			order.setStatus(0);
+			order.setPackage_name(header.getPackageName());
+			rechargeOrderContract.insert(order);
+			
+			PayAccessDto access = new PayAccessDto();
+			access.setUser_id(user.getUserid());
+			access.setNickname(user.getNickname());
+			access.setMobile(user.getMobile());
+			access.setOrder_id(order.getId());
+			access.setInitialPrice((long)price.getMoney());
+			String fm = Tools.formatDouble2PercentToString(mon);
+			access.setSubject("[钻石充值：" + fm + "元]");
+			access.setDescription("用户账户钻石充值花费：" + fm + "元");
+			access.setMoney((long) mon);
+			access.setPay_channel(PayChannelEnum.wxJS);
+			access.setType(PayTypeEnum.recharge_diamond);
+			access.setApp_type(header.getOs_type());
+			access.setApp_channel(header.getChannel());
+			access.setApp_version(header.getVersion());
+			access.setPackage_name(header.getPackageName());
+			access.setOpenId(user.getUsername());
+			return ServiceHelper.dealPayData(payAgent.preparePay(access), PayChannelEnum.wxJS);
+		} catch (Exception e) {
+			LOGGER.error("包装请求数据过程出错", e);
+			return ActionResult.fail();
+		}
+	}
+	
+	/**
+	 * 获得h5的支付价格
+	 * @return RechargePriceEntity
+	 * @throws Exception
+	 */
+	private RechargePriceEntity getRechargePrice() throws Exception {
+		PageModel pageModel = PageModel.getLimitModel(0, 1);
+		pageModel.addQuery(Restrictions.eq("platform", PlatformEnum.H5.type));
+		pageModel.addQuery(Restrictions.eq("status", 1));
+		List<RechargePriceEntity> priceList = rechargePriceContract.load(pageModel);
+		
+		return Tools.isNotNull(priceList) ? priceList.get(0) : null;
+	}
+
+}

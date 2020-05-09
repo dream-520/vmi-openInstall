@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete resource &apos;vmi-video-service&apos;" deleteContents="false" description="Delete resource &apos;vmi-video-service&apos;" element1="/vmi-video-service" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1578545215827"/>
+</session>

@@ -1,0 +1,472 @@
+package com.tigerjoys.shark.miai.service.impl;
+
+import java.math.BigDecimal;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import org.shark.miai.common.enums.PlatformEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.tigerjoys.nbs.common.ActionResult;
+import com.tigerjoys.nbs.common.utils.MD5;
+import com.tigerjoys.nbs.common.utils.Tools;
+import com.tigerjoys.nbs.common.utils.sequence.IdGenerater;
+import com.tigerjoys.nbs.mybatis.core.page.PageModel;
+import com.tigerjoys.nbs.mybatis.core.sql.Restrictions;
+import com.tigerjoys.nbs.web.context.BeatContext;
+import com.tigerjoys.nbs.web.context.RequestHeader;
+import com.tigerjoys.nbs.web.context.RequestUtils;
+import com.tigerjoys.nbs.web.context.UserDetails;
+import com.tigerjoys.shark.miai.Const;
+import com.tigerjoys.shark.miai.agent.IAnchorDefendAgent;
+import com.tigerjoys.shark.miai.agent.IPayAgent;
+import com.tigerjoys.shark.miai.agent.IRedFlowerAgent;
+import com.tigerjoys.shark.miai.agent.ISysConfigAgent;
+import com.tigerjoys.shark.miai.agent.IUserAgent;
+import com.tigerjoys.shark.miai.agent.IUserIncomeAgent;
+import com.tigerjoys.shark.miai.agent.IUserWeekCardAgent;
+import com.tigerjoys.shark.miai.agent.constant.AgentRedisCacheConst;
+import com.tigerjoys.shark.miai.agent.dto.AnchorDefendPayDto;
+import com.tigerjoys.shark.miai.agent.dto.ChargeDeductionConfigDto;
+import com.tigerjoys.shark.miai.agent.dto.PayAccessDto;
+import com.tigerjoys.shark.miai.agent.dto.UserBO;
+import com.tigerjoys.shark.miai.agent.enums.PayChannelEnum;
+import com.tigerjoys.shark.miai.agent.enums.PayTypeEnum;
+import com.tigerjoys.shark.miai.agent.enums.RechargeCategoryPriceEnum;
+import com.tigerjoys.shark.miai.agent.enums.UserIncomeAccountLogTypeEnum.AccountType;
+import com.tigerjoys.shark.miai.enums.ErrorCodeEnum;
+import com.tigerjoys.shark.miai.inter.contract.IAppVersionContract;
+import com.tigerjoys.shark.miai.inter.contract.IGlobalBroadcastVipContract;
+import com.tigerjoys.shark.miai.inter.contract.IGuardVipCategoryContract;
+import com.tigerjoys.shark.miai.inter.contract.IGuardVipOrderContract;
+import com.tigerjoys.shark.miai.inter.contract.IUserBuyWatchPopLogContract;
+import com.tigerjoys.shark.miai.inter.contract.IUserWeekcardAccountContract;
+import com.tigerjoys.shark.miai.inter.entity.AppVersionEntity;
+import com.tigerjoys.shark.miai.inter.entity.GlobalBroadcastVipEntity;
+import com.tigerjoys.shark.miai.inter.entity.GuardVipCategoryEntity;
+import com.tigerjoys.shark.miai.inter.entity.GuardVipOrderEntity;
+import com.tigerjoys.shark.miai.inter.entity.UserBuyWatchPopLogEntity;
+import com.tigerjoys.shark.miai.inter.entity.UserDailyWeekcardEntity;
+import com.tigerjoys.shark.miai.inter.entity.UserWeekcardAccountEntity;
+import com.tigerjoys.shark.miai.service.IRechargeGuardVipService;
+import com.tigerjoys.shark.miai.utils.ServiceHelper;
+
+/**
+ * @author yangjunming at [2019年10月11日 下午4:05:56]
+ * @since JDK 1.8.0
+ */
+@Service
+public class RechargeGuardVipServiceImpl implements IRechargeGuardVipService {
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
+	
+	@Autowired
+	private IPayAgent payAgent;
+
+	@Autowired
+	private IAppVersionContract appVersionContract;
+
+	@Autowired
+	private IUserIncomeAgent userIncomeAgent;
+	
+	@Autowired
+	private IGuardVipCategoryContract guardVipCategoryContract;
+	
+	@Autowired
+	private IGuardVipOrderContract guardVipOrderContract;
+	
+	@Autowired
+	private ISysConfigAgent sysConfigAgent;
+	
+	@Autowired
+	private IUserAgent userAgent;
+	
+	@Autowired
+	private IAnchorDefendAgent anchorDefendAgent;
+	
+	@Autowired
+	private IUserWeekcardAccountContract userWeekcardAccountContract;
+	
+	@Autowired
+	private IUserWeekCardAgent userWeekCardAgent;
+	
+	@Autowired
+	private IRedFlowerAgent redFlowerAgent;
+	
+	@Autowired
+	private IGlobalBroadcastVipContract globalBroadcastVipContract;
+
+	@Autowired
+	private IUserBuyWatchPopLogContract userBuyWatchPopLogContract;
+	
+	@Override
+	public ActionResult getNativePriceList(long anchorid,int type) throws Exception {
+		return ActionResult.success(getPriceList(anchorid,type));
+	}
+	
+	
+	public Map<String, Object> getPriceList(long anchorId,int type) throws Exception {
+		BeatContext bc = RequestUtils.getCurrent();
+		long userId = bc.getUserid();
+		//只为更新小红花缓存
+		redFlowerAgent.getGuardVipTotalRedFlower(userId);
+		int os = bc.getHeader().getOs_type();
+		Map<String, Object> map = new HashMap<>();
+		map.put("balance", 0);
+		map.put("income", Tools.formatDouble2Percent(userIncomeAgent.getIncomeBalance(userId, AccountType.GENERAL)));
+		UserBO userBo = userAgent.findById(userId);
+		boolean userRegTimeOutVIP = false;
+		if( type == 1){
+			List<AnchorDefendPayDto> anchorDefend = anchorDefendAgent.expiryAnchorDefend(userId, anchorId);
+			if(Tools.isNotNull(anchorDefend)){
+				String guardInfo = "";
+				for(AnchorDefendPayDto re:anchorDefend){
+					guardInfo +=(Tools.isNotNull(guardInfo)?"\n": "")+re.getName()+"有效期:"+re.getDate();
+				}
+				map.put("guardInfo1", "您现在的守护");
+				map.put("guardInfo2", guardInfo);
+			}else{
+				map.put("guardInfo1", "成为Ta的守护");
+				map.put("guardInfo2", "有效期:暂未开通");
+			}
+			map.put("guardInfo3", "权益:");
+			String guardInfo = "1、为喜欢的大V守护，彰显尊贵身份；\n"
+			+"2、赠送小红花\n"
+			+"3、和守护的大V聊天95折，如果同时是vip那么打9折\n";
+			map.put("guardInfo4", guardInfo);
+		}else if( type == 2 || type == 3 || type == 6 || type == 7){
+			if (os == 1) {
+				map.put("vipInfo1", "开通VIP" + "\n更赠送100元话费");
+			} else {
+				map.put("vipInfo1", "开通VIP" + "\n享受更多权益");
+			}
+			if(userBo.vipValue() == 0){
+				if(userBo.getVip() ==1){
+					map.put("vipInfo2", "有效期：已过期");
+				}else{
+					map.put("vipInfo2", "有效期：暂未开通");
+				}
+			}else{
+				map.put("vipInfo2", "有效期："+Tools.getFormatDate(userBo.getVipExpire(), "yyyy-MM-dd"));
+			}
+			map.put("vipInfo3", "VIP尊贵特权");
+			String vipInfo = "•设置勿扰状态，避免骚扰;\n"
+			+"•对特定的人可以设置隐身;\n"
+			+"•拥有专属礼物;\n"
+			+"•额外获得小红花，想聊就聊;\n"
+			+"•拥有尊贵标识，彰显不同身份;\n"
+			+"•和大V聊天打95折;\n"
+			+"•对于不在线的大V可以预约聊天;\n"
+			+"•查看大V的联系方式，敬请期待;\n";
+			if(type == 3 || type == 6 || type == 7){
+				vipInfo = "•设置勿扰状态，避免骚扰;\n"
+						+"•对特定的人可以设置隐身,敬请期待;\n"
+						+"•拥有专属礼物,敬请期待;\n"
+						+"•拥有尊贵标识，彰显不同身份,敬请期待;\n";
+			}
+			map.put("vipInfo4", vipInfo);
+			Random random = new Random();
+			PageModel pageModel = PageModel.getLimitModel(random.nextInt(320),50);
+			List<GlobalBroadcastVipEntity> globalList =  globalBroadcastVipContract.load(pageModel);
+			List<String> rechargeInfoList = new ArrayList<>();
+			if(Tools.isNotNull(globalList)){
+				globalList.forEach(v->{
+					rechargeInfoList.add(v.getNickname()+v.getContent());
+				});
+			}
+			map.put("rechargeInfo", rechargeInfoList);
+			if(userBo.getVip() == 0){
+				
+				long day = (Tools.getDayTime()-Tools.getDayTime(userBo.getCreateTime()))/(24 * 60 * 60 * 1000);
+				if (day>30) {
+					if (os == PlatformEnum.android.type) {
+						userRegTimeOutVIP = true;
+					}
+				} else {
+					UserBuyWatchPopLogEntity popLogEntity = userBuyWatchPopLogContract.getUserBuyWatchPopLog(userId, RechargeCategoryPriceEnum.VIP.getCode());
+					if (Tools.isNull(popLogEntity)) {
+						map.put("vipBuyUrl", Const.WEB_SITE+"/recharge/category/vip/pop/"+Const.vipBuyExperienceDto.getPriceId());
+					}
+				}
+				
+			}
+			
+			
+		}
+		
+	
+		PageModel pageModel = PageModel.getPageModel();
+		pageModel.addQuery(Restrictions.eq("status", 1));
+		pageModel.addQuery(Restrictions.eq("type", type));
+		if (userRegTimeOutVIP) {
+			pageModel.addQuery(Restrictions.ge("money",10000));
+		}
+		pageModel.asc("priority");
+		
+		List<GuardVipCategoryEntity> list = guardVipCategoryContract.load(pageModel);
+		int category = (type==1 ? RechargeCategoryPriceEnum.guard.getCode():RechargeCategoryPriceEnum.VIP.getCode());  //type 为 3 是苹果支付
+		if (Tools.isNotNull(list)) {
+			List<Map<String, Object>> prices = new ArrayList<>();
+			for (GuardVipCategoryEntity price : list) {
+				Map<String, Object> item = new HashMap<>();
+				item.put("priceId", price.getId());
+				item.put("identifier", price.getIdentifier());
+				item.put("icon", Const.getCdn(price.getIcon()));
+				item.put("title", price.getName()+price.getDays()+"天");
+				item.put("description",price.getDescription());
+				item.put("money", price.getMoney() / 100);
+				if(Const.PAY_TEST_MOBILE_ACCOUNT_MAP.containsKey(userId)){
+					item.put("money", 1);
+				}
+				item.put("days", price.getDays());
+				item.put("actionUrl", Const.WEB_SITE+"/api/product/all/"+category+"/"+price.getId()+"?anchorId="+anchorId);
+				item.put("buttonName",Tools.formatDouble2Percent(price.getMoney()/price.getDays())+"元/天");
+				prices.add(item);
+			}
+			
+			map.put("prices", prices);
+		}
+	
+		return map;
+	}
+	
+	
+	
+	
+	public Map<String, Object> getWeeksCardPriceList() throws Exception {
+		BeatContext bc = RequestUtils.getCurrent();
+		long userId = bc.getUserid();
+		Map<String, Object> map = new HashMap<>();
+		map.put("balance", 0);
+		map.put("income", Tools.formatDouble2Percent(userIncomeAgent.getIncomeBalance(userId, AccountType.GENERAL)));
+		UserBO userBo = userAgent.findById(userId);
+		ChargeDeductionConfigDto config = sysConfigAgent.chargeDeduction();
+		if(Tools.isNotNull(config)) {
+			if( config.getStatus() == 1) {
+				map.put("ratio", Tools.getFloat2(config.getRatio()));
+			} else {
+				map.put("ratio", 0.00F);
+			}
+		} else {
+			map.put("ratio", 0.00F);
+		}
+		
+		userWeekCardAgent.clearCacheCurrentDailyWeekCard(userId,4);
+		userWeekCardAgent.clearCacheCurrentDailyWeekCard(userId,5);
+		
+		long minute4 = 0;
+		long minute5 = 0;
+		if(checkDialTimeLimit()){
+			UserDailyWeekcardEntity weekCard = userWeekCardAgent.getDailyWeekCardEntity(userId,4);
+			minute4 =  Tools.isNotNull(weekCard)?(weekCard.getTotal_duration()-weekCard.getDuration()):0;
+			weekCard = userWeekCardAgent.getDailyWeekCardEntity(userId,5);
+			minute5 =  Tools.isNotNull(weekCard)?(weekCard.getTotal_duration()-weekCard.getDuration()):0;
+		}
+		
+		Map<String, Object> greenPrice = new HashMap<>();
+		String cardInfo4 = "适用于120钻以下的大V聊天，使用绿钻卡后，低至40钻/分钟"+"\n"
+				+"聊天优先使用周卡，时间可叠加使用，当天时间当天有效"+"\n"
+				+"购买时间不得迟于晚8点，否则第二天生效"+"\n"
+				+"适用时段：早上8点~晚8点"+"\n"
+				+"今日还剩："+minute4+"分钟\n";
+					
+		greenPrice.put("cardInfo1", cardInfo4);
+		greenPrice.put("prices", getWeeksCardPrice(4));
+		
+		Map<String, Object> yellowPrice = new HashMap<>();
+		String cardInfo5 = "适用于120钻及以上的大V聊天，使用黄钻卡后，低至100钻/分钟"+"\n"
+				+"聊天优先使用周卡，时间可叠加使用，当天时间当天有效"+"\n"
+				+"购买时间不得迟于晚8点，否则第二天生效"+"\n"
+				+"适用时段：早上8点~晚8点"+"\n"
+				+"今日还剩："+minute5+"分钟\n";
+		yellowPrice.put("cardInfo1", cardInfo5);
+		yellowPrice.put("prices", getWeeksCardPrice(5));
+		
+		map.put("greenPrice", greenPrice);	
+		map.put("yellowPrice", yellowPrice);	
+		
+		return map;
+	}
+	
+
+	private List<Map<String, Object>> getWeeksCardPrice(int type) throws Exception {
+		long userId = RequestUtils.getCurrent().getUserid();
+		Date current = new Date();
+		PageModel pageModel = PageModel.getPageModel();
+		pageModel.addQuery(Restrictions.eq("userid", userId));
+		pageModel.addQuery(Restrictions.eq("type", type));
+		pageModel.addQuery(Restrictions.gt("end_time",current));
+		List<UserWeekcardAccountEntity> weekList = userWeekcardAccountContract.load(pageModel);
+		Map<Long,String> endDaysMap = new HashMap<>();
+		if(Tools.isNotNull(weekList)){
+			for(UserWeekcardAccountEntity re:weekList){
+				long days = (Tools.getDayTime(re.getEnd_time())-Tools.getDayTime(current))/(1000*AgentRedisCacheConst.DEFAULT_CACHE_EXPIRE_DAY);
+				if(days>0){
+					endDaysMap.put(re.getCard_id(),days+"天后到期");
+				}
+			}
+		}
+		pageModel.clearAll();
+		pageModel.addQuery(Restrictions.eq("status", 1));
+		pageModel.addQuery(Restrictions.eq("type", type));
+		pageModel.asc("priority");
+		List<GuardVipCategoryEntity> list = guardVipCategoryContract.load(pageModel);
+		List<Map<String, Object>> prices = new ArrayList<>();
+		if (Tools.isNotNull(list)) {
+			for (GuardVipCategoryEntity price : list) {
+				Map<String, Object> item = new HashMap<>();
+				item.put("priceId", price.getId());
+				item.put("icon", Const.getCdn(price.getIcon()));
+				item.put("title", price.getBuy_num()+"分钟/天");
+				item.put("money", price.getMoney() / 100);
+				if(Const.PAY_TEST_MOBILE_ACCOUNT_MAP.containsKey(userId)){
+					item.put("money", 1);
+				}
+				item.put("days", price.getDays());
+				String endInfo = endDaysMap.get(price.getId());
+				item.put("endInfo",Tools.isNotNull(endInfo)?endInfo:"暂未购买");
+				item.put("actionUrl", Const.WEB_SITE+"/api/product/all/"+RechargeCategoryPriceEnum.weeks_card.getCode()+"/"+price.getId());
+				item.put("buttonName",Tools.formatDouble2Percent(price.getMoney().longValue()/(price.getBuy_num().longValue()*price.getDays().longValue()))+"元/分钟");
+				prices.add(item);
+			}
+		}
+		return prices;
+	}
+	
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public ActionResult recharge(long priceId, int channelCode, double money, double income, Map<String,String> ipaParam,Long anchorId) throws Exception {
+		
+		BeatContext context = RequestUtils.getCurrent();
+		RequestHeader header = context.getHeader();
+		UserDetails user = context.getUser();
+		Long userId = user.getUserid();
+		String nickname = Tools.isNull(user.getNickname()) ? "" : user.getNickname();
+		String mobile = Tools.isNull(user.getMobile()) ? "" : user.getMobile();
+		Date date = new Date();
+		int mon = new BigDecimal(String.valueOf(money)).multiply(new BigDecimal("100")).intValue(), inc = new BigDecimal(String.valueOf(income)).multiply(new BigDecimal("100")).intValue();
+		if(0 < inc && inc > userIncomeAgent.getIncomeBalance(userId, AccountType.GENERAL)){
+			return ActionResult.fail(ErrorCodeEnum.income_pay_not_enough);
+		}
+		
+		GuardVipCategoryEntity price = null;
+		if (priceId == Const.vipBuyExperienceDto.getPriceId()){
+			price = new GuardVipCategoryEntity();
+			price.setId(Const.vipBuyExperienceDto.getPriceId());
+			price.setDays((int)Const.vipBuyExperienceDto.getDays());
+			price.setMoney((int)Const.vipBuyExperienceDto.getMoney()*100);
+			price.setType(2);
+			price.setDonor(0);
+			price.setName("VIP体验");
+		} else {
+			price = guardVipCategoryContract.findById(priceId);
+		}
+		
+		//测试账户
+		if(Const.PAY_TEST_MOBILE_ACCOUNT_MAP.containsKey(userId)){
+			price.setMoney(100);
+		}
+		
+		if(price.getType() == 1){
+			if(Tools.isNull(anchorId) || anchorId == 0){
+				return ActionResult.fail(ErrorCodeEnum.buy_guard_anchorId_is_null);
+			}
+		}
+		
+		if (Tools.isNotNull(price)) {
+			if (mon + inc != price.getMoney() || sysConfigAgent.checkIncomeRadioNoPass(price.getMoney(),inc)) {
+				return ActionResult.fail(ErrorCodeEnum.parameter_error);
+			}
+		} else {
+			return ActionResult.fail(ErrorCodeEnum.parameter_error);
+		}
+		
+	
+		String transactionId = null;
+		String receipt = null;
+		if(Tools.isNotNull(ipaParam)){
+			transactionId = ipaParam.get("transactionId");
+			receipt = ipaParam.get("receipt");
+		}
+		if (PayChannelEnum.iap.getCode() == channelCode && Tools.isNull(receipt) && Tools.isNull(transactionId)) {
+			return ActionResult.fail(ErrorCodeEnum.parameter_error);
+		}
+		
+		// 同一订单可能多次验证
+		Long orderId = payAgent.ensureOrderViaReceipt(MD5.encode(receipt));
+				
+		if (null == orderId || null == guardVipOrderContract.findById(orderId)) {
+			GuardVipOrderEntity order = new GuardVipOrderEntity();
+			order.setOrder_id(IdGenerater.generateId());
+			order.setCreate_time(date);
+			order.setUpdate_time(date);
+			order.setUser_id(userId);
+			order.setAnchorId(anchorId);
+			order.setMobile(mobile);
+			order.setNickname(nickname);
+			order.setPrice_id(price.getId());
+			order.setPrice(price.getMoney());
+			order.setType(price.getType());
+			order.setDays(price.getDays());
+			order.setDonor(price.getDonor());
+			order.setMoney(mon);
+			order.setIncome(inc);
+			order.setStatus(0);
+			order.setPackage_name(header.getPackageName());
+			guardVipOrderContract.insert(order);
+			orderId = order.getOrder_id();
+		}
+
+		PayAccessDto access = new PayAccessDto();
+		access.setUser_id(user.getUserid());
+		access.setNickname(user.getNickname());
+		access.setMobile(user.getMobile());
+		access.setOrder_id(orderId);
+		access.setInitialPrice((long)price.getMoney());
+		String fm = Tools.formatDouble2PercentToString(mon);
+		String buyInfo = "" ;
+		if(price.getType() == 1){
+			access.setType(PayTypeEnum.recharge_guard);
+			buyInfo = "守护充值" ;
+		}else if(price.getType() == 2 || price.getType() == 3 || price.getType() == 6){
+			access.setType(PayTypeEnum.recharge_vip);
+			buyInfo = "VIP充值" ;
+		}else if(price.getType() == 4 || price.getType() == 5){
+			access.setType(PayTypeEnum.room_weeks_card);
+			buyInfo = PayTypeEnum.room_weeks_card.getDesc() ;
+		}
+		if(Const.PAY_TEST_MOBILE_ACCOUNT_MAP.containsKey(userId)){
+			buyInfo="测试充值"+buyInfo;
+		}
+		access.setSubject("["+buyInfo+"：" + fm + "元]");
+		access.setDescription("用户账户"+buyInfo+"花费：" + fm + "元");
+		access.setMoney((long) mon);
+		access.setPay_channel(PayChannelEnum.getByCode(channelCode));
+		access.setApp_type(header.getOs_type());
+		access.setApp_channel(header.getChannel());
+		access.setApp_version(header.getVersion());
+		access.setPackage_name(header.getPackageName());
+		// iap 字段
+		access.setReceipt(receipt);
+		access.setIpaTransactionId(transactionId);
+		//access.setProduct_id(price.getPrice_identifier());
+		return ServiceHelper.dealPayData(payAgent.preparePay(access), PayChannelEnum.getByCode(channelCode));
+
+	}
+
+	private boolean checkDialTimeLimit(){
+		LocalTime localTime = LocalTime.now();
+		return localTime.getHour()<20;
+	}
+	
+}

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html style="font-size: 50px;">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="full-screen" content="yes">
+  <meta name="x5-fullscreen" content="true">
+  <meta name="applicable-device" content="mobile">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/reset.css">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/js/layer_mobile/layer.css')}" />
+  <title>女神之星</title>
+  <style type="text/css">
+    .wrap {
+      position: relative;
+      width: 100%;
+      height: 7.2rem;
+      margin: auto;
+      text-align: center;
+    }
+
+    .wrap img {
+      width: 6.9rem;
+      height: 100%;
+    }
+
+    .wrap #closeImg {
+      width: 0.6rem;
+      height: 0.6rem;
+      position: absolute;
+      top: 3%;
+      right: 7%;
+    }
+
+    .wrap .center {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      text-align: center;
+
+    }
+
+    .wrap .issue {
+      font-size: 0.46rem;
+      color: #fff;
+      line-height: 0.5rem;
+      text-shadow: 1px 2px 3px #000000;
+    }
+
+    .wrap .peoples {
+      font-size: 0.34rem;
+      color: #fff;
+      line-height: 0.8rem;
+      text-shadow: 1px 2px 3px #000000;
+    }
+
+    .wrap .money {
+      font-size: 0.26rem;
+      color: #fff;
+      /* line-height: 0.8rem; */
+      text-shadow: 1px 2px 3px #000000;
+    }
+
+    #alertBtn {
+      background: url('$!{Const.getCdn()}/img/activity/goddess/alertBtn.png') no-repeat center;
+      background-size: contain;
+      /* width: 4.10rem; */
+      height: 1rem;
+      margin: 0.35rem auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <img src="$!{Const.getCdn()}/img/activity/goddess/girlBg.png" alt="">
+    <div>
+      <img id="closeImg" src="$!{Const.getCdn()}/img/activity/goddess/girlClose.png" onclick="closeCurrentWindow()"
+        alt="">
+    </div>
+    <div class="center">
+      <p class="issue">第$!{issue}期开奖结果</p>
+      <p class="peoples">共$!{peoples}人瓜分$!{diamonds}钻</p>
+      <p class="money">(&nbsp;1钻=1元&nbsp;)</p>
+      <div id="alertBtn" onclick="gotoH5Fragment()"></div>
+    </div>
+
+
+  </div>
+
+  <script src=".$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+  <script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+
+  <script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+  <script type="text/javascript">
+    //安卓1 ios2
+    //关闭功能
+    function closeCurrentWindow() {
+      if (mobileType == 1) {
+        window.target.action(2);
+      } else if (mobileType == 2) {
+        window.webkit.messageHandlers.backPage.postMessage(0);
+      }
+    }
+
+    //跳转到"参与投票赢大奖"H5活动页
+    function gotoH5Fragment() {
+
+      if (mobileType == 1) {
+        window.target.gotoAppPage('WebSingleSaveFragment',
+          '{"strValue1":"$!{Const.getWebSite()}/web/activity/anchorStar/index"}'
+        );
+        // closeCurrentWindow();
+      } else if (mobileType == 2) {
+        window.webkit.messageHandlers.goToH5Page.postMessage({
+          "url": "${rc.contextPath}/web/activity/anchorStar/index"
+        });
+      }
+
+    }
+  </script>
+</body>
+
+</html>

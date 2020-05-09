@@ -1,0 +1,96 @@
+<!--安卓简版APP内的分享-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/reset.css')}"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/common.css')}"/>
+		<!-- 安卓手机底部返回键事件 -->
+		<script src="$!{Const.getCdn('/js/client/requestGoBack_android.js')}" type="text/javascript" charset="utf-8"></script>
+		<!--辨别设备 mobileType 安卓：1，IOS：2-->
+		<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+		<title>分享赚钱</title>
+		<style type="text/css">
+			body{background-color: #8B46F6;}
+			.mainBox_hasNav{position: relative;}
+			img.bg{position: absolute;top: 0px;left: 0;}
+			.ruleBox{position: absolute;top: 268px;left: 0;width: 100%;}
+			.shareBtn{display: block;width: 100%;height: 50px;line-height: 50px; background-color: #AD16FB;font-size: 19px;color: #fff;margin-top: 15px;}
+			
+			.ruleBox .inviteCode{position:relative;z-index:2;display: inline-block; overflow: hidden;text-overflow: ellipsis;white-space:nowrap;min-width: 200px; max-width: 325px; height: 32px;line-height: 32px;border-radius: 16px;-webkit-border-radius: 16px;background-color: #32C8FF; font-size: 17px;color: #fff;padding: 0 15px;}
+			.ruleBox .rule{position:relative;text-align: left;width: 345px;padding:30px 15px 0px 15px;margin:0 auto;margin-top: -16px; background-color: #fff;border-radius: 10px;-webkit-border-radius: 10px;}
+			.ruleBox .rule h2{font-size: 14px;color: #ac16fb;padding-bottom: 8px;}
+			.ruleBox .rule p{font-size: 12px;color: #333;padding-bottom: 12px;}
+			.ruleBox .rule img{position: absolute;}
+			.ruleBox .rule img:nth-of-type(1){width: 32px;top: 15px;right: 5px;}
+			.ruleBox .rule img:nth-of-type(2){width: 22px;top: 123px;right: 25px;}
+			/**/
+		</style>
+	</head>
+	<body>
+		<div id="ios_statusBar"></div><!--ios顶部状态栏-->
+		<div id="navigationBar">
+			<img src="$!{Const.getCdn('/img/public/backIcon_black.png')}" class="navBackBtn" onclick="navBackBtnAction()"/>
+			<p class="navTitle">邀请有礼</p>
+		</div>
+		<div class="mainBox_hasNav">
+			<img src="$!{Const.getCdn('/img/share/local_androidSimple/bg.png')}" class="bg"/>
+			<div class="ruleBox">
+				<span class="inviteCode">您的邀请码：${inviteCode}</span>
+				<div class="rule">
+					<h2>分享细则说明：</h2>
+					<p>对方点击分享链接并首次下载注册成功即可获得丰厚奖励。</p>
+					<h2>奖励一：邀请注册有奖</h2>
+					<p>邀请一个新用户注册，即可获得3元现金奖励</p>
+					<h2>奖励二：邀请的用户充值提成</h2>
+					<p>您邀请的人，每次完成充值，您将获得10%的提成</p>
+					<h2>奖励三：提现收入提成</h2>
+					<p>您邀请的人，每次完成提现，您将获得5%的提成</p>
+					<!--两个装饰性的小图片-->
+					<img src="$!{Const.getCdn('/img/share/local_androidSimple/cellPic01.png')}"/>
+					<img src="$!{Const.getCdn('/img/share/local_androidSimple/cellPic02.png')}"/>
+				</div>
+			<a class="shareBtn" onclick="share()">立即分享</a>	
+			</div>
+			
+		</div>
+		
+		<script src="$!{Const.getCdn('/js/public/jquery/jquery-2.1.4.min.js')}" type="text/javascript" charset="utf-8"></script>
+		<!--zoom.js适配屏幕-->
+		<script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+		<!-- 与客户端定义的事件 -->
+		<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			$(function(){
+				//适配屏幕
+				setTimeout(function(){
+					screenFix(375);
+				},300);
+				//"导航栏"写在H5端时使用：安卓/ios的状态栏高度不一样
+				resetNavigationBar(); //定义在common.js中
+			});
+			//导航栏返回按钮事件
+			function navBackBtnAction(){
+				gotoAppBack();
+			}
+			//点击"分享按钮"时调用
+			function share(){
+				var shareTitle = "$!{shareTitle}";
+				var shareInfo = "$!{shareInfo}";
+				var shareUrl = "$!{shareUrl}";
+				if (mobileType == 1) {
+					window.target.clickShare(shareTitle,shareInfo,shareUrl);
+				} else if(mobileType == 2){
+					var shareIos = {
+						"shareTitleWebkit":shareTitle,
+						"shareInfoWebkit":shareInfo,
+						"shareUrlWebkit":shareUrl
+					}
+					window.webkit.messageHandlers.JSShare.postMessage(shareIos);
+				}
+			}
+		</script>
+	</body>
+</html>

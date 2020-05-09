@@ -1,0 +1,452 @@
+﻿<!-- 我的钱包-ios -->
+<!DOCTYPE html>
+<html lang="en" style="font-size: 50px;">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/js/layer_mobile/layer.css')}" />
+  <link rel="stylesheet" href="$!{Const.getCdn()}/css/public/myReset.css">
+  <title>我的账户</title>
+  <style type="text/css">
+    .zuan_shengyuWrap {
+      margin: 0.5rem 0 0 0;
+      width: 100%;
+      border-bottom: 1px solid #eee;
+      text-align: center;
+      display: inline-block;
+    }
+
+    .zuan_shengyuWrapP {
+      width: 100%;
+      text-align: center;
+      display: inline-block;
+    }
+
+    .zuanMount_Wrap {
+      display: inline-flex;
+    }
+
+    .zuanPrice {
+      width: 1.2rem;
+      height: 0.5rem;
+      line-height: 0.5rem;
+      border-radius: 1rem;
+      -webkit-border-radius: 1rem;
+      font-size: 0.3rem;
+      color: #333;
+      background-color: #ffcd05;
+      position: absolute;
+      right: 0.24rem;
+      margin-top: 0.4rem;
+      text-align: center;
+    }
+
+    .myIncomeBtn {
+      color: #1C6FFD;
+      font-size: 0.3rem;
+    }
+
+    img {
+      width: 0.6rem;
+      height: 0.6rem;
+      vertical-align: unset;
+      margin-left: 0.2rem;
+    }
+
+    #navList {
+      margin-top: 0.2rem;
+      font-size: 0.28rem;
+      display: -webkit-flex;
+      display: flex;
+      display: -moz-box;
+      display: -ms-flexbox;
+      text-align: center;
+    }
+
+    #navList span {
+      flex: 1;
+      -webkit-flex: 1;
+      -ms-flex: 1;
+      flex: 1;
+      -webkit-box-flex: 1;
+      -moz-box-flex: 1;
+      align-items: center;
+      justify-content: center;
+      line-height: 0.7rem;
+      margin: 0 0.5rem 0 0.5rem;
+    }
+
+    #navList .act {
+      color: #FE3973;
+      border-bottom: 2px solid #FE3973;
+    }
+
+    .zuan_shengyuMount {
+      font-size: 1rem;
+      color: #333;
+      margin: 1rem 0 0.2rem 0;
+    }
+
+    .only {
+      font-size: 0.20rem;
+      color: #999;
+    }
+
+    .zuanList li {
+      width: 100%;
+      height: 1.2rem;
+    }
+
+    .zuanLi {
+      border-bottom: 1px solid #eee;
+    }
+
+    .zuanTab {
+      font-size: 0.3rem;
+      color: #333;
+    }
+
+    .zuanTab .zuanMount {
+      font-size: 0.27rem;
+      color: #333;
+    }
+
+    .zuanTab .give {
+      font-size: 0.2rem;
+      color: #999;
+    }
+
+    #border {
+      border-bottom: 1px solid #eee;
+    }
+
+    .content {
+      display: none;
+    }
+
+    .vmiPop {
+      width: 300px;
+      font-size: 17px;
+      border-radius: 10px;
+      -webkit-border-radius: 10px;
+    }
+
+    #bannerBtn {
+      background: url('$!{Const.getCdn()}/img/activity/goddess/Winbiggifts.png') no-repeat center;
+      background-size: contain;
+      width: 7.5rem;
+      height: 1.4rem;
+      margin: auto;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <!--<div id="navigationBar">
+			<img src="$!{Const.getCdn('/img/public/backIcon_black.png')}" class="navBackBtn" onclick="navBackBtnAction()"/>
+			<p class="navTitle">我的钱包</p>
+			"我的收益"入口还需控制显示/关闭 
+			#if(${incomeStatus} == 1)
+			<div class="navRightLink">
+				<a onclick="gotomyIncomePage()">我的收益</a> 
+			</div>
+			#end
+    </div>-->
+
+  <!-- banner图 -->
+  <div id="bannerBtn"></div>
+
+  <!-- 切换选项卡 -->
+  <div id="navList">
+    <span class="act">钻石</span>
+    <span>小红花</span>
+  </div>
+
+  <div class="mainBox">
+    <!-- 剩余钻 -->
+    <div class="content">
+      <div class="zuan_shengyuWrap">
+        <i class="visible"></i>
+        <p>
+          <span class="zuan_shengyuMount">${diamondPrice.balance}</span>
+          <div class="only">剩余钻</div>
+          #if(${diamondPrice.incomeStatus} == 1)
+          <p>
+            <a onclick="gotomyIncomePage()" class="myIncomeBtn">${incomeRecordDesc}</a>
+          </p>
+          #end
+        </p>
+      </div>
+      <ul id="zuanList">
+        #foreach($re in $!{diamondPrice.prices})
+        <li class="zuanLi">
+          <img src="$!{Const.getCdn('/img/wallet/zuanIcon.png')}" class="zuanIcon">
+          <span class="zuanMount_Wrap">
+            <i class="visible"></i>
+            <p class="zuanTab">
+              <span><a class="zuanMount">$!{re.diamond}</a>钻</span>
+              <br>
+              <span class="give">$!{re.description}</span>
+            </p>
+          </span>
+          <span class="zuanPrice" onclick="gotoPayPage('$!{re.priceId}',1)">￥<a>$!{re.money}</a></span>
+        </li>
+        #end
+      </ul>
+    </div>
+
+    <!-- 剩余小红花 -->
+    <div class="content">
+      <div class="zuan_shengyuWrap" id="border">
+        <i class="visible"></i>
+        <p>
+          <span class="zuan_shengyuMount">${flowerPrice.balance}</span>
+          <div class="only">剩余小红花</div>
+          #if(${flowerPrice.incomeStatus} == 1)
+          <p>
+            <a onclick="gotomyIncomePage()" class="myIncomeBtn">$!{incomeRecordDesc}</a>
+          </p>
+          #end
+        </p>
+      </div>
+      <ul id="zuanList">
+        #foreach($re in $!{flowerPrice.prices})
+        <li class="zuanLi">
+          <img src="$!{Const.getCdn('/img/wallet/flower.png')}" class="zuanIcon">
+          <span class="zuanMount_Wrap">
+            <i class="visible"></i>
+            <span class="zuanTab">
+              <span><a class="zuanMount">$!{re.flower}</a>朵</span>
+              <br>
+              <span class="give">$!{re.description}</span>
+            </span>
+          </span>
+          <span class="zuanPrice" onclick="gotoPayPage('$!{re.priceId}',4)">￥<a>$!{re.money}</a></span>
+        </li>
+        #end
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- 绑定手机号 -->
+  <div class="zuan_shengyuWrapP">
+    <i class="visible"></i>
+    <p>
+      #if($!{mobleFlag})
+      <a onclick="gotoBoundMobilePage()" class="myIncomeBtn">绑定手机号</a>
+      #if($!{moblePop})
+      <script type="text/javascript">
+        window.onload = function () {
+          showLayer(layerOpt_pop);
+        };
+      </script>
+      #end
+      #end
+    </p>
+  </div>
+
+</body>
+
+</html>
+<script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+<script src="$!{Const.getCdn()}/js/public/viewport/viewport-2.js"></script>
+<script src="$!{Const.getCdn('/js/layer_mobile/layer.js')}" type="text/javascript" charset="utf-8"></script>
+<!-- <script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script> -->
+<!--zoom.js适配屏幕-->
+<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+<!-- 判断手机型号 安卓1，iOS2 -->
+<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+<!-- client.js与客户端定义的事件 -->
+
+
+#if($!{quickChargeFalg})
+<script type="text/javascript">
+  //=== 弹窗配置===
+  var chargeOneOpt_pop = {
+    anim: 'false',
+    shadeClose: false,
+    className: 'chargePop',
+    content: '<p>充值体验</p><p>&nbsp;&nbsp;</p><p style="color:red;font-size:38px;" >38钻</p><p>&nbsp;&nbsp;</p><p>38元</p>',
+    // title: '<img src = "$!{Const.getCdn('/img/public/closeIcon_black.png ')}" onclick ="chargeOneOpt_pop.no()">',
+    title: '<span onclick ="chargeOneOpt_pop.no()"></span>',
+    btn: ['确定', '取消'],
+    yes: function (index) {
+      layer.close(index);
+      gotoPayPage('9223372036854775806', 1);
+    },
+    no: function (index) {
+      layer.close(index);
+      showLayer(chargeTwoOpt_pop);
+      chargeShow++;
+    }
+  };
+
+  var chargeTwoOpt_pop = {
+    anim: 'false',
+    shadeClose: false,
+    className: 'chargePop',
+    content: '<p>充值体验</p><p>&nbsp;&nbsp;</p><p style="color:red;font-size:38px;" >28钻</p><p>&nbsp;&nbsp;</p><p>28元</p><p>这是最低价哦，错过就没了</p>',
+    // title: '<img src = "$!{Const.getCdn('/img/public/closeIcon_black.png ')}" onclick ="closeAllLayer()">',
+    title: '<span onclick ="closeAllLayer()"></span>',
+    btn: ['确定', '取消'],
+    yes: function (index) {
+      layer.close(index);
+      gotoPayPage('9223372036854775805', 1);
+    }
+  };
+</script>
+#end
+
+<script type="text/javascript">
+  var chargeShow = 0;
+  //安卓手机底部返回键事件
+  function requestGoBack() {
+    var showDlg = '${quickChargeFalg}';
+    showDlg = eval(showDlg);
+    if (showDlg) {
+      navBackBtnAction();
+    } else {
+      gotoAppBack();
+    }
+  }
+
+  //安卓：APP返回到h5时响应的事件
+  function updateUserInfo(str) {
+    window.location.reload();
+  }
+
+  //=== 弹窗配置===
+  var layerOpt_pop = {
+    anim: 'false',
+    shadeClose: false,
+    className: 'vmiPop',
+    content: '<p>为了您的账户安全，请绑定手机号</p><p>绑定后可以用手机号登陆</p>',
+    title: '<span onclick ="closeAllLayer()"></span>',
+    btn: ['确定', '取消'],
+    yes: function (index) {
+      layer.close(index);
+      gotoBoundMobilePage();
+    }
+  };
+
+  // 顶部返回按钮事件:关闭所有H5返回到APP内页
+  function navBackBtnAction() {
+    var quickChargeFalg = '${quickChargeFalg}';
+    quickChargeFalg = eval(quickChargeFalg);
+    if (quickChargeFalg) {
+      //alert("调用quickChargeFalg"+chargeShow);
+      if (chargeShow == 0) {
+        //alert("调用showLayer"+chargeShow);
+        showLayer(chargeOneOpt_pop);
+        chargeShow++;
+        return;
+      }
+      if (chargeShow == 1) {
+        //alert("调用showLayer"+chargeShow);
+        showLayer(chargeTwoOpt_pop);
+        chargeShow++;
+        return;
+      }
+    }
+
+    if (mobileType == 1) {
+      window.target.action(1);
+    } else if (mobileType == 2) {
+      window.webkit.messageHandlers.backPage.postMessage(0); //返回上一页--zuanList--
+    }
+  }
+
+  //跳转到'我的收益'页面
+  function gotomyIncomePage() {
+    if (mobileType == 1) {
+      var actionUrl = "$!{Const.getWebSite()}" + "$!{incomeRecordUrl}";
+      closeCurrentWindow();
+      window.target.gotoAppPage('WebSingleSaveFragment', JSON.stringify({
+        "strValue1": actionUrl
+      }));
+    } else if (mobileType == 2) {
+      window.location.href = "${rc.contextPath}" + "$!{incomeRecordUrl}";
+    }
+  }
+
+  // 跳转到"支付方式"页面--需要附带参数:钻数+钱数
+  function gotoPayPage(priceId, priceType, pricePage) {
+    if (mobileType == 1) {
+      var actionUrl = "$!{Const.getWebSite()}/api/product/all/" + priceType + "/" + priceId;
+      closeCurrentWindow();
+      window.target.gotoAppPage('WebSingleSaveFragment', JSON.stringify({
+        "strValue1": actionUrl,
+        "strValue2": "选择支付方式",
+        "strValue3": "0"
+      }));
+    } else if (mobileType == 2) {
+      window.location.href = "${rc.contextPath}/api/product/all/" + priceType + "/" + priceId;
+    }
+  }
+
+  //跳转到'绑定手机号'页面
+  function gotoBoundMobilePage() {
+    if (mobileType == 1) {
+      var actionUrl = "$!{Const.getWebSite()}/api/userSafe/gotoMobilePage";
+      closeCurrentWindow();
+      window.target.gotoAppPage('WebSingleSaveFragment', JSON.stringify({
+        "strValue1": actionUrl,
+        "strValue2": "绑定手机号"
+      }));
+    } else if (mobileType == 2) {
+      window.location.href = "${rc.contextPath}/api/userSafe/gotoMobilePage";
+    }
+  }
+
+  //banner图跳转 首充送大礼
+  function goReChange() {
+    var bannerBtn = document.getElementById('bannerBtn');
+    var firstChargeFalg = '${firstChargeFalg}';
+    // 1显示  0不现实
+    if (firstChargeFalg == '1') {
+      bannerBtn.style.display = 'block';
+    } else {
+      bannerBtn.style.display = 'none';
+    }
+
+    bannerBtn.onclick = function () {
+
+      if (mobileType == 1) {
+        //closeCurrentWindow();
+        window.target.gotoAppPage('WebSingleSaveFragment', JSON.stringify({
+          "strValue1": "$!{Const.getWebSite()}/web/charge/sendGift",
+          "strValue2": '首充送大礼',
+        }));
+      } else if (mobileType == 2) {
+        window.webkit.messageHandlers.goToH5Page.postMessage({
+          "url": "$!{Const.getWebSite()}/web/charge/sendGift",
+          "title": '首充送大礼',
+        });
+      }
+    }
+  }
+  goReChange()
+
+  //切换小红花/钻石的class类名
+  var pricePage = '${pricePage}';
+  console.log(pricePage, '=====')
+  // var pricePage = 1;
+  changeTab(pricePage, '#navList span', '.mainBox .content')
+  $('#navList span').click(function () {
+    var n = $(this).index(); // 拿到点击span的索引
+    changeTab(n, '#navList span', '.mainBox .content');
+  })
+
+  function changeTab(n, tab, content) {
+    $(tab).removeClass('act')
+    $(tab).eq(n).addClass('act')
+    $(content).hide();
+    $(content).eq(n).show();
+  }
+</script>

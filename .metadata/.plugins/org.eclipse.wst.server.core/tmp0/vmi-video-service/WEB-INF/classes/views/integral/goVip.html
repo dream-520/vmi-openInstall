@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/myReset.css">
+  <script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+  <script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+  <script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+
+  <title>vip</title>
+</head>
+
+<body>
+ 
+ <script>
+  window.onload = function () {
+    buyVipCard()
+  }
+  //跳转到购买VIP内页
+  function buyVipCard() {
+    if (mobileType == 1) {
+      window.target.gotoAppPage('MyVipFragment', '');
+    } else if (mobileType == 2) {
+      var buyVipParamIos = {
+        "pageType": 15,
+        "param": {}
+      }
+      window.webkit.messageHandlers.skipManager.postMessage(buyVipParamIos);
+    }
+  }
+
+  // 顶部|底部 导航栏返回事件
+  function requestGoBack() {
+    gotoAppBack();
+  }
+</script>
+</body>
+</html>

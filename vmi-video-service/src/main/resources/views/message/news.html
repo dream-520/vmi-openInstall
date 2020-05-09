@@ -1,0 +1,39 @@
+<!--系统消息详情-->
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+	<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/reset.css"/>
+	<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/common.css"/>
+	<!-- 安卓手机底部返回键事件 -->
+	<script src="$!{Const.getCdn()}/js/client/requestGoBack_android.js" type="text/javascript" charset="utf-8"></script>
+	<title>系统消息详情</title>
+	<style type="text/css">
+		#MsgDetailBox{width: 100%;background-color: #fff;text-align: left;padding: 0 12px;}
+		.time{color: #666;font-size:10px;padding-bottom:15px;padding-top: 20px;}
+		.content{color: #666;font-size: 13px;line-height:26px;padding-bottom:20px;}
+	</style>
+</head>
+<body>
+	<div id="MsgDetailBox">
+		<p class="time">${time}</p>
+		<p class="content">${content}</p>
+	</div>
+	<script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js" type="text/javascript" charset="utf-8"></script>
+	<!--zoom.js适配屏幕-->
+	<script src="$!{Const.getCdn()}/js/public/zoom/zoom.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		$(function(){
+			//适配屏幕
+			setTimeout(function(){
+				screenFix(375);
+			},500);
+		});
+	</script>
+</body>
+</html>
+
+
+
+

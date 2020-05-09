@@ -1,0 +1,60 @@
+package org.shark.miai.common.enums;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * 用户信用账户消费日志表类型枚举类
+ * @author liuman
+ *
+ */
+public enum UserCreditLogTypeEnum {
+	
+	consume(0,"消费"),
+	add(1,"增加"),
+ 	;
+	
+	/**
+	 * 日志类型代码
+	 */
+	private int code;
+	/**
+	 * 日志类型描述
+	 */
+	private String desc;
+	
+	private static final Map<Integer , String> code_desc = new HashMap<Integer , String>();
+	
+	
+	static {
+		for(UserCreditLogTypeEnum refer : UserCreditLogTypeEnum.values()) {
+			code_desc.put(refer.getCode(), refer.getDesc());
+		}
+	}
+	
+	private UserCreditLogTypeEnum(int code, String desc) {
+		this.code = code;
+		this.desc = desc;
+	}
+	
+	public static String getDescByCode(int code) {
+		return code_desc.get(code);
+	}
+	
+	public int getCode() {
+		return code;
+	}
+
+	public void setCode(int code) {
+		this.code = code;
+	}
+
+	public String getDesc() {
+		return desc;
+	}
+
+	public void setDesc(String desc) {
+		this.desc = desc;
+	}
+
+}

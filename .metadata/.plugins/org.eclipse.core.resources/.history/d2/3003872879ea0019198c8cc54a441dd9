@@ -1,0 +1,61 @@
+package com.tigerjoys.shark.miai.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.tigerjoys.nbs.common.ActionResult;
+import com.tigerjoys.nbs.common.beans.Produce;
+import com.tigerjoys.nbs.web.annotations.Login;
+import com.tigerjoys.nbs.web.annotations.NoSign;
+import com.tigerjoys.nbs.web.annotations.TestEncrypt;
+import com.tigerjoys.nbs.web.context.RequestUtils;
+import com.tigerjoys.shark.miai.service.IWebLotteryService;
+
+@Controller
+@TestEncrypt("2aLQ0DC5fftG9VUKZm76Px3XTxPBZJ+4rVFJ6HoeoilS4yXjNNSh1DWSHn9kuV+6e35h8vXUGBx1PnZWs0qpxemq+Ie9bgmvtfLvqBE/5P9KuZKuuHywtLGJPaZiT5eLnkUyssie0SpIuG0IAE5uQRNXRn/kfv0QMjjhtK+gtAoaiylSqPbWtXxGlC4vrCXptjV+hi3piFModOFJsIdBiR1ngpL6O5owKSU/gKaj17OSsxT6nChtFHFjLhm+DNk7s6REpF7F2M9+tkRvGgC/hSsCTTpIMup4chX/laIROUNmEyNPOUBFgoIzxWGqnfhyuC6415z1EG74/g50FjkmstqWbuwHIJes3RJ7Z99JIMt4UIX2uokefwFrM4kYoygO5pufbfs039hQe1H/EzyQnzY1mZpXB3QbJyHz/6tovcLv3DFxexoIMpvwKMYOEz0BWKXy1N4bVmzO7VAJWY1W7g==")
+@RequestMapping(value = "/web/lottery")
+public class WebLotteryController {
+
+	//private final List<String> items = Stream.of(RouletteWheel.NewV.values()).map(one -> one.getDesc()).collect(Collectors.toList());
+	
+	@Autowired
+	private IWebLotteryService webLotteryService;
+	
+	/*
+	@ModelAttribute("encrypt")
+	public String addEncrypt() {
+		return RequestUtils.getCurrent().getHeaderEncrypt();
+	}
+	*/
+	
+	@NoSign
+	@RequestMapping(value = "/roulette/index", produces = Produce.TEXT_HTML)
+	public String rouletteHome(Model model) throws Exception {
+		model.addAttribute("encrypt", RequestUtils.getCurrent().getHeaderEncrypt());
+		//model.addAttribute("wheels", JsonHelper.toJson(items));
+		//return "activity/lottery/roulette";
+		//设置40条随机的滚动条数据
+		model.addAttribute("prizes", webLotteryService.randPrizes());
+		return "activity/lottery/LuckyTurntable";
+	}
+	
+	/**
+	 * 提交轮盘结果
+	 */
+	@Login
+	@NoSign
+	@RequestMapping(value = "/roulette/commit", method = RequestMethod.POST)
+	@ResponseBody
+	public ActionResult commitRoulette() throws Exception {
+		try {
+			return webLotteryService.roulette();
+		} catch (Exception e) {
+			return ActionResult.fail();
+		}
+	}
+	
+}

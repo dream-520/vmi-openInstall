@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/myReset.css" />
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/weixinChat/layer.css" />
+  <link rel="stylesheet" href="https://res.wx.qq.com/open/libs/weui/2.3.0/weui.min.css">
+  <script src="$!{Const.getCdn()}/js/weixinChat/layer.js"></script>
+  <script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+  <script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+  <script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+  <!-- <script src="$!{Const.getCdn()}/js/weixinChat/app.js"></script> -->
+
+
+  <title>主播详情</title>
+  <style>
+    #app {
+      width: 100%;
+      margin: auto;
+      overflow: hidden;
+    }
+
+    /* 导航头 */
+    .back {
+      width: 0.2rem;
+    }
+
+    .navigation {
+      z-index: 100;
+      position: fixed;
+      top: 0;
+      right: 0;
+      background: #fff;
+      width: 100%;
+      height: 0.7rem;
+      border-bottom: 1px solid #e6e6e6;
+      display: flex;
+      display: -webkit-flex;
+      display: -moz-box;
+      display: -ms-flexbox;
+      justify-content: space-between;
+      align-items: center;
+      /* justify-content: flex-start | flex-end | center | space-between | space-around; */
+    }
+
+    .navigation div {
+      /* flex: 1; */
+      padding: 0 0.2rem 0;
+      font-size: 0.3rem;
+    }
+
+    /* 主播信息 */
+    .wrap {
+      position: relative;
+    }
+
+    .wrap .anchorDel {
+      width: 100%;
+      /*margin-top: 0.7rem;*/
+      position: relative;
+      font-size: 0.32rem;
+    }
+
+    .wrap .anchorDel .anchorBg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .wrap .anchorDel .anchorDelText {
+      position: absolute;
+      bottom: 5%;
+      left: 5%;
+      color: #fff;
+      width: 100%;
+    }
+
+    .wrap .anchorDel .nickname {
+      font-size: 0.32rem;
+      display: block;
+    }
+
+    .wrap .anchorDel .anchorStar {
+      width: 0.2rem;
+      margin-left: 0.06rem;
+      vertical-align: middle;
+    }
+
+    .wrap .anchorDel .fans {
+      font-size: 0.22rem;
+      position: absolute;
+      right: 5%;
+      bottom: 5%;
+      color: #fff;
+    }
+
+    .solid {
+      width: 100%;
+      border-bottom: 1px solid #e6e6e6;
+    }
+
+    .ancTag {
+      margin: 0 0.3rem;
+      /*height: 2.2rem;*/
+    }
+
+    .ancTag .text {
+      font-size: 0.32rem;
+      color: #333;
+      line-height: 0.5rem;
+      margin: 0.4rem 0;
+    }
+
+    .ancTag .tagList {}
+
+    .ancTag .tagList .tagImg {
+      width: 1.4rem;
+      height: 0.6rem;
+    }
+
+    .ancTag .tagList .tagAge {
+      font-size: 0.26rem;
+      color: #2b2b2b;
+      position: absolute;
+      right: 0;
+      margin-top: 0.2rem;
+      margin-right: 0.5rem;
+    }
+
+    /* 联系方式 */
+    .contact {
+      padding: 0 0.3rem 0.2rem;
+      border-bottom: 1px solid #e6e6e6;
+    }
+
+    .contact .title {
+      font-weight: 700;
+      font-size: 0.3rem;
+      margin: 0.5rem 0;
+    }
+
+    .contact .contactBtn {
+      width: 100%;
+      height: 1rem;
+      line-height: 0.5rem;
+      border-radius: 10px;
+      background: url("$!{Const.getCdn()}/img/weixinChat/wxqqBtn.png") no-repeat center;
+      background-size: 100% 100%;
+    }
+
+    .contact .contactBtn i {
+      margin-left: 0.2rem;
+      font-size: 0.3rem;
+      color: #fff;
+    }
+
+    /* 她的相册 */
+    .album {
+      padding: 0 0.3rem 0.2rem;
+      border-bottom: 1px solid #e6e6e6;
+    }
+
+    .album .title {
+      font-weight: 700;
+      font-size: 0.3rem;
+      margin: 0.5rem 0;
+    }
+
+    .album .albumList {
+      width: 100%;
+      display: flex;
+      display: -webkit-flex;
+      display: -moz-box;
+      display: -ms-flexbox;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+    }
+
+    .album .albumList .albumImg {
+      width: 2.3rem;
+      height: 2.8rem;
+      border-radius: 5px;
+      flex: 1;
+      margin-right: 0.2rem;
+    }
+
+    /* 她的视频 */
+    .mv {
+      padding: 0 0.3rem 0.2rem;
+      border-bottom: 1px solid #e6e6e6;
+    }
+
+    #suoImg {
+      width: 0.6rem;
+      height: 0.6rem;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      -webkit-transform: translate(-50%, -50%);
+      -moz-transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+      -o-transform: translate(-50%, -50%);
+    }
+
+    #videoList {
+      width: 2.3rem;
+      height: 2.8rem;
+      margin-right: 0.2rem;
+    }
+
+    #videoList .albumImg {
+      width: 100%;
+      height: 100%;
+      border-radius: 5px;
+    }
+
+    #videoList .albumVideo {
+      width: 2.3rem;
+      height: 2.8rem;
+      border-radius: 5px;
+    }
+
+    .mv .title {
+      font-weight: 700;
+      font-size: 0.3rem;
+      margin: 0.5rem 0;
+    }
+
+    .mv .mvList {
+      position: relative;
+    }
+
+    .curent {
+      display: flex;
+      display: -webkit-flex;
+      display: -moz-box;
+      display: -ms-flexbox;
+      flex-wrap: nowrap;
+      width: 100%;
+      height: 100%;
+      overflow-y: hidden;
+    }
+
+    #video {
+      width: 2.3rem;
+      height: 2.8rem;
+      border-radius: 5px;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    /* 个人资料 */
+    .means {
+      border-bottom: 1px solid #e6e6e6;
+    }
+
+    .means .title {
+      font-weight: 700;
+      font-size: 0.3rem;
+      margin: 0.5rem 0 0.5rem 0.3rem;
+    }
+
+    .means .meanslist {}
+
+    .means .meanslist .listItem {
+      font-size: 0.26rem;
+      color: #666;
+      height: 1rem;
+      line-height: 1rem;
+      border-top: 1px solid #e6e6e6;
+    }
+
+    .means .meanslist .listItem .itemSolid {
+      margin: 0 0.3rem;
+      overflow: hidden;
+    }
+
+    .clearfix {
+      display: block;
+      clear: both;
+      content: '';
+      visibility: hidden;
+      height: 0;
+    }
+
+    .means .meanslist .listItem .itemSolid span:last-child {
+      float: right;
+      overflow: hidden;
+    }
+
+    .means .meanslist .listItem .itemSolid span:first-child {
+      text-align: left;
+    }
+
+    /* 用户评价 */
+    .user {
+      border-top: 5px solid #e6e6e6;
+    }
+
+    .user .title {
+      font-weight: 700;
+      font-size: 0.3rem;
+      margin: 0.5rem 0 0.5rem 0.3rem;
+    }
+
+    .user .userList {}
+
+    .user .userList .listItem:first-child {
+      border-top: 1px solid #e6e6e6;
+    }
+
+    .user .userList .listItem {
+      border-bottom: 1px solid #e6e6e6;
+    }
+
+    .user .userList .listItem .itemBox {
+      margin: 0.2rem 0.3rem;
+      display: block;
+      height: 1rem;
+      position: relative;
+    }
+
+    .user .userList .listItem .itemBox .itemHead {
+      width: 1rem;
+      height: 1rem;
+      border-radius: 50%;
+    }
+
+    .user .userList .listItem .itemBox .nickname {
+      font-size: 0.3rem;
+      color: #333;
+      position: absolute;
+      left: 20%;
+      bottom: 27%;
+    }
+
+    .user .userList .listItem .itemBox .tag1 {
+      font-size:0.3rem;
+      position: absolute;
+      right: 5%;
+      bottom: 27%;
+    }
+
+    .user .userList .listItem .itemBox .tag2 {
+      width: 1.5rem;
+      width: 1.5rem;
+      position: absolute;
+      right: 0;
+      bottom: 15%;
+      margin-right: 0.3rem;
+    }
+
+    .user .userList .listItem .explain {
+      font-size: 0.26rem;
+      color: #666;
+      margin: 0.1rem 0.3rem 0.3rem;
+    }
+
+    /* 底部按钮 */
+    .footerBtn {
+      width: 100%;
+    }
+
+    .footerBtn .btnImg {
+      width: 5.2rem;
+      height: 1rem;
+      margin: 0.5rem auto;
+      display: block;
+    }
+
+    /* 图片放大 */
+    .bigImg {
+      width: 100%;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      -webkit-transform: translate(-50%, -50%);
+      -moz-transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+      -o-transform: translate(-50%, -50%);
+      z-index: 10;
+    }
+
+    #dialog_large_image {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #100000;
+      z-index: 100;
+      display: none;
+    }
+
+    #dialog_large_image .dialog-body {
+      width: 100%;
+      max-width: 250px;
+      max-height: 300px;
+      margin: 0 auto;
+      padding: 10px;
+      border-radius: 5px;
+      background: white;
+      overflow: auto;
+      margin-top: 283px;
+    }
+
+    #dialog_large_image img {
+      width: 100%;
+    }
+
+    /* video 滚动条 */
+    video::-webkit-media-controls {
+      display: none !important;
+    }
+
+    /* 弹窗 */
+    .weui-mask {
+      position: fixed;
+      z-index: 1000;
+      top: 0;
+      right: 0;
+      left: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <!-- 导航头 -->
+    <!-- <div class="navigation">
+      <div class="view" onclick="window.location.href=document.referrer;">
+        <img class="back" src="$!{Const.getCdn()}/img/weixinChat/back.png" alt="">
+      </div>
+      <div class="header">主播详情页</div>
+      <div class="content"></div>
+    </div> -->
+
+    <div class="wrap">
+      <div class="anchorDel">
+        <img class="anchorBg" src="$!{homePage.photo}" alt="" />
+        <p class="anchorDelText">
+          <span class="nickname">$!{homePage.nickName}</span>
+          <i>
+            #foreach($i in [1..$!{homePage.anchorStar}])
+            <img class="anchorStar" src="$!{Const.getCdn()}/img/weixinChat/anchorStar.png" alt="" />
+            #end
+          </i>
+        </p>
+        <i class="fans">$!{homePage.anchorFans}粉丝</i>
+      </div>
+
+      <div class="solid">
+        <div class="ancTag">
+          <p class="text">
+            $!{homePage.anchorSignature}
+          </p>
+          <p class="tagList">
+            <img class="tagImg" src="$!{homePage.anchorTag}" alt="" />
+            <i class="tagAge">$!{homePage.ageDistance}</i>
+          </p>
+        </div>
+      </div>
+
+      <!-- 联系方式 -->
+      #if($!{homePage.showContact}==1)
+      <div class="contact">
+        <h3 class="title">联系方式</h3>
+        <p class="contactBtn" id="contactBtn">
+          <i>查看微信QQ,成为知心好友</i>
+        </p>
+      </div>
+      #end
+
+      <!-- 她的相册 -->
+      <div class="album">
+        <h3 class="title">Ta的相册</h3>
+        <div class="albumList">
+          #foreach($album in $!{homePage.albumList})
+          <p id="boxImg">
+            #if(${album.obscure} == 0)
+            <img class="albumImg" src="${album.path}" alt="">
+            #else
+            #if(${album.buy} == 0)
+            <img class="albumImg" src="${album.obscurePath}" alt=""
+              onclick="goPrivacyPhoto('$!{album.photoId}',1,this)">
+            #else
+            <img class="albumImg" src="${album.path}" alt="">
+            #end
+            #end
+            #end
+          </p>
+          <div id="dialog_large_image"></div>
+        </div>
+      </div>
+
+      <!-- 她的视频 -->
+      <div class="mv">
+        <h3 class="title" id="btn_fullscreen">Ta的视频</h3>
+        <div>
+          <ul class="curent">
+            #foreach($video in $!{homePage.videoList})
+            <li class="mvList" id="mvList">
+
+              #if(${video.obscure} == 0)
+              <p id="videoList">
+                <img class="albumVideo" src="${video.videoPhoto}" data-obscure="${video.obscure}" alt="">
+              </p>
+              #else
+              #if(${video.buy} == 0)
+              <p id="videoList"
+                onclick="goPrivacyVideo('$!{video.videoId}',2,'$!{video.videoPath}','$!{video.videoPhoto}',this)">
+                <img id="suoImg" src="$!{Const.getCdn()}/img/weixinChat/suo.png" alt="">
+                <img class="albumVideo" src="${video.obscurePath}" data-buy="${video.buy}" alt="">
+                <!--<video id="video" controls="controls" webkit-playsinline="true" x5-video-player-type="h5"
+                            x5-video-orientation="portraint" autoplay="none" poster="" style="object-fit:fill;">
+                  <source src="" type="video/mp4" />
+			          </video>-->
+              </p>
+              #else
+              <p id="videoList">
+                <img class="albumVideo" src="${video.videoPhoto}" data-photo="${video.videoPhoto}" alt="">
+              </p>
+              #end
+              #end
+            </li>
+            #end
+          </ul>
+        </div>
+      </div>
+
+      <!-- 个人资料 -->
+      <div class="means">
+        <h3 class="title">个人资料</h3>
+        <ul class="meanslist">
+          #foreach($map in $!{homePage.userInfo.entrySet()})
+          <li class="listItem">
+            <div class="itemSolid">
+              <span>$!{map.key}</span>
+              <span>$!{map.value}</span>
+            </div>
+          </li>
+          #end
+        </ul>
+      </div>
+
+      <!-- 用户评价 -->
+      <div class="user">
+        <h3 class="title">用户评价</h3>
+        <ul class="userList">
+          #foreach($evaluation in $!{homePage.userEvaluationList})
+          <li class="listItem">
+            <span class="itemBox">
+              <img class="itemHead" src="$!{evaluation.photo}" alt="">
+              <i class="nickname">$!{evaluation.nickName}</i>
+               <span class="tag1">
+              #foreach($impression in $!{evaluation.userImpression})
+                  <i style="color: $!{impression.color};">$!{impression.desc}</i>&nbsp;&nbsp;&nbsp;
+              #end
+               </span>
+            </span>
+            <p class="explain">$!{evaluation.evaluationText}</p>
+          </li>
+          #end
+        </ul>
+      </div>
+
+      <!-- 视频聊天按钮 -->
+      <div class="footerBtn" onclick="chatBtn()">
+        <img class="btnImg" id="chatBtn" src="$!{Const.getCdn()}/img/weixinChat/bottomBtn.png" alt="">
+      </div>
+    </div>
+
+    <!-- 弹窗 -->
+    <div class="weui-mask" id="wxBg" style="display: none;"></div>
+    <div class="weui-dialog" id="wxContent" style="display: none;">
+      <div class="weui-dialog__bd" id="showText"></div>
+      <div class="weui-dialog__ft">
+        <span class="weui-dialog__btn weui-dialog__btn_primary" id="showOff" onclick="showOff()">取消</span>
+        <span class="weui-dialog__btn weui-dialog__btn_primary" id="showOK" onclick="showOK()">确定</span>
+        <span class="weui-dialog__btn weui-dialog__btn_primary" style="display:none" id="downUrl">去下载</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var httpHeader = '$!{encrypt}';
+    //查看联系方式接口
+    var contact = '${rc.contextPath}/wx/buy/anchor/contact';
+    //微信购买私密视频/相册接口
+    var privacyPhoto = '${rc.contextPath}/wx/obscrue/look/privacy/photo';
+    //微信购买私密视频/相册列表接口
+    var photoList = '${rc.contextPath}/wx/obscrue/photo/list';
+    //微信充值接口
+    var wxPay = '${rc.contextPath}/wx/charge/pay';
+    //拨打视频接口
+    var wxDialing = '${rc.contextPath}/wx/videoChat/wxDialing';
+
+
+
+    //查看联系方式
+    function lookTel() {
+      $("#contactBtn").on("click", function () {
+        // 请求数据 判断钻石
+        // 获取url 中的参数 userid
+        var r = window.location.search;
+        if (r.indexOf("?") != -1) {
+          var str = r.substr(1);
+        }
+        var strs = str.split("&");
+        for (var i = 0; i < strs.length; i++) {
+          var c = strs[i]
+          console.log(c)
+
+        }
+        var anchorId = c.split('=')[1];
+
+        var params = {
+          anchorId: anchorId
+        }
+
+        $.ajax({
+          url: contact,
+          method: "POST",
+          async: true,
+          cache: false,
+          dataType: "json",
+          contentType: "application/json;charset=utf-8",
+          headers: {
+            "header-encrypt-code": httpHeader
+          },
+          data: JSON.stringify(params),
+          success(data) {
+            if (data.code == 1044) {
+              zuanNO()
+            }
+            if (data.code == 0) {
+              $('#showOK').hide();
+              $('#showOff').text('确定')
+              $("#wxBg").show();
+              $("#wxContent").show();
+              $("#showText").text("联系方式");
+              $("#showText").text(data.data);
+            }
+          },
+          error: function (err) {
+            console.log(err);
+          }
+        });
+      });
+    }
+    lookTel();
+
+    //主播相册
+    function goPrivacyPhoto(photoId, type, that) {
+
+      var params = {
+        photoId: photoId,
+        type: type,
+      }
+      $.ajax({
+        url: privacyPhoto,
+        method: "POST",
+        async: true,
+        cache: false,
+        dataType: "json",
+        contentType: "application/json;charset=utf-8",
+        headers: {
+          "header-encrypt-code": httpHeader
+        },
+        data: JSON.stringify(params),
+        success(data) {
+          console.log(data, '微信购买私密相册接口')
+          if (data.code == 0) {
+            //替换图片地址
+            var srcNew = data.data.picture;
+            debugger
+            $(that).attr('src', srcNew)
+            $("#dialog_large_image").show()
+          }
+          if (data.code == 1044) {
+            $("#dialog_large_image").hide()
+            zuanNO()
+          }
+        },
+        error: function (err) {
+          console.log(err);
+        }
+      });
+    }
+
+    //主播视频
+    function goPrivacyVideo(videoId, type, videoPath, videoPhoto, that) {
+      var params = {
+        photoId: videoId,
+        type: type,
+        videoPath: videoPath
+      }
+      $.ajax({
+        url: privacyPhoto,
+        method: "POST",
+        async: true,
+        cache: false,
+        dataType: "json",
+        contentType: "application/json;charset=utf-8",
+        headers: {
+          "header-encrypt-code": httpHeader
+        },
+        data: JSON.stringify(params),
+        success(data) {
+          console.log(data, '微信购买私密视频接口')
+          if (data.code == 0) {
+            //支付成功 去掉锁子，替换src ，清楚click
+            var srcNew = data.picture;
+            videoload(that, videoPhoto, srcNew)
+            $(that).on('click', function () {
+              videoload(that, videoPhoto, srcNew)
+            })
+          }
+          if (data.code == 1044) {
+            //videoload(that, videoPhoto, srcNew)
+
+            //$(that).on('click', function () {
+            //  videoload(that, videoPhoto, srcNew)
+            //})
+
+            //支付失败
+            zuanNO()
+          }
+        },
+        error: function (err) {
+          console.log(err);
+        }
+      });
+    }
+
+    //视频播放控件
+    function videoload(that, videoPhoto, srcNew) {
+      $(that).removeAttr('onclick')
+      //模拟srcNew
+      //var srcNew = "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/05/1570277147717_3306.mp4";
+
+      var str = '';
+      str += '<video id="video" controls="controls" autoplay="none" style="object-fit:fill">'
+      str += '<source src="' + srcNew + '" type="video/mp4">'
+      str += '</source>'
+      str += '</video>'
+      $(that).html(str)
+
+      var str1 = '';
+      str1 += '<img class="albumVideo" src="' + videoPhoto + '"  alt="">';
+
+      //播放控件
+      var read = document.getElementById('video');
+      $('#video').on('play', function () {
+        console.log('开始播放')
+        //full(read)
+      })
+
+      $('#video').on('ended', function () {
+        $(this).remove()
+        $(that).next().show()
+        console.log('播放结束了!');
+        //exitFullscreen(document)
+        $(that).html(str1)
+      });
+
+      // $('#video').on('pause', function () { //暂停
+      //   console.log('暂停播放')
+      //   $(that).html(str1)
+      // });
+
+    }
+
+    //进入全屏
+    function full(ele) {
+      if (ele.requestFullscreen) {
+        ele.requestFullscreen();
+      } else if (ele.mozRequestFullScreen) {
+        ele.mozRequestFullScreen();
+      } else if (ele.webkitRequestFullscreen) {
+        ele.webkitRequestFullscreen();
+      } else if (ele.msRequestFullscreen) {
+        ele.msRequestFullscreen();
+      }
+    }
+
+    //推出全屏
+    function exitFullscreen(d) {
+      if (document.exitFullScreen) {
+        document.exitFullScreen();
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (element.msExitFullscreen) {
+        element.msExitFullscreen();
+      }
+    }
+
+    //展示图片放大
+    function showBigImg() {
+      //获取缩略图的点击事件，然后将大图片展示出来（样式里默认显示为```none```）
+      $('img.albumImg').on('click', function () {
+        //有钻可以查看，无钻去充值
+
+        var large_image = "<img src= " + $(this).attr("src") + "></img>";
+        $("#dialog_large_image").html(
+          $(large_image)
+          .addClass("bigImg")
+          .animate({
+              borderSpacing: document.documentElement.clientHeight + "px"
+              // width: '100%',
+            },
+            'normal'
+          )
+        );
+
+        var $dialog = $("#dialog_large_image");
+        $dialog.show();
+        // outerHeight声明了整个窗口的高度
+        // 此处的代码通过上面的图片，我已经标注出来了相应的区域部分。
+        //整个页面减去大图片显示区域从上到图片的最底边所产生的距离，然后除2就可以实现图片的放大居中了。
+        var marginTop =
+          ($dialog.outerHeight() - $(".dialog-body", $dialog).outerHeight()) / 2;
+        $(".dialog-body", $dialog).css({
+          marginTop: marginTop
+        });
+
+        // 点击显示的大图，触发事件，当触发当前页面内里任何处位置，就会隐藏显示的大图
+        $("#dialog_large_image").on("click", function () {
+          $(this).hide();
+        });
+      })
+    }
+
+    showBigImg()
+
+    //与他视频聊天
+    function chatBtn() {
+      var params = {
+        mobileType: mobileType
+      }
+      $.ajax({
+        url: wxDialing,
+        method: "POST",
+        async: true,
+        cache: false,
+        dataType: "json",
+        contentType: "application/json;charset=utf-8",
+        headers: {
+          "header-encrypt-code": httpHeader
+        },
+        data: JSON.stringify(params),
+        success(data) {
+          console.log(data, '与他视频按钮')
+          if (data.code == 0) {
+            var downURL = data.data.downURL;
+            goDownload(downURL);
+          } else {
+            zuanNO()
+          }
+        },
+        error: function (err) {
+          console.log(err);
+        }
+      });
+    };
+
+    //无钻的弹窗
+    function zuanNO() {
+      //点联系方式 有钻显示 无钻 弹框充值
+      $("#wxBg").show();
+      $("#wxContent").show();
+      $("#showText").text("充值后即可畅看哦");
+      //$("#showOff").hide();
+      //$("#showOK").onclick = showOK;
+    }
+
+    //去下载弹窗
+    function goDownload(downURL) {
+      //点联系方式 有钻显示 无钻 弹框充值
+      $("#wxBg").show();
+      $("#wxContent").show();
+      $("#showText").text("下载app版本 体验更好视频,更有聊天打折福利");
+      $("#showOff").hide();
+      $("#showOK").hide();
+      $('#downUrl').show();
+      $('#downUrl').on('click', function () {
+        window.location.href = downURL;
+      })
+    }
+
+    function showOK() {
+      //去充值 调用微信支付
+      toRecharge()
+      $("#wxBg").hide();
+      $("#wxContent").hide();
+    };
+
+    function showOff() {
+      $("#wxBg").hide();
+      $("#wxContent").hide();
+    }
+
+    //去充值接口
+    function toRecharge() {
+      $.ajax({
+        url: wxPay,
+        method: "POST",
+        async: true,
+        cache: false,
+        dataType: "json",
+        contentType: "application/json;charset=utf-8",
+        headers: {
+          "header-encrypt-code": httpHeader
+        },
+        success(json) {
+          console.log(json, '支付接口数据')
+          if (json.code == 0) {
+            //成功
+            onBridgeReady(json.data);
+            console.log(json, '支付')
+          } else {
+            //失败
+          }
+        },
+        error: function (err) {
+          console.log(err);
+        }
+      });
+    }
+
+    //调用微信支付
+    function onBridgeReady(data) {
+      console.log(data, 'onBridgeReady')
+      console.log(JSON.stringify(data), 'JSON.stringify(data)')
+      WeixinJSBridge.invoke(
+        'getBrandWCPayRequest', {
+          "appId": data.appId, //公众号名称，由商户传入
+          "timeStamp": data.timeStamp, //时间戳，自1970年以来的秒数
+          "nonceStr": data.nonceStr, //随机串
+          "package": data.packages,
+          "signType": data.signType, //微信签名方式：
+          "paySign": data.paySign //微信签名
+        },
+        function (res) {
+          console.log(res, '微信支付')
+          if (res.err_msg == "get_brand_wcpay_request:ok") {
+            // 使用以上方式判断前端返回,微信团队郑重提示：
+            //res.err_msg将在用户支付成功后返回ok，但并不保证它绝对可靠。
+            //支付成功
+            WeixinJSBridge.call('closeWindow');
+          } else if (res.err.msg == "get_brand__wcpay_request:cance1") {
+            //取消支付
+            WeixinJSBridge.call('closeWindow');
+          } else if (res.err.msg == "get_ brand__wcpay_request:fail") {
+            //支付失败
+          }
+
+          if (typeof WeixinJSBridge == "undefined") {
+            if (document.addEventListener) {
+              document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+            } else if (document.attachEvent) {
+              document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
+              document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+            }
+          } else {
+            onBridgeReady();
+          }
+        })
+    }
+  </script>
+
+</body>
+
+</html>

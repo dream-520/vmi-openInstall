@@ -1,0 +1,459 @@
+package com.tigerjoys.shark.miai.controller;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.alibaba.fastjson.JSONObject;
+import com.tigerjoys.nbs.common.ActionResult;
+import com.tigerjoys.nbs.common.beans.Produce;
+import com.tigerjoys.nbs.common.cache.CacheRedis;
+import com.tigerjoys.nbs.common.utils.JsonHelper;
+import com.tigerjoys.nbs.common.utils.Tools;
+import com.tigerjoys.nbs.common.utils.sequence.IdGenerater;
+import com.tigerjoys.nbs.mybatis.core.page.PageModel;
+import com.tigerjoys.nbs.mybatis.core.sql.Restrictions;
+import com.tigerjoys.nbs.web.annotations.FilterHeader;
+import com.tigerjoys.nbs.web.annotations.Login;
+import com.tigerjoys.nbs.web.annotations.NoLogin;
+import com.tigerjoys.nbs.web.annotations.NoSign;
+import com.tigerjoys.nbs.web.annotations.TestEncrypt;
+import com.tigerjoys.nbs.web.context.RequestUtils;
+import com.tigerjoys.shark.miai.Const;
+import com.tigerjoys.shark.miai.RedisCacheConst;
+import com.tigerjoys.shark.miai.agent.INeteaseAgent;
+import com.tigerjoys.shark.miai.agent.IRedFlowerAgent;
+import com.tigerjoys.shark.miai.agent.IUserPointAgent;
+import com.tigerjoys.shark.miai.agent.dto.result.AgentResult;
+import com.tigerjoys.shark.miai.agent.enums.AgentErrorCodeEnum;
+import com.tigerjoys.shark.miai.agent.enums.RedFlowerAccountLogTypeEnum;
+import com.tigerjoys.shark.miai.agent.enums.UserPointAccountLogTypeEnum;
+import com.tigerjoys.shark.miai.dto.service.AnchorStarDto;
+import com.tigerjoys.shark.miai.dto.service.AnchorStarItem;
+import com.tigerjoys.shark.miai.dto.service.AnchorStarPrizeDto;
+import com.tigerjoys.shark.miai.dto.service.AnchorStarVoteDto;
+import com.tigerjoys.shark.miai.enums.ErrorCodeEnum;
+import com.tigerjoys.shark.miai.inter.contract.IActivityStarAnchorContract;
+import com.tigerjoys.shark.miai.inter.contract.IActivityStarIssueContract;
+import com.tigerjoys.shark.miai.inter.contract.IActivityStarUserPrizeContract;
+import com.tigerjoys.shark.miai.inter.contract.IActivityStarUserVoteContract;
+import com.tigerjoys.shark.miai.inter.contract.IAnchorOnlineContract;
+import com.tigerjoys.shark.miai.inter.entity.ActivityStarAnchorEntity;
+import com.tigerjoys.shark.miai.inter.entity.ActivityStarIssueEntity;
+import com.tigerjoys.shark.miai.inter.entity.ActivityStarUserPrizeEntity;
+import com.tigerjoys.shark.miai.inter.entity.ActivityStarUserVoteEntity;
+import com.tigerjoys.shark.miai.inter.entity.AnchorOnlineEntity;
+
+/**
+ * 女神之星活动
+ * @author sliming
+ *
+ */
+@Controller
+
+@TestEncrypt("4Jaf9LQtw2TGYwwiCQd28mLV4mJEUwt5PYKV9Zp5poawrMXpkU6nHM8tVT/KIEpRIKznxEm/B+bSANId/8vyM8CgplObuZ704q2gOJiRW76Ch6Qa7036sVWHMP6VMvv1skNyhF1owbWLC9vPobusA+VHNXQf2z9ezyrtb4bqc04mdJh1qdqpaVekxjqia6EAKh5ncuKCl8kWqTxi430o35wuMQOTbmyZqvNPEBb6kBYxL8yjmHjBNv9ynIkTIB+HUaM7ovKzq801dcB8jyYrNI91K4qx2W6H3NpkxH6UsDQ9mh8FH9J9FXKVM8p8UbgyVTSW7eYDHm/OAAt0fwtZxdLGBo8VZT0esN3SKJeNGQ8eXogs2NuPbWsXc2nAQ2Uo")
+@RequestMapping(value = "/web/activity/anchorStar")
+public class WebActivityAnchorStar {
+
+	@Autowired
+	private IRedFlowerAgent redFlowerAgent;
+	
+	@Autowired
+	private IActivityStarIssueContract activityStarIssueContract;
+	
+	@Autowired
+	private IActivityStarUserPrizeContract activityStarUserPrizeContract;
+	
+	@Autowired
+	private IActivityStarAnchorContract activityStarAnchorContract;
+	
+	@Autowired
+	private IActivityStarUserVoteContract activityStarUserVoteContract;
+	
+	@Autowired
+	private IUserPointAgent userPointAgent;
+	
+	@Autowired
+	private IAnchorOnlineContract anchorOnlineContract;
+	
+	@Autowired
+	@Qualifier(RedisCacheConst.REDIS_PUBLIC_CACHE)
+	private CacheRedis cacheRedis;
+	
+	@Autowired
+	private INeteaseAgent neteaseAgent;
+	
+	//@NoLogin
+	//@FilterHeader
+	@Login
+	@RequestMapping(value = "/pop", produces = Produce.TEXT_HTML)
+	public String anchorStarPop(Model model) throws Exception {
+		PageModel pageModel = PageModel.getPageModel();
+		pageModel.addLimitField(0, 1);
+		pageModel.addQuery(Restrictions.eq("issue_state", 1));
+		pageModel.desc("id");
+		List<ActivityStarIssueEntity> activitys = activityStarIssueContract.load(pageModel);
+		int issue = 5;
+		int peoples = 0;
+		int diamonds = 0;
+		if(Tools.isNotNull(activitys)) {
+			ActivityStarIssueEntity activity = activitys.get(0);
+			issue = activity.getIssue_number();
+			diamonds = activity.getShow_money();
+			peoples = activity.getShow_people();
+		} else {
+			peoples = getRandomNumber(500, 1000);
+			diamonds = peoples * getRandomNumber(1, 30);
+		}
+		model.addAttribute("issue", issue);
+		model.addAttribute("peoples", peoples);
+		model.addAttribute("diamonds", diamonds);
+		
+		//根据需求显示下一期需要开奖的倒计时时间
+		pageModel.clearAll();
+		pageModel.addLimitField(0, 1);
+		pageModel.addQuery(Restrictions.eq("issue_state", 0));
+		pageModel.asc("id");
+		activitys = activityStarIssueContract.load(pageModel);
+		long surplus = 0;
+		if(Tools.isNotNull(activitys)) {
+			ActivityStarIssueEntity activity = activitys.get(0);
+			if(Tools.isNotNull(activity)) {
+				long current = System.currentTimeMillis();
+				surplus = ( activity.getEnd_time().getTime() - current ) / 1000;
+			}
+		}
+		int hours = (int) (surplus / 3600);
+		int min = (int) ((surplus -(hours * 3600)) / 60);
+		StringBuilder sb = new StringBuilder();
+		if(hours > 0) {
+			sb.append(hours + " 小时 " + min + " 分钟");
+		} else {
+			if( min == 0)
+				min = 1;
+			sb.append(min + " 分钟");
+		}
+		model.addAttribute("surplus", sb.toString());
+		//return "activity/goddess/pop";
+		long userId = RequestUtils.getCurrent().getUserid();
+		//获取对本期的投注和中奖信息
+		pageModel.clearAll();
+		pageModel.addQuery(Restrictions.eq("userid", userId));
+		pageModel.addQuery(Restrictions.eq("issue_id", issue));
+		long count = activityStarUserVoteContract.count(pageModel);
+		//0 未投注 1 投注未中奖 2 投注中奖了
+		int vote = 0;
+		//中奖钻石值
+		int diamod = 0;
+		if(count > 0) {
+			//获取是否中过奖
+			pageModel.clearAll();
+			pageModel.addQuery(Restrictions.eq("issue_id", issue));
+			pageModel.addQuery(Restrictions.eq("userid", userId));
+			List<ActivityStarUserPrizeEntity> prizes = activityStarUserPrizeContract.load(pageModel);
+			if(Tools.isNotNull(prizes)) {
+				ActivityStarUserPrizeEntity prize = prizes.get(0);
+				if(Tools.isNotNull(prize)) {
+					//中奖信息
+					vote = 2;
+					diamod = prize.getIssue_prize();
+				}
+			} else {
+				//未中奖
+				vote = 1;
+			}
+		} 
+		System.err.println("中奖信息"+vote +"中奖钻石:"+diamod);
+		model.addAttribute("vote", vote);
+		model.addAttribute("diamod", diamod);
+		return "activity/goddess/homeShow";
+	}
+	
+	@Login
+	@RequestMapping(value = "/index", produces = Produce.TEXT_HTML)
+	public String anchorStarIndex(Model model) throws Exception {
+		//给对应的页面设置加密头数据
+		model.addAttribute("encrypt", RequestUtils.getCurrent().getHeaderEncrypt());
+		return "activity/goddess/girlStar";
+	}
+	
+	@Login
+	@RequestMapping(value = "/history", produces = Produce.TEXT_HTML)
+	public String anchorStarHistoryList(Model model) throws Exception {
+		model.addAttribute("encrypt", RequestUtils.getCurrent().getHeaderEncrypt());
+		//设置对应的请求列表数据
+		PageModel pageModel = PageModel.getPageModel();
+		pageModel.addLimitField(0, 30);
+		pageModel.addQuery(Restrictions.eq("issue_state", 1));
+		pageModel.desc("issue_number");
+		List<ActivityStarIssueEntity> activitys = activityStarIssueContract.load(pageModel);
+		List<Integer> issues = new ArrayList<>();
+		if(Tools.isNotNull(activitys)) {
+			for (ActivityStarIssueEntity activity : activitys) {
+				issues.add(activity.getIssue_number());
+			}
+		}
+		model.addAttribute("issues", issues);
+		return "activity/goddess/past";
+	}
+	
+	@Login
+	@RequestMapping(value = "/prize/{issue}", produces = Produce.TEXT_HTML)
+	public String anchorStarPrize(Model model, @PathVariable String issue) throws Exception {
+		model.addAttribute("encrypt", RequestUtils.getCurrent().getHeaderEncrypt());
+		//根据传入的期号获取对应的中奖主播和自己的中奖信息
+		long userId = RequestUtils.getCurrent().getUserid();
+		//long userId = 143341067756962048L;
+		//对应的期号
+		//int issue = 5;
+		AnchorStarPrizeDto dto = new AnchorStarPrizeDto();
+		//获取对应期号的中奖信息
+		ActivityStarIssueEntity activity = activityStarIssueContract.findByProperty("issue_number", issue);
+		if(Tools.isNotNull(activity)) {
+			//获取对应的中奖主播
+			AnchorOnlineEntity data = anchorOnlineContract.findByProperty("userid", activity.getIssue_anchor());
+			if(Tools.isNotNull(data)) {
+				dto.setNickName(data.getNickname());
+				dto.setPhoto(Const.getCdn(data.getPhoto()));
+			}
+			//获取对应的用户的中奖信息
+			PageModel pageModel = PageModel.getPageModel();
+			pageModel.addQuery(Restrictions.eq("issue_id", issue));
+			pageModel.addQuery(Restrictions.eq("userid", userId));
+			List<ActivityStarUserPrizeEntity> prizes = activityStarUserPrizeContract.load(pageModel);
+			if(Tools.isNotNull(prizes)) {
+				ActivityStarUserPrizeEntity prize = prizes.get(0);
+				if(Tools.isNotNull(prize)) {
+					dto.setPrizeTitle("恭喜您");
+					dto.setPrizeText("您投中了第"+prize.getIssue_id()+"期女神之星，获得"+prize.getIssue_prize()+"钻<br/>"+"已经返到账户中");
+				}
+			} else {
+				dto.setPrizeTitle("很抱歉");
+				dto.setPrizeText("你没有中奖，无法瓜分奖金<br/>试着多投几个，增加投中几率哦");
+			}
+			model.addAttribute("peoples", activity.getShow_people());
+			model.addAttribute("diamonds", activity.getShow_money());
+		}
+		dto.setIssue("第"+issue+"期");
+		model.addAttribute("prize", dto);
+		return "activity/goddess/pastIndex";
+	}
+	
+	@RequestMapping(value = "/index/ajax", produces=Produce.TEXT_JSON)
+	@ResponseBody
+	@NoSign
+	public ActionResult getIndexData(HttpServletRequest request,HttpServletResponse response) throws Exception {
+		/*
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
+		response.setHeader("Access-Control-Max-Age", "3600");
+		response.setHeader("Access-Control-Allow-Headers","Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-Wit");
+		response.setHeader("Access-Control-Allow-Credentials", "true");
+		*/
+		AnchorStarDto dto = new AnchorStarDto();
+		int issue = -1;
+		long surplus = 0;
+		long flowers = 0;
+		boolean isPrize = false;
+		String prizeText = null;
+		List<AnchorStarItem> items = null;
+		long userId = RequestUtils.getCurrent().getUserid();
+		//long userId = 143341067756962048L;
+		//获取当前时间对应的获取期数
+		long current = System.currentTimeMillis();
+		PageModel pageModel = PageModel.getPageModel();
+		pageModel.addQuery(Restrictions.le("begin_time", Tools.getDateTime(current)));
+		pageModel.addQuery(Restrictions.gt("end_time", Tools.getDateTime(current)));
+		List<ActivityStarIssueEntity> activitys = activityStarIssueContract.load(pageModel);
+		if(Tools.isNotNull(activitys)) {
+			ActivityStarIssueEntity activity = activitys.get(0);
+			if(Tools.isNotNull(activity)) {
+				//计算剩余的秒数
+				surplus = ( activity.getEnd_time().getTime() - current ) / 1000;
+				issue = activity.getIssue_number();
+				//获取当前期数对应的主播信息
+				pageModel.clearAll();
+				pageModel.addQuery(Restrictions.eq("issue_number", activity.getIssue_number()));
+				pageModel.desc("charm_current");
+				List<ActivityStarAnchorEntity> anchors = activityStarAnchorContract.load(pageModel);
+				if(Tools.isNotNull(anchors)) {
+					items = new ArrayList<>();
+					//拼接对应的主播信息
+					int index = 1;
+					for (ActivityStarAnchorEntity anchor : anchors) {
+						AnchorOnlineEntity data = anchorOnlineContract.findByProperty("userid", anchor.getAnchor_id());
+						if(Tools.isNotNull(data)) {
+							AnchorStarItem t = new AnchorStarItem();
+							t.setIndex(index);
+							t.setUserid(data.getUserid()+"");
+							t.setStar(data.getStar());
+							t.setNickName(data.getNickname());
+							t.setCharm(anchor.getCharm_current());
+							t.setPhoto(Const.getCdn(data.getPhoto()));
+							items.add(t);
+							index++;
+						}
+					}
+				}
+				//获取当前用户对应的小红花的数量
+				flowers = Tools.parseLong(redFlowerAgent.getTotalFlowers(userId).getData());
+			}
+		}
+		//获取本用户是否有对应的中奖信息
+		pageModel.clearAll();
+		pageModel.addQuery(Restrictions.eq("userid", userId));
+		pageModel.addQuery(Restrictions.eq("is_show", 0));
+		pageModel.desc("create_time");
+		List<ActivityStarUserPrizeEntity> prizes = activityStarUserPrizeContract.load(pageModel);
+		if(Tools.isNotNull(prizes)) {
+			isPrize = true;
+			ActivityStarUserPrizeEntity prize = prizes.get(0);
+			dto.setPrizeTitle("恭喜您");
+			//编辑对应的中奖信息
+			prizeText="你投中了第"+prize.getIssue_id()+"期女神之星，获得"+prize.getIssue_prize()+"钻<br/>"+"已经返到账户中";
+			//最后将对应的中奖信息清零
+			pageModel.clearAll();
+			pageModel.addQuery(Restrictions.eq("userid", userId));
+			pageModel.addQuery(Restrictions.eq("is_show", 0));
+			Map<String, Object> updateStatement = new HashMap<>();
+			updateStatement.put("is_show", 1);
+			activityStarUserPrizeContract.updateByCondition(updateStatement, pageModel);
+		}
+		dto.setIssue(issue);
+		dto.setSurplus(surplus);
+		dto.setFlowers(flowers);
+		dto.setPrize(isPrize);
+		dto.setPrizeText(prizeText);
+		dto.setItems(items);
+		return ActionResult.success(dto);
+	}
+	
+	@NoSign
+	@RequestMapping(value = "/index/dailog", produces=Produce.TEXT_JSON)
+	@ResponseBody
+	public ActionResult voteDailog(@RequestBody(required=false) String body, HttpServletRequest request,HttpServletResponse response) throws Exception {
+		/*
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
+		response.setHeader("Access-Control-Max-Age", "3600");
+		response.setHeader("Access-Control-Allow-Headers","Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-Wit");
+		response.setHeader("Access-Control-Allow-Credentials", "true");
+		*/
+		AnchorStarVoteDto dto = new AnchorStarVoteDto();
+		JSONObject json = JsonHelper.toJsonObject(body);
+		long userId = RequestUtils.getCurrent().getUserid();
+		//long userId = 143341067756962048L;
+		if(Tools.isNotNull(json)) {
+			int issue = json.getIntValue("issue");
+			long anchorid = json.getLongValue("userid");
+			if(issue > 0 && anchorid > 0) {
+				//获取被投注主播的信息
+				AnchorOnlineEntity data = anchorOnlineContract.findByProperty("userid", anchorid);
+				if(Tools.isNotNull(data)) {
+					dto.setUserid(anchorid);
+					dto.setIssue(issue);
+					dto.setNickName(data.getNickname());
+					dto.setPhoto(Const.getCdn(data.getPhoto()));
+					//生成对应的防止重复提交的标识
+					String transactionFlow = IdGenerater.generateId()+"";
+					dto.setTransactionFlow(transactionFlow);
+					long flowers = Tools.parseLong(redFlowerAgent.getTotalFlowers(userId).getData());
+					dto.setFlowers(flowers);
+					return ActionResult.success(dto);
+				}
+			}
+		}
+		return ActionResult.fail();
+	}
+	
+	@NoSign
+	@Transactional(rollbackFor = Exception.class)
+	@RequestMapping(value = "/index/commit", produces=Produce.TEXT_JSON)
+	@ResponseBody
+	public ActionResult commit(@RequestBody(required=false) String body, HttpServletRequest request,HttpServletResponse response) throws Exception {
+		/*
+		response.setHeader("Access-Control-Allow-Origin", "*");
+		response.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, OPTIONS, DELETE");
+		response.setHeader("Access-Control-Max-Age", "3600");
+		response.setHeader("Access-Control-Allow-Headers","Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-Wit");
+		response.setHeader("Access-Control-Allow-Credentials", "true");
+		*/
+		JSONObject json = JsonHelper.toJsonObject(body);
+		long userId = RequestUtils.getCurrent().getUserid();
+		//long userId = 143341067756962048L;
+		if(Tools.isNotNull(json)) {
+			int issue = json.getIntValue("issue");
+			Integer flower = json.getInteger("flower");
+			long anchorid = json.getLongValue("userid");
+			if(issue > 0 && anchorid > 0) {
+				if(Tools.isNull(flower)) {
+					return ActionResult.fail(ErrorCodeEnum.anchor_star_flower_error);
+				}
+				if(flower <= 0) {
+					return ActionResult.fail(ErrorCodeEnum.anchor_star_flower_error);
+				}
+				if(flower < 5) {
+					return ActionResult.fail(ErrorCodeEnum.anchor_star_flower_vote_error);
+				}
+				ActivityStarIssueEntity activity = activityStarIssueContract.findByProperty("issue_number", issue);
+				if(Tools.isNotNull(activity)) {
+					//查询对应的活动是否超时
+					long current = System.currentTimeMillis();
+					long end = activity.getEnd_time().getTime();
+					long surplus = ( end - current ) / 1000;
+					//检测活动结束五分钟之前不能进行投票操作处理
+					if(surplus >= 300) {
+						//进行尝试扣除小红花数量处理
+						AgentResult result = redFlowerAgent.decreaseAllFlowers(userId, flower,RedFlowerAccountLogTypeEnum.anchor_star_consumption, IdGenerater.generateId()+"");
+						if(result.getCode() == 0) {
+							//满足扣除  进行添加投注和主播魅力值
+							activityStarAnchorContract.updateAnchorCharm(issue, anchorid, flower*29);;
+							ActivityStarUserVoteEntity t = new ActivityStarUserVoteEntity();
+							t.setIssue_id(issue);
+							t.setIssue_vote(flower);
+							t.setUserid(userId);
+							t.setIssue_anchor(anchorid);
+							t.setCreate_time(new Date());
+							activityStarUserVoteContract.insert(t);
+							if(userId != anchorid) {
+								//以用户的名义给主播发送消息
+								neteaseAgent.pushOneMessage(userId, anchorid, "我给你投票啦，支持你哦，期待你的来电~", true);
+							}
+							//送积分
+							userPointAgent.changePointAccount(userId, UserPointAccountLogTypeEnum.goddess_star_vote.getCode(), 1, String.valueOf(t.getId()), UserPointAccountLogTypeEnum.goddess_star_vote.getDesc());
+							return ActionResult.success("投票成功");
+						} else if(result.getCode() == AgentErrorCodeEnum.not_enough.getCode()) {
+							//扣除的金额不足
+							return ActionResult.fail(ErrorCodeEnum.anchor_star_flower_not_enough);
+						}
+					} else {
+						return ActionResult.fail(ErrorCodeEnum.anchor_star_time_not_enough);
+					}
+				}
+			}
+		}
+		return ActionResult.fail(ErrorCodeEnum.anchor_star_error);
+	}
+	
+	public int getRandomNumber(int min, int max) {
+		Random random = new Random();  
+		int randomNumber =  random.nextInt(max)%(max-min+1) + min; 
+		return randomNumber;
+	}
+}

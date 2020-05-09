@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/myReset.css">
+  <script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+  <script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+  <script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+
+  <title>领取话费</title>
+  <style>
+    .box {
+      overflow-x: hidden;
+    }
+
+    .header {
+      width: 100%;
+      height: 7rem;
+      background: url('$!{Const.getCdn()}/img/integral/telephoneBg.png') no-repeat center;
+      background-size: 100% 100%;
+      padding-top: 0.7rem;
+    }
+
+    .header-content {
+      width: 100%;
+      height: 0.44rem;
+      font-size: 0.44rem;
+      color: #fff;
+      margin-bottom: 0.3rem;
+      text-align: center;
+    }
+
+    .vipBtn {
+      margin: 0.5rem 1.25rem 0.7rem 1.25rem;
+      width: 5rem;
+      height: 0.9rem;
+      line-height: 0.9rem;
+      background: url('$!{Const.getCdn()}/img/integral/ying.png') no-repeat center;
+      background-size: 100% 100%;
+      color: #fff;
+      font-size: 0.32rem;
+      text-align: center;
+    }
+
+    .texts {
+      color: #333;
+      margin: 0 0.3rem;
+      line-height: 0.5rem;
+    }
+
+    .texts .textListH {
+      font-size: 0.36rem;
+    }
+
+    .texts .textList {
+      font-size: 0.28rem;
+    }
+
+    #changeText2 {
+      display: none;
+    }
+  </style>
+
+
+</head>
+
+<body>
+  <div class="box">
+    <div class="header">
+      <div id="changeText1">
+        <div class="header-content">恭喜您开启领取话费任务</div>
+        <div class="header-content">您已连续签到${}天</div>
+        <div class="header-content">连续20天即可领取20元话费</div>
+      </div>
+
+      <div id="changeText2">
+        <div class="header-content">已经连续签到${}天</div>
+        <div class="header-content">还差${}天可领20元话费</div>
+        <div class="header-content">已经领取${}元话费</div>
+        <div class="header-content">还有${}元话费还未领取</div>
+      </div>
+    </div>
+
+    <div class="vipBtn" onclick="MyVipFragment()">购买vip,获得更多话费</div>
+    <ul class="texts">
+      <li class="textListH">话费规则:</li>
+      <li class="textList">1、话费可以重复获得，每次连续签到20天兑现20元话费，分5次共领取100元话费，每30天只能够领取一次；</li>
+      <li class="textList">2、话费支持中国移动、中国联通、中国电信；</li>
+      <li class="textList">3、最终解释权归平台所有；</li>
+    </ul>
+  </div>
+</body>
+
+<script>
+  //跳转到购买vip
+  function MyVipFragment() {
+
+    if (mobileType == 1) {
+      window.target.gotoAppPage('MyVipFragment', JSON.stringify(''));
+    } else if (mobileType == 2) {
+      // var BuyVipParamIos = {"pageType":15,"param":{}}                                        
+      window.webkit.messageHandlers.skipManager.postMessage('');
+    }
+  }
+
+  //跳转到其他h5的 WebView
+  function gotoH5Fragment(urls, title) {
+    var h5ParamAndroid = {
+      "strValue1": urls,
+      "strValue2": 领取话费
+    };
+    if (mobileType == 1) {
+      window.target.gotoAppPage('WebSingleSaveFragment', JSON.stringify(h5ParamAndroid));
+    } else if (mobileType == 2) {
+      window.webkit.messageHandlers.goToH5Page.postMessage({
+        "url": urls
+      });
+    }
+  }
+
+  // 顶部|底部 导航栏返回事件
+  function requestGoBack() {
+    gotoAppBack();
+  }
+</script>
+
+</html>

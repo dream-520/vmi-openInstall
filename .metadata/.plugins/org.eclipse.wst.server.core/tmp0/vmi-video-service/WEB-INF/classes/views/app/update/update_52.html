@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 50px;">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <!-- <link rel="stylesheet" href="./css/reset.css"> -->
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/reset.css">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/js/layer_mobile/layer.css')}" />
+  <title>更新版本</title>
+  <style>
+    .wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      margin: auto;
+      text-align: center;
+      /* background: #ebebeb; */
+    }
+
+    .wrap .imgBg {
+      width: 6.9rem;
+      height: 100%;
+    }
+
+    .wrap .edition {
+      width: 1.5rem;
+      height: 0.4rem;
+      line-height: 0.4rem;
+      background-color: rgba(255, 255, 255, 0.4);
+      border-radius: 0.2rem;
+      font-size: 0.26rem;
+      color: #fff;
+      position: absolute;
+      top: 32%;
+      left: 40%;
+    }
+
+    .wrap #closeImg {
+      width: 0.6rem;
+      height: 0.6rem;
+      position: absolute;
+      top: 3%;
+      right: 7%;
+    }
+
+    .wrap .center {
+      text-align: center;
+      border-radius: 0 0 0.35rem 0.35rem;
+      background: #ffffff;
+      height: max-content;
+      margin: auto;
+      width: 6.9rem;
+      /* width: 100%; */
+    }
+
+    .wrap .text {
+      font-size: 0.3rem;
+      color: #666;
+      text-align: left;
+      margin: inherit;
+      padding-top: 0.2rem;
+      padding-left: 0.4rem;
+    }
+
+    .wrap .textH {
+      font-size: 0.30rem;
+      text-align: center;
+      line-height: 0.5rem;
+      color: #FE3973;
+    }
+
+    #updateBtn {
+      background: url('$!{Const.getCdn()}/img/app/update/updateGo.png') no-repeat center;
+      background-size: contain;
+      height: 1rem;
+      margin: 0.1rem auto 0.4rem;
+      width: 4rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrap">
+    <img class="imgBg" src="$!{Const.getCdn()}/img/app/update/update.png" alt="">
+    <div>
+      <img id="closeImg" src="$!{Const.getCdn()}/img/app/update/girlClose.png" onclick="closeCurrentWindow()" alt="">
+    </div>
+    <div class="edition">V&nbsp;5.2.0</div>
+    <div class="center">
+      <p class="text">1、增加守护功能；</p>
+      <p class="text">2、优化消息推送；</p>
+      <p class="textH">每一次更新,都是为了更好的服务</p>
+      <div id="updateBtn" onclick="closeCurrentWindow()"></div>
+    </div>
+
+  </div>
+</body>
+
+</html>
+<script src=".$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+  //安卓1 ios2
+  //关闭功能
+  function closeCurrentWindow() {
+    if (mobileType == 1) {
+      window.target.action(2);
+    } else if (mobileType == 2) {
+      window.webkit.messageHandlers.backPage.postMessage(0);
+    }
+  }
+</script>

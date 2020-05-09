@@ -1,0 +1,148 @@
+package com.tigerjoys.shark.miai.controller;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.alibaba.fastjson.JSONObject;
+import com.google.api.client.util.Maps;
+import com.tigerjoys.nbs.common.ActionResult;
+import com.tigerjoys.nbs.common.beans.Produce;
+import com.tigerjoys.nbs.common.utils.JsonHelper;
+import com.tigerjoys.nbs.web.annotations.Login;
+import com.tigerjoys.nbs.web.annotations.NoSign;
+import com.tigerjoys.nbs.web.annotations.TestEncrypt;
+import com.tigerjoys.nbs.web.annotations.UserClientService;
+import com.tigerjoys.nbs.web.context.RequestUtils;
+import com.tigerjoys.shark.miai.agent.enums.PhotoCheckedLogTypeEnum;
+import com.tigerjoys.shark.miai.annotations.WaiterActionOnline;
+import com.tigerjoys.shark.miai.dto.service.UserPhotoDto;
+import com.tigerjoys.shark.miai.dto.service.UserVideoDto;
+import com.tigerjoys.shark.miai.enums.ErrorCodeEnum;
+import com.tigerjoys.shark.miai.service.IUserPhotoService;
+import com.tigerjoys.shark.miai.service.IUserService;
+import com.tigerjoys.shark.miai.service.IWeixinVideoChatService;
+
+/**
+ * 视频拨打/手机绑定
+ * @author yangjunming
+ *
+ */
+@Login
+@Controller
+@RequestMapping(value = "/wx/videoChat", produces=Produce.TEXT_JSON)
+//@TestEncrypt("naihnwhQOxMW3SSDjwBCalG8cAb7Z0o2/Vb65AsQC87EDBZACqpfpBvRClXVo0ejLhaGHw2TzHgXMG2eOSXxpev+snLZI6wd/mXRLfrpV2O9JiLuQmSDbt+rf89nAyBvNMbMUq4fs+owq/jW/RshRVNcEUZnTs94l6On+H26fLqTHBB4F5JDtxC9Rdn45gCYJAeCUh7bBh0Y+CsACOqnI93LNK+JxKtiq6liRU6t/Pn9zW4gS0IF43143o8FteAA907Lc7KpTNLCFVaFL3XPcnw6/cJTqNTKFMCD3Q2D0hEAIx9quXsfXCCZccaxmpZN11OdsvSOC7gr6kAOdjT4+v3zAY5sOPO+c4sHyHYwNUbZYMoMnJhB9hxxBkB4c8NliMwUxfthBAuJegn/t81Jb+/Qp5kSXVcLzDzCgvZWrBuRWDEGJ+IqAPcJDxUv6otqvx4g9qvszzFo1WFllVZ2r+X94LCHXLQ0GM+NOpzvS9DxDPXFBUgfelYacu+9A7Gv")
+public class WeixinVideoChatController {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(WeixinVideoChatController.class);
+	
+	@Autowired
+	private IUserService userService;
+	
+	@Autowired
+	private IUserPhotoService userPhotoService;
+	
+	@Autowired
+	private IWeixinVideoChatService weixinVideoChatService;
+
+
+	/**
+	 * 微信H5拨打
+	 * @param body
+	 * @return ActionResult
+	 * @throws Exception
+	 */
+	@Login
+	@UserClientService("wx")
+	@RequestMapping(value="/wxDialing")
+	@ResponseBody
+	public ActionResult wxDialing(@RequestBody(required=false) String body) throws Exception {
+		try {
+			JSONObject json = JsonHelper.toJsonObject(body);
+			Integer mobileType  = json.getInteger("mobileType");
+			long userId = RequestUtils.getCurrent().getUserid();
+			return weixinVideoChatService.wxDialing(userId,mobileType);
+		} catch (Exception e) {
+			return ActionResult.fail();
+		}
+	}
+	
+	
+	/**
+	 * 跳转到绑定手机号页面
+	 * @return
+	 * @throws Exception
+	 */
+	@UserClientService("wx")
+	@NoSign
+	@RequestMapping(value="/web/weixinBindMobile", produces = Produce.TEXT_HTML)
+	public String weixinBindMobile(HttpServletRequest request, Model model) throws Exception{
+		// 验证请求头
+		model.addAttribute("encrypt", RequestUtils.getCurrent().getHeaderEncrypt());
+		
+		return "weixinChat/WeixinBindMobile";
+	}
+	
+	
+	/**
+	 * 微信H5拨打
+	 * @param body
+	 * @return ActionResult
+	 * @throws Exception
+	 */
+	@Login
+	@UserClientService("wx")
+	@RequestMapping(value="/getMobileCode")
+	@ResponseBody
+	public ActionResult getMobileCode(@RequestBody(required=false) String body) throws Exception {
+		try {
+			JSONObject json = JsonHelper.toJsonObject(body);
+			String mobile  = json.getString("mobile");
+			return weixinVideoChatService.getMobileCode(mobile);
+		} catch (Exception e) {
+			return ActionResult.fail();
+		}
+	}
+	
+	
+	
+	/**
+	 * 绑定手机号
+	 * @param body
+	 * @return ActionResult
+	 * @throws Exception
+	 */
+	@Login
+	@UserClientService("wx")
+	@RequestMapping(value="/bindMobile")
+	@ResponseBody
+	public ActionResult bindMobile(@RequestBody(required=false) String body) throws Exception {
+		try {
+			JSONObject json = JsonHelper.toJsonObject(body);
+			String mobile  = json.getString("mobile");
+			String recode  = json.getString("recode");
+			Integer mobileType  = json.getInteger("mobileType");
+			long userid = RequestUtils.getCurrent().getUserid();
+			return weixinVideoChatService.bindMobile(userid,mobileType,mobile,recode);
+		} catch (Exception e) {
+			return ActionResult.fail();
+		}
+	}
+	
+	
+
+
+	
+
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workingSetManager>
+<workingSet editPageId="org.eclipse.jdt.internal.ui.DynamicSourcesWorkingSet" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1565575253946_0" label="Java Main Sources" name="main"/>
+<workingSet editPageId="org.eclipse.jdt.internal.ui.DynamicSourcesWorkingSet" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1565575253953_1" label="Java Test Sources" name="test"/>
+<workingSet editPageId="org.eclipse.ui.resourceWorkingSetPage" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1584593838127_4" label="vmi-video-api-server" name="vmi-video-api-server">
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/vmi-video-es" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/vmi-video-agent" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/vmi-video-interface" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/vmi-video-api-server" type="4"/>
+<item factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/vmi-video-common" type="4"/>
+</workingSet>
+<workingSet aggregate="true" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1565575257422_2" label="Window Working Set" name="Aggregate for window 1565575257422"/>
+<workingSet aggregate="true" factoryID="org.eclipse.ui.internal.WorkingSetFactory" id="1565577419229_3" label="Window Working Set" name="Aggregate for window 1565577419229"/>
+</workingSetManager>

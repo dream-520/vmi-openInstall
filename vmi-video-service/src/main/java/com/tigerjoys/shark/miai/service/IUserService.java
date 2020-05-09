@@ -1,0 +1,327 @@
+package com.tigerjoys.shark.miai.service;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.shark.miai.common.enums.PlatformEnum;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.alibaba.fastjson.JSONObject;
+import com.tigerjoys.nbs.common.ActionResult;
+import com.tigerjoys.shark.miai.agent.dto.UserBO;
+import com.tigerjoys.shark.miai.agent.dto.UserExtensionBO;
+import com.tigerjoys.shark.miai.agent.enums.PhotoCheckedLogTypeEnum;
+import com.tigerjoys.shark.miai.dto.service.UserBasicVO;
+import com.tigerjoys.shark.miai.dto.service.UserDetailDto;
+import com.tigerjoys.shark.miai.dto.service.UserExtensionVO;
+import com.tigerjoys.shark.miai.dto.service.UserInformDto;
+import com.tigerjoys.shark.miai.dto.service.UserSimpleDto;
+import com.tigerjoys.shark.miai.dto.service.WeixinUserHomePageVO;
+import com.tigerjoys.shark.miai.inter.entity.UserEntity;
+
+/**
+ * 用户服务接口类
+ * @author lipeng
+ *
+ */
+public interface IUserService {
+	
+	/**
+	 * 返回用户的信息
+	 * @param userid - 用户ID
+	 * @return ActionResult
+	 * @throws Exception
+	 */
+	public ActionResult userInfo(long userid) throws Exception;
+	
+	/**
+	 * 修改用户头像
+	 * @param picture
+	 * @return
+	 */
+	public ActionResult changeUserPhoto(MultipartFile photo) throws Exception;
+	
+	/**
+	 * 修改背景图片
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionResult changeBgPicture() throws Exception;
+	
+	/**
+	 * 保存背景图片
+	 * @param json 
+	 * @param picture
+	 * @return
+	 */
+	public ActionResult addBgPicture(JSONObject json, MultipartFile bgPicture) throws Exception;
+	
+	/**
+	 * 修改用户资料
+	 * @param info
+	 * @return
+	 */
+	public ActionResult changeUserInfo(UserDetailDto info)  throws Exception;
+	
+	/**
+	 * 我的页面
+	 * @return
+	 */
+	public ActionResult getMyPage () throws Exception;
+	
+	/**
+	 * 添加我的页面活动栏浏览记录
+	 * @param id
+	 * @return 
+	 * @throws Exception
+	 */
+	public ActionResult addActivityViewLog (long indexCode) throws Exception;
+	
+
+	/**
+	 * 获得用户的基本信息
+	 * @param userid - 用户ID
+	 * @return UserBasicVO
+	 * @throws Exception
+	 */
+	public UserBasicVO getUserBasicVO(long userid) throws Exception;
+	
+	/**
+	 * 获得用户的扩展信息
+	 * @param userid - 用户ID
+	 * @return UserExtensionVO
+	 * @throws Exception
+	 */
+	public UserExtensionVO getUserExtensionVO(long userid) throws Exception;
+	
+	/**
+	 * 将用户的对象转换为简单信息
+	 * @param user - 用户对象
+	 * @return UserSimpleDto
+	 * @throws Exception
+	 */
+	public UserSimpleDto getUserSimpleDto(UserEntity user) throws Exception;
+
+	
+	/**
+	 * 是否完善了基本资料
+	 * @param user - 用户基础信息
+	 * @return boolean
+	 */
+	public boolean checkBasicInfoComplete(UserBO user);
+	
+	/**
+	 * 是否完善了扩展资料
+	 * @param userExt - 用户扩展信息
+	 * @return boolean
+	 */
+	public boolean checkMaterialComplete(UserExtensionBO userExt);
+	
+	/**
+	 * 是否完善了联系方式
+	 * @param user - 用户基础信息
+	 * @return boolean
+	 */
+	public boolean checkContactComplete(UserBO user);
+
+	/**
+	 * 发送手机验证码-认证用户资料联系方式
+	 * @param mobile
+	 * @return
+	 */
+	public ActionResult authSendCode(String mobile)throws Exception;
+	
+	/**
+	 * 发送手机验证码
+	 * @param mobile	手机号
+	 * @param modifyFalg	是否更改手机号标志   更改手机号 为 true
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionResult modifyMobileSendCode(Long userId,String mobile ) throws Exception;
+
+	/**
+	 * 验证手机号并保存
+	 * @param jsonObject
+	 * @param request
+	 * @return
+	 * @throws Exception 
+	 */
+	public ActionResult authMobileAdd(JSONObject jsonObject)throws Exception;
+	
+	/**
+	 * 修改手机号
+	 * @param json
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionResult modifyMobile(Long userId,JSONObject json) throws Exception;
+
+	/**
+	 * 用户举报
+	 * @param userInform
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionResult addInform(UserInformDto userInform)throws Exception;
+
+	/**
+	 * 用户拉黑
+	 * @param json
+	 * @return
+	 */
+	public ActionResult doBlacklist(JSONObject json)throws Exception;
+	
+	
+	/**
+	 * 主播对用户拉黑
+	 * @param json
+	 * @return
+	 */
+	public ActionResult anchorBlacklist(long userid,Long otherId,List<String> complaintList) throws Exception;
+
+	/**
+	 * 个人主页接口
+	 * @param jsonObject
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionResult getUserHomePage(JSONObject json)throws Exception;
+	
+	/**
+	 * 个人主页头部接口
+	 * @param jsonObject
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionResult getUserHomePageHead(JSONObject json)throws Exception;
+	
+	/**
+	 * 个人主页资料接口
+	 * @param jsonObject
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionResult getUserHomePagedesc(long userid, long stamp)throws Exception;
+
+	/**
+	 * 用户认证视频查看接口
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionResult getVideoAuth(long userid)throws Exception;
+
+	/**
+	 * 上传形象视频
+	 * @param request
+	 * @return
+	 */
+	public ActionResult upImgVideo(HttpServletRequest request) throws Exception;
+	
+	/**
+	 * 上传验证视频
+	 * @param request
+	 * @return
+	 */
+	public ActionResult upVideoAuth(HttpServletRequest request)throws Exception;
+
+	/**
+	 * 查看用户联系方式
+	 * @param json
+	 * @return
+	 */
+	public ActionResult lookContacts(JSONObject json) throws Exception;
+	
+	/**
+	 * 判断昵称规范
+	 * @param nickname
+	 * @return
+	 */
+	public boolean nickNameValid(String nickname);
+
+	/**
+	 * 保存用户分类反馈
+	 * @param jsonObject
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionResult addUserTypeFeedback(JSONObject json) throws Exception;
+
+	/**
+	 * 查看联系方式或视频收费
+	 * @param otherId
+	 * @param type
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionResult checkUserRight(long otherId, int type) throws Exception;
+
+	/**
+	 * 查看联系方式或视频收费
+	 * @param otherId
+	 * @param type
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionResult checkUserRightWithEnergy(long otherId, int type) throws Exception;
+
+	/**
+	 * ta的主页用户印象资料接口
+	 * @param jsonObject
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionResult getUserImpression(JSONObject jsonObject) throws Exception;
+
+	/**
+	 * 主播个人主页亲密榜接口
+	 * @param userid
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionResult homePageCloseList(long userid)throws Exception;
+	
+	/**
+	 * 主播我的页面亲密榜接口
+	 * @param userid
+	 * @param stamp
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionResult closeList(long userid, long stamp) throws Exception;
+
+	/**
+	 * 获得全局广播列表
+	 * @param time 
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionResult getGlobalBroadcastList(int time)throws Exception;
+
+	/**
+	 * 获得主播礼物贡献榜
+	 * @param anchorid
+	 * @return
+	 * @throws Exception
+	 */
+	public ActionResult getGiftList(long anchorid)throws Exception;
+	
+	/**
+	 * 付费购买主播私密作品
+	 * @param photoId - 作品ID
+	 * @param logType - 作品类型
+	 * @param osType - 调用系统类型
+	 * @return ActionResult
+	 * @throws Exception
+	 */
+	public ActionResult lookPrivacyPhoto(long photoId, PhotoCheckedLogTypeEnum logType, PlatformEnum osType) throws Exception;
+
+	/**
+	 * 获得微信个人主页信息
+	 * @param userid
+	 * @return
+	 */
+	public WeixinUserHomePageVO getWxUserHomePage(long userid) throws Exception;
+
+}

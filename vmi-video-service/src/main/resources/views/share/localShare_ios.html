@@ -1,0 +1,99 @@
+<!--配合12.21提审页面-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/common.css"/>
+		<!-- 安卓手机底部返回键事件 -->
+		<script src="$!{Const.getCdn()}/js/client/requestGoBack_android.js" type="text/javascript" charset="utf-8"></script>
+		<!--辨别设备 mobileType 安卓：1，IOS：2-->
+		<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+		<title>邀请好友</title>
+		<style type="text/css">
+			body{background:#fff;position: relative;z-index: -1;}
+			img.bg{position: absolute;top:48px;left:0;z-index: 1;}
+			.mainBox{background: #FFB202; position: absolute;top: 293px;z-index: 1;}
+			
+			.box{position:relative;width: 330px;height: 300px;margin: 0 auto;background: url("$!{Const.getCdn()}/img/share/local/localShareBoxBG.png") no-repeat;background-size: cover;-webkit-background-size: cover;}
+			/*===*/
+			ul.topBox{padding-top: 86px;margin-left: 21px;}
+			ul.topBox li{float: left;width: 132px;height: 50px; line-height: 50px;/*padding-top: 13px;*/text-align:center;font-size: 24px;color: #333;word-break: break-all;word-wrap: break-word;}
+			ul.topBox li span{display: inline-block;line-height: 26px;vertical-align: middle;}
+			ul.topBox li:nth-of-type(1){margin-right:26px;}
+			/*===*/
+			.bottomBox{/*padding-top: 74px;*/position:absolute;top:200px;}
+			.QRcode{float:left;width:75px;height:75px;margin-left: 42px;margin-right: 20px;}
+			.bottomRightBox{float: left;width: 176px; }
+			.bottomRightBox p{font-size: 17px;color: #333;line-height: 20px; word-break: break-all;word-wrap: break-word;}
+			.bottomRightBox p:nth-of-type(1){padding-bottom: 10px;padding-top: 10px;text-align: center;}
+			.bottomRightBox p:nth-of-type(2){text-align: left;}
+			/*===*/
+			.shareBtn{margin:0 auto;margin-top: 30px;width: 330px;height: 49px;line-height: 49px; border-radius: 15px;-webkit-border-radius: 15px;background: #ff264d;font-size: 21px;color: #fff;text-align: center;}
+			/*===*/
+			.rule{color: #fff;text-align: left;margin-top: 32px;padding: 0 15px;padding-bottom: 10px;}
+			.rule h4{font-size: 15px;padding-bottom: 7px;font-weight: normal;}
+			.rule p{font-size: 13px;padding-bottom: 5px;line-height: 18px;}
+			/*===*/
+			.header{width: 100%;height: 48px;line-height: 48px;position: fixed;top:0;z-index: 100;background: #fff;}
+			.header .backBtn{width: 22px;height: 22px;position: absolute;top:14px;left: 12px;-webkit-tap-highlight-color:rgba(0,0,0,0);}
+			.header p{font-size: 18px;text-align: center;}
+			.iphone_status_bar{width: 100%;height: 20px;position: fixed;top:-20px;z-index: 100;background:#fff;}
+		</style>
+	</head>
+	<body>
+		<div id="ios_statusBar"></div><!--ios顶部状态栏-->
+		<div id="navigationBar">
+			<img src="$!{Const.getCdn('/img/public/backIcon_black.png')}" class="navBackBtn" onclick="navBackBtnAction()"/>
+			<p class="navTitle">邀请好友</p>
+		</div>
+		<img src="$!{Const.getCdn('/img/share/local/iosshare.png')}" class="bg"/>
+
+		<script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js" type="text/javascript" charset="utf-8"></script>
+		<!--zoom.js适配屏幕-->
+		<script src="$!{Const.getCdn()}/js/public/zoom/zoom.js" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+		<!-- 与客户端定义的事件 -->
+		<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			$(function(){
+				//适配屏幕
+				setTimeout(function(){
+					screenFix(375);
+				},500);
+				//"导航栏"写在H5端时使用：安卓/ios的状态栏高度不一样
+				resetNavigationBar(); //定义在common.js中
+				
+				if(mobileType == 2){
+					$(".bg").css({
+						"top":"64px"
+					});
+					$(".mainBox").css({
+						"top":"310px"
+					});
+				}
+			});
+			//导航栏返回按钮事件
+			function navBackBtnAction(){
+				gotoAppBack();
+			}
+			//点击"分享按钮"时调用
+			function share(){
+				var shareTitle = "$!{shareTitle}";
+				var shareInfo = "$!{shareInfo}";
+				var shareUrl = "$!{shareUrl}";
+				if (mobileType == 1) {
+					window.target.clickShare(shareTitle,shareInfo,shareUrl);
+				} else if(mobileType == 2){
+					var shareIos = {
+						"shareTitleWebkit":shareTitle,
+						"shareInfoWebkit":shareInfo,
+						"shareUrlWebkit":shareUrl
+					}
+					window.webkit.messageHandlers.JSShare.postMessage(shareIos);
+				}
+			}
+		</script>
+	</body>
+</html>

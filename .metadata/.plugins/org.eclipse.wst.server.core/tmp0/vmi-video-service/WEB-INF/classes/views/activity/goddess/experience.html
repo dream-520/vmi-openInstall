@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="full-screen" content="yes">
+  <meta name="x5-fullscreen" content="true">
+  <meta name="applicable-device" content="mobile">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/reset.css">
+  <title>首页弹窗</title>
+  <style type="text/css">
+    .wrap {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      -webkit-transform: translate(-50%, -50%);
+      -moz-transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+      -o-transform: translate(-50%, -50%);
+      width: 6.9rem;
+      height: 7.7rem;
+      margin: auto;
+      text-align: center;
+      background: url("$!{Const.getCdn()}/img/activity/goddess/openingBg.png") no-repeat center;
+      background-size: 100% 100%;
+    }
+
+    .wrap .tit {
+      font-size: 0.4rem;
+      margin-top: 1.4rem;
+    }
+
+    .wrap .money {
+      color: #fff;
+      font-size: 0.56rem;
+      margin: 1.7rem 0 0.1rem 0;
+      text-shadow: 2px 2px #f24764;
+    }
+
+    .wrap .moneyColor {
+      color: #ffda1d;
+    }
+
+    .wrap .day {
+      font-size: 0.48rem;
+      color: #fff;
+      text-shadow: 2px 2px #f24764;
+    }
+
+    .wrap #closeImg {
+      width: 0.6rem;
+      height: 0.6rem;
+      position: absolute;
+      top: 3%;
+      right: 3%;
+    }
+
+    .wrap .bgImg {
+      width: 100%;
+    }
+
+    #opening {
+      background: url("$!{Const.getCdn()}/img/activity/goddess/opening.png") no-repeat center;
+      background-size: contain;
+      height: 1rem;
+      width: 4rem;
+      position: absolute;
+      bottom: 7%;
+      left: 50%;
+      margin-left: -2rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <p class="money">仅需<span class="moneyColor">$!{dialMoney}</span>元</p>
+    <p class="day" id="isShow">只限当天，不要错过！</p>
+    <div>
+      <img id="closeImg" src="$!{Const.getCdn()}/img/activity/goddess/girlClose.png" onclick="closeCurrentWindow()"
+        alt="">
+    </div>
+    <!-- 去开通 -->
+    <div id="opening" onclick="gotoPayPage()"></div>
+  </div>
+
+	<script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+	<script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+	<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+	<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+	// 1元显示 6元不显示 -》只限当天
+	var dialActionUrl ='${dialActionUrl}';
+	var dialMoney = '${dialMoney}';
+    // if (this.dialMoney > 1) {
+	  //   $('#isShow').hide()
+	  // }
+	
+    //关闭功能
+    function closeCurrentWindow() {
+      if (mobileType == 1) {
+        window.target.action(2);
+      } else if (mobileType == 2) {
+        window.webkit.messageHandlers.backPage.postMessage(0);
+      }
+    }
+
+    // 跳转到"支付方式"页面--需要附带参数:钻数+钱数
+    function gotoPayPage() {
+   	  var actionUrl = this.dialActionUrl;
+      if (mobileType == 1) {
+        closeCurrentWindow();
+        window.target.gotoAppPage('WebSingleSaveFragment', JSON.stringify({
+          "strValue1": actionUrl,
+          "strValue2": "选择支付方式",
+          "strValue3": "1"
+        }));
+      } else if (mobileType == 2) {
+        window.location.href = actionUrl;
+      }
+    }
+  </script>
+</body>
+
+</html>

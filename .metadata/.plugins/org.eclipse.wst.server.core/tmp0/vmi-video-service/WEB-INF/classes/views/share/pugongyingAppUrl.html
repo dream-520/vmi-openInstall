@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+ <meta charset="utf-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+ <meta name="vip-short-url" content="https://zc.pgyer.com/6mJT" />
+ <meta name="vip-auto" content="1" />
+<meta name='apple-mobile-web-app-capable' content='yes' />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name='viewport'
+	content='width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no' />
+<title>V密</title>
+</head>
+<style>
+html, body, div, h1, h2, h3, h4, h5, h6, p, ol, ul, li, img {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	-webkit-tap-highlight-color: transparent;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+.main:after {
+	content: "";
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	z-index: -1;
+	background: #FF2E71;
+}
+
+.main {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	display: none;
+}
+
+.logo {
+	width: 1.06rem;
+	height: 0.49rem;
+	position: fixed;
+	left: 0.46rem;
+	top: 0.4rem;
+}
+
+.line {
+	position: fixed;
+	width: 6.7rem;
+	height: 1px;
+	background: rgba(255, 255, 255, 0.3);
+	top: 1.29rem;
+	left: 0.4rem;
+}
+
+.ball {
+	width: 6.54rem;
+	height: 5.68rem;
+	display: block;
+	position: absolute;
+	left: 1.75rem;
+	top: 4rem;
+	transition: top 1.2s;
+	z-index: 2;
+	transform: translateZ(0);
+	-webkit-transform: translateZ(0);
+}
+
+.girls {
+	width: 6.76rem;
+	height: 3.95rem;
+	position: absolute;
+	top: 4.5rem;
+	left: 0.37rem;
+	z-index: 1;
+	display: block;
+	transition: top 0.8s;
+	z-index: 1;
+	transform: translateZ(0);
+	-webkit-transform: translateZ(0);
+}
+
+.h4 {
+	position: fixed;
+	top: 6.92rem;
+	width: 100%;
+	text-align: center;
+	font-size: 0.76rem;
+	line-height: 0.76rem;
+	font-weight: bold;
+	color: rgba(255, 255, 255, 1);
+}
+
+.text {
+	position: fixed;
+	top: 8.13rem;
+	width: 100%;
+	font-size: 0.32rem;
+	color: rgba(255, 255, 255, 1);
+	line-height: 0.32rem;
+	text-align: center;
+}
+
+.btn {
+	position: fixed;
+	top: 9.32rem;
+	left: 2.31rem;
+	width: 2.88rem;
+	height: 0.91rem;
+	background: rgba(255, 255, 255, 1);
+	border-radius: 0.45rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: rgba(35, 35, 35, 1);
+	font-size: 0.32rem;
+}
+
+.iosmask {
+	position: fixed;
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 0;
+	z-index: 1001;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	display: none;
+}
+
+.alert-box-qiye {
+	background: #FFFFFF;
+	padding: 10px;
+	border-radius: 2px;
+	position: relative;
+}
+
+.alert-box-qiye .title {
+	color: #999;
+	font-size: .28rem;
+	padding-top: 0.07rem;
+}
+
+.alert-box-qiye .tips {
+	font-size: .24rem;
+}
+
+.alert-box-qiye .progress {
+	background: #b8b8b8;
+	position: relative;
+	width: 100%;
+	height: 4px;
+	border-radius: 2px;
+	margin-top: 10px;
+	overflow: hidden;
+}
+
+.scale {
+	height: 100%;
+	width: 0;
+	background: #0093ff;
+}
+
+.alert-box-qiye .close {
+	position: absolute;
+	width: .52rem;
+	height: .52rem;
+	right: 5px;
+	top: 5px;
+}
+
+.course {
+	width: 5.2rem;
+	height: 4.95rem;
+}
+
+.iosdown {
+	width: 100%;
+	font-size: 0;
+	display: none;
+}
+
+.iosdown .btncert {
+	height: .5rem;
+	margin: 0 auto;
+	width: 80%;
+	background: #0093ff;
+	font-size: .32rem;
+	color: #FFFFFF;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: .16rem;
+}
+
+.iosdown .certname {
+	font-size: .24rem;
+	text-align: center;
+	padding-top: .1rem;
+}
+
+.tipsdown {
+	position: fixed;
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 0;
+	z-index: 1001;
+	background: rgba(0, 0, 0, 0.5);
+	display: none;
+}
+
+.tipsdown img {
+	width: 5.88rem;
+	height: 3.02rem;
+	position: absolute;
+	top: .49rem;
+	right: .32rem;
+}
+
+.girls2 {
+	width: 100%;
+	height: 100%;
+}
+
+.bigvUrl {
+	width: 2.1rem;
+	height: 2.1rem;
+	border-radius: 50%;
+	margin: 0 auto;
+	background: #fff;
+	position: absolute;
+	left: 2.33rem;
+	top: 0.7rem;
+}
+
+#isNoBigv, #isBigv {
+	display: none;
+}
+
+ <!-- 从这里开始复制 安装样式 代码 -->
+ <!--
+      .demo1-btn {
+          min-width: 76px;
+          height: 30px;
+          color: rgb(255, 255, 255);
+          background-image:linear-gradient(to right, transparent 100%, rgb(200, 200, 200) 100%);
+          background-color: rgb(52, 120, 246);
+          border-radius: 15px;
+          border: 1px solid rgb(200, 200, 200);
+          font-size: 14px;
+          line-height: 28px;
+          text-align: center;
+          padding: 0px 20px;
+          outline: none;
+      }
+      .demo1-btn:active {
+          background-color: rgb(50, 115, 230);
+      }
+     -->
+
+
+
+</style>
+
+<body>
+	<div class="main">
+		<img src="$!{Const.getCdn()}/img/share/enterprise/logo.png" class="logo">
+		<p class="line"></p>
+		<img src="$!{Const.getCdn()}/img/share/enterprise/ball.png" class="ball"> <img
+			src="$!{Const.getCdn()}/img/share/enterprise/girls.png" class="girls" id="isNoBigv">
+		<div class="girls" id="isBigv">
+			<img src="" class="bigvUrl"> <img src="$!{Const.getCdn()}/img/share/enterprise/girls2.png"
+				class="girls2">
+		</div>
+		<h4 class="h4">高颜值 视频社交</h4>
+		<p class="text">与网红大V亲密接触</p>
+		<div class="btn btndown" >下载V密</div>
+		
+		<!--  
+		<button  class="btn btndown demo1-btn" id="install-button">安装</button>
+-->
+
+		<div id="iosmask" class="iosmask">
+			 
+			<div class="alert-box-qiye">
+				<img class="close" id="close" src="$!{Const.getCdn()}/img/share/enterprise/c_lose.png" alt="">
+				<p class="title">安装完成，请开始设置！</p>
+				<p class="tips">若安装后无法正常使用，请删除旧版V密</p>
+				<div id="progress" class="progress">
+					<div id="scale" class="scale"></div>
+				</div>
+				<img class="course" src="$!{Const.getCdn()}/img/share/enterprise/course.gif" alt="">
+				<div id="iosdown" class="iosdown">
+					<a href="http://www.linjiazhaipin.vip/app.mobileprovision"
+						class="btncert">前往企业证书</a>
+					<div class="certname">请点击证书名：EK EVROPRIBOR,OOO</div>
+				</div>
+			</div>
+			
+		</div>
+		<div id="tipsdown" class="tipsdown">
+			<img src="$!{Const.getCdn()}/img/share/enterprise/fenxiangtishi@2x.png" alt="">
+		</div>
+		<a style="display: none" id="iosdownurl"
+			href="itms-services://?action=download-manifest&url=$!{distributionPath}"></a>
+		
+			 
+		
+			 
+	</div>
+</body>
+<script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js" type="text/javascript" charset="utf-8"></script>
+ <script type="text/javascript" src="https://zc.pgyer.com/static/sdk/vip.min.js"></script>
+<script>
+  document.documentElement.style.fontSize =
+    Math.floor(
+      Math.max(
+        document.body.clientWidth,
+        document.documentElement.clientWidth,
+        window.screen.availWidth
+      ) / 7.5
+    ) + "px";
+
+  function getQueryString(name) {
+    //获取链接参数
+    let reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+    let r = window.location.search.substr(1).match(reg);
+    if (r != null) return unescape(r[2]);
+    return null;
+  }
+
+  function $id(id) {
+    return document.getElementById(id)
+  }
+
+  window.onload = function () {
+    $('.main').css({ display: 'block' });
+    if (getQueryString('avatar')) {
+      $('#isBigv').css({ display: 'block' });
+      $(".bigvUrl").attr('src', getQueryString('avatar'));
+    } else {
+      $('#isNoBigv').css({ display: 'block' });
+    }
+    setTimeout(function () {
+      $('.ball').css({ 'top': '0.4rem' })
+      $('.girls').css({ 'top': '2.18rem' })
+    }, 200)
+  }
+
+
+ // ajax('/sharePlan/share-link-down?userId=' + getQueryString('user_id'), function (res) { });
+
+  var nu = navigator.userAgent;
+
+  var proObj1, proObj2;
+
+  function iosdown() {
+    $id('iosdownurl').click();
+
+    $id('iosmask').style.display = 'flex';
+
+    proObj1 = setTimeout(function () {
+      $id('scale').style.cssText = "width:100%;transition: width 40s linear 0s;"
+    }, 100)
+
+    proObj2 = setTimeout(function () {
+      $id('progress').style.cssText = "display:none;";
+      $id('iosdown').style.display = "block";
+      if (nu.indexOf("Safari") == -1) {
+        $id('btncert').style.display = "none";
+      }
+    }, 40000)
+  }
+
+  function download() {
+    if (/(iPhone|iPad|iPod|iOS)/i.test(nu)) {
+      if (/qq|weibo|baidu/i.test(nu)) {
+        $id('tipsdown').style.display = 'block';
+      } else {
+        iosdown();
+      }
+
+    } else if (/(Android)/i.test(nu)) {
+      if (/qq|micromessenger/i.test(nu)) {
+        //应用宝
+        //window.location.href = 'http://a.app.qq.com/o/simple.jsp?pkgname=com.ydwx.yoyo';
+        window.location.href = '$!{apkPath}';
+      } else {
+        //apk
+        window.location.href = '$!{apkPath}';
+      }
+    }
+  }
+
+  $id('close').addEventListener('click', function () {
+    clearTimeout(proObj1);
+    clearTimeout(proObj2);
+    $id('iosmask').style.display = 'none';
+    $id('iosdown').style.display = "none";
+    $id('scale').style.cssText = "";
+    $id('progress').style.cssText = "display:block;";
+  }, false)
+/**
+  document.querySelectorAll('.btndown').forEach(btndown => {
+   // btndown.addEventListener('click', download, false)
+  })
+  **/
+</script>
+
+<!--  
+<script type="text/javascript">
+
+                    var button = document.getElementById('install-button');
+                    var currentProgress = 100;
+                    var progressTimer = null;
+
+                    function setProgress(progress) {
+                        progress = progress > 100 ? 100 : progress;
+                        progress = progress < 0 ? 0 : progress;
+                        currentProgress = progress;
+                        activeProgress();
+                    }
+
+                    function activeProgress () {
+                        if (currentProgress < 95) {
+                            currentProgress++;
+                            clearTimeout(progressTimer);
+                            progressTimer = setTimeout(activeProgress, 250);
+                        }
+                        button.setAttribute('style', 'background-image:linear-gradient(to right, transparent ' + currentProgress + '%, rgb(200, 200, 200) ' + currentProgress + '%);');
+                    }
+
+                    setProgress(currentProgress);
+                    progressTimer = setTimeout(activeProgress, 250);
+
+                    signSDK.onPhaseChange = function (phase) {
+                        setProgress(phase.progress);
+                        if (phase.phase === 0) {
+                            button.disabled = true;
+                            button.innerHTML = '正在准备';
+                        } else if (phase.phase === 1) {
+                            button.disabled = true;
+                            button.innerHTML = '安装描述文件以完成验证';
+                        } else if (phase.phase === 2) {
+                            button.disabled = true;
+                            button.innerHTML = '正在验证设备';
+                        } else if (phase.phase === 3) {
+                            button.disabled = true;
+                            button.innerHTML = '打开后点击安装即可安装';
+                        } else if (phase.phase === -1) {
+                            button.disabled = false;
+                            button.innerHTML = '安装失败, 重新安装';
+                        }
+                    }
+                </script>
+                -->
+                <!-- 复制 安装样式 代码结束 -->
+
+<!--  
+<script>
+  var _hmt = _hmt || [];
+  (function () {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?284f32e0e21303823dd01dbbb10eca8d";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+-->
+</html>

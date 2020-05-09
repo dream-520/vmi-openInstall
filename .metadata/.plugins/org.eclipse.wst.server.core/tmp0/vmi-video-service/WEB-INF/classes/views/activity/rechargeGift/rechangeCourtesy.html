@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 50px">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="$!{Const.getCdn()}/css/public/myReset.css">
+  <title>充值有礼</title>
+  <style>
+    /* body {
+      width: 7.5rem;
+      margin: auto;
+      overflow-x: hidden;
+    } */
+
+    .wrap {
+      width: 7.2rem;
+      overflow-x: hidden;
+      background: url('$!{Const.getCdn()}/img/activity/rechargeGift/background.png') no-repeat center;
+      background-size: 100% 100%;
+      margin: auto;
+      text-align: center;
+      padding-top: 0.4rem;
+    }
+
+    .courtesyBg {
+      /* background: url('./img/courtesyBg.png') no-repeat center; */
+      background: url('$!{Const.getCdn()}/img/activity/rechargeGift/courtesyBg.png') no-repeat center;
+      background-size: 100% 100%;
+      width: 7.2rem;
+      overflow-x: hidden;
+      height: 5.94rem;
+      margin: auto;
+    }
+
+    .wrap .activity {
+      width: 6.9rem;
+      margin: auto;
+      background: #fefefe;
+      border-radius: 0.3rem;
+      font-size: 0.3rem;
+      line-height: 0.5rem;
+      text-align: left;
+      position: relative;
+      padding: 0.4rem 0;
+    }
+
+    .wrap .activity .activityRules {
+      width: 2.8rem;
+      height: 0.6rem;
+      /* background: url('./img/activityRules.png') no-repeat center; */
+      background: url('$!{Const.getCdn()}/img/activity/rechargeGift/activityRules.png') no-repeat center;
+      background-size: 100% 100%;
+      position: absolute;
+      top: -7%;
+      left: 30%;
+    }
+
+    .wrap .activity .text {
+      padding: 0 0.3rem;
+      color: #8428F7;
+      font-weight: 700;
+    }
+
+    .wrap .giftBtn {
+      width: 6.9rem;
+      height: 1rem;
+      margin: 0.4rem auto;
+      /* background: url('./img/giftBtn.png') no-repeat center; */
+      background: url('$!{Const.getCdn()}/img/activity/rechargeGift/giftBtn.png') no-repeat center;
+      background-size: 100% 100%;
+    }
+
+    .wrap .footer img {
+      width: 6.9rem;
+      height: 0 0.3rem;
+      margin-bottom: 0.4rem;
+    }
+
+    /* #cnzz_stat_icon_1277955976 {
+      font-size: 16px;
+    } */
+  </style>
+
+  <script>
+    //声明_czc对象:
+    var _czc = _czc || [];
+    //绑定siteid，请用您的siteid替换下方"XXXXXXXX"部分
+    _czc.push(["_setAccount", "1277955976"]);
+  </script>
+</head>
+
+<body>
+
+  <div class="courtesyBg" id="courtesyBg"></div>
+  <div class="wrap" id="wrap">
+
+    <div class="activity">
+
+      <div class="activityRules"></div>
+
+      <div class="text">
+        1.每个新用户的第一次充值会额外获得礼物，充值金额越大，礼物越好。其他次数充值会得到相同金额的礼金。(可用于充值抵扣)
+      </div>
+      <div class="text">
+        2.首次充值成功后，联系客服微信沟通选择 chongzhikefu123456，和客服联系沟通。
+      </div>
+      <div class="text">3.注:下列图片只作为展示使用，实物可能存在偏差;颜色随机发货。礼物一经发出，不支持换货、退货。</div>
+
+    </div>
+
+    <div class="giftBtn" id="giftBtn"></div>
+
+    <div class="footer">
+      <img src="$!{Const.getCdn()}/img/activity/rechargeGift/58.png" alt="">
+      <img src="$!{Const.getCdn()}/img/activity/rechargeGift/100.png" alt="">
+      <img src="$!{Const.getCdn()}/img/activity/rechargeGift/200.png" alt="">
+      <img src="$!{Const.getCdn()}/img/activity/rechargeGift/500.png" alt="">
+      <img src="$!{Const.getCdn()}/img/activity/rechargeGift/1000.png" alt="">
+      <img src="$!{Const.getCdn()}/img/activity/rechargeGift/2000.png" alt="">
+      <img src="$!{Const.getCdn()}/img/activity/rechargeGift/5000.png" alt="">
+      <img src="$!{Const.getCdn()}/img/activity/rechargeGift/10000.png" alt="">
+    </div>
+
+  </div>
+
+  <script type="text/javascript">
+    var cnzz_protocol = (("https:" == document.location.protocol) ? "https://" : "http://");
+    document.write(unescape("%3Cspan style='display:none' id='cnzz_stat_icon_1277955976'%3E%3C/span%3E%3Cscript src='" +
+      cnzz_protocol +
+      "s9.cnzz.com/z_stat.php%3Fid%3D1277955976' type='text/javascript'%3E%3C/script%3E"));
+  </script>
+</body>
+
+</html>
+<!-- 判断手机型号 安卓1，iOS2 -->
+<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+<!-- <script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script> -->
+<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+<script src=".$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+<script>
+  // 跳转到小红花
+  var RecordUrl = "$!{Const.getWebSite()}/api/income/zuanList?pricePage=0";
+  var RecordUrlA = "$!{rc.contextPath}/api/income/zuanList?pricePage=0";
+
+  var giftBtn = document.getElementById('giftBtn');
+
+  giftBtn.onclick = function () {
+
+    if (mobileType == 1) {
+      //closeCurrentWindow();
+      window.target.gotoAppPage('WebSingleSaveFragment', JSON.stringify({
+        "strValue1": RecordUrl,
+        "strValue2": '支付方式',
+      }));
+    } else if (mobileType == 2) {
+      window.webkit.messageHandlers.goToH5Page.postMessage({
+        "url": RecordUrl,
+        "title": '支付方式',
+      });
+    }
+
+    // alert('111')
+    // 事件追踪---在按钮等被点击触发的时候，调用_trackEvent()方法
+    _czc.push(["_trackEvent", "充值得大礼", "点击查看", "活动"]);
+
+  };
+
+  // 顶部|底部 导航栏返回事件
+  function requestGoBack() {
+    gotoAppBack();
+  }
+
+  /*
+    各参数含义如下：
+
+    category：事件类别，必填项，表示事件发生在谁身上，如“视频”、“小说”、“轮显层”等等。
+    action：事件操作，必填项，表示访客跟元素交互的行为动作，如"播放"、"收藏"、"翻层"等等。
+    label：事件标签，选填项，用于更详细的描述事件，从各个方面都可以，比如具体是哪个视频，哪部小说，翻到了第几层等等。
+    value：事件值，选填项，整数型，用于填写打分型事件的分值，加载时间型事件的时长，订单型事件的价格等等。
+    nodeid：div元素id，选填项，填写网页中的div元素id值，用于在“用户视点”功能上重绘元素的事件发生情况。
+  */
+
+  //调用客户端的友盟统计方法
+  // function umeng_add(name) {
+  // 	if(mobileType == 1) {
+  // 		window.target.umengBuriedPoint(name);
+  // 	} else if(mobileType == 2) {
+  // 		window.webkit.messageHandlers.umShare.postMessage({
+  // 			'str': name
+  // 		});
+  // 	}
+  // }
+
+
+  //安卓的宽和IOS的宽适配问题
+  var wrap = document.getElementById('wrap');
+  var courtesyBg = document.getElementById('courtesyBg');
+  if (mobileType == 1) {
+    wrap.style.width = '7.2rem';
+  } else if (mobileType == 2) {
+    wrap.style.width = '100%';
+    courtesyBg.style.width = '100%';
+  }
+</script>

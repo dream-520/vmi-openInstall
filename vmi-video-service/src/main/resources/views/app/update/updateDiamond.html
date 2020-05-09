@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="full-screen" content="yes">
+  <meta name="x5-fullscreen" content="true">
+  <meta name="applicable-device" content="mobile">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/reset.css">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/js/layer_mobile/layer.css')}" />
+  <title>首页弹窗</title>
+  <style type="text/css">
+    .wrap {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      -webkit-transform: translate(-50%, -50%);
+      -moz-transform: translate(-50%, -50%);
+      -ms-transform: translate(-50%, -50%);
+      -o-transform: translate(-50%, -50%);
+      width: 6.9rem;
+      margin: auto;
+      text-align: center;
+      /*height: 7.7rem;*/
+      /* background: url('../../../img/subscribe/upDate_53.png') no-repeat center;
+      background-size: 100% 100%; */
+    }
+
+    .wrap #closeImg {
+      width: 0.6rem;
+      height: 0.6rem;
+      position: absolute;
+      top: 3%;
+      right: 3%;
+    }
+    
+    .wrap .bgImg {
+      width: 100%;
+    }
+
+    .wrap .center {
+      margin-top: 2.3rem;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+  	<img class="bgImg" src="$!{Const.getCdn()}/img/app/update/upDate_53.png" alt="">
+    <div>
+      <img id="closeImg" src="$!{Const.getCdn()}/img/app/update/girlClose.png" onclick="closeCurrentWindow()"
+        alt="">
+    </div>
+
+  </div>
+
+  <script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+  <script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+
+  <script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+  <script type="text/javascript">
+    //安卓1 ios2
+    //关闭功能
+    function closeCurrentWindow() {
+      if (mobileType == 1) {
+        window.target.action(2);
+      } else if (mobileType == 2) {
+        window.webkit.messageHandlers.backPage.postMessage(0);
+      }
+    }
+
+  </script>
+</body>
+
+</html>

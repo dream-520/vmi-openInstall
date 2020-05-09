@@ -1,0 +1,204 @@
+package com.tigerjoys.shark.miai.controller;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.alibaba.fastjson.JSONObject;
+import com.tigerjoys.nbs.common.ActionResult;
+import com.tigerjoys.nbs.common.beans.Produce;
+import com.tigerjoys.nbs.common.utils.JsonHelper;
+import com.tigerjoys.nbs.common.utils.Tools;
+import com.tigerjoys.nbs.mybatis.core.page.PageModel;
+import com.tigerjoys.nbs.mybatis.core.sql.Restrictions;
+import com.tigerjoys.nbs.web.annotations.Login;
+import com.tigerjoys.nbs.web.annotations.NoSign;
+import com.tigerjoys.nbs.web.annotations.TestEncrypt;
+import com.tigerjoys.nbs.web.context.RequestUtils;
+import com.tigerjoys.shark.miai.agent.INeteaseAgent;
+import com.tigerjoys.shark.miai.agent.enums.AnchorAppointTypeEnum;
+import com.tigerjoys.shark.miai.dto.service.AppointDto;
+import com.tigerjoys.shark.miai.enums.ErrorCodeEnum;
+import com.tigerjoys.shark.miai.inter.contract.IAnchorAppointContract;
+import com.tigerjoys.shark.miai.inter.contract.IAnchorAppointUserContract;
+import com.tigerjoys.shark.miai.inter.contract.IAnchorOnlineContract;
+import com.tigerjoys.shark.miai.inter.entity.AnchorAppointEntity;
+import com.tigerjoys.shark.miai.inter.entity.AnchorAppointUserEntity;
+import com.tigerjoys.shark.miai.inter.entity.AnchorOnlineEntity;
+import com.tigerjoys.shark.miai.service.IChannelCheckService;
+import com.tigerjoys.shark.miai.service.IMsgSceneService;
+import com.tigerjoys.shark.miai.utils.ServiceHelper;
+
+/**
+ * 主播约会信息
+ * @author shiming
+ */
+@Login
+@Controller
+@RequestMapping(value = "/api/anchor/appoint")
+//@TestEncrypt("pUOj7GGbnHNF3q72/4D9sUl6azlJzO/JJO32FZQzJZUO2rSJKcoaTCM9JlW134P+1p/+R4gnDTtLFJyQKCZxNgZXqNPN29WbMEynDpZ68mbpDH39iNj1BOX+qZC3NX6LJch8DxTKZadL5mumDCzmQqS0hsF+K97a1nP09aSt6hRmi/0/HQr/KOJORn6FvUjiRO4KJmLfiqd63WeuI/y2pCCEieABwHyTXoc3bPQtLoum9+5B4/XsJZ8F3mAUd0or1bQqQGBpvo6W8dKZaSOi3r55aCqav3/vy7DF8rY+aOqF7vlZifTEHDSgQCnEARcfzrSx0pIHczgO9ulh1n2nM9109GV1z9CslvYWCV054/G1gznBOF2U4+dZ2bumfHm6eJfPQn/MS6KXZ9NI9E/18yYj7cA+ZvJk6wbWIT4bkEQp2T1MTn3kgbM52uxziyJdeIdl0ZVfSLz2mFAO0QgE7ALCNVxAtlFKEahfcztKewLXyqAYDISUA7mC86shbyvZ")
+public class WebAnchorAppointController {
+
+	@Autowired
+	private IAnchorAppointContract anchorAppointContract;
+	
+	@Autowired
+	private IAnchorAppointUserContract anchorAppointUserContract;
+	
+	@Autowired
+	private IAnchorOnlineContract anchorOnlineContract;
+	
+	@Autowired
+	private INeteaseAgent neteaseAgent;
+	
+	@Autowired
+	private IChannelCheckService channelCheckService;
+	
+	@Autowired
+	private IMsgSceneService msgSceneService;
+	
+	/**
+	 * 获取约会列表数据信息
+	 */
+	@Login
+	@RequestMapping(value = "/list", produces = Produce.TEXT_HTML)
+	public String anchorStarPop(Model model) throws Exception {
+		long userId = RequestUtils.getCurrent().getUserid();
+		//查看当前用户已经应约的信息
+		PageModel pageModel = PageModel.getPageModel();
+		pageModel.addQuery(Restrictions.eq("userid", userId));
+		List<AnchorAppointUserEntity> userAppoints = anchorAppointUserContract.load(pageModel);
+		Map<Long, Long> userMapAppoints = new HashMap<Long, Long>();
+		if(Tools.isNotNull(userAppoints)) {
+			for (AnchorAppointUserEntity userAppoint : userAppoints) {
+				userMapAppoints.put(userAppoint.getAppointid(), userAppoint.getAppointid());
+			}
+		}
+		//查询当前可用的约会信息
+		pageModel.clearAll();
+		pageModel.addQuery(Restrictions.ge("end_time", Tools.getDate()));
+		pageModel.asc("end_time");
+		List<AnchorAppointEntity> appoints = anchorAppointContract.load(pageModel);
+		Map<Long, AnchorOnlineEntity> anchorsMap = new HashMap<Long, AnchorOnlineEntity>();
+		Map<Integer, List<AppointDto>> maps = new HashMap<Integer, List<AppointDto>>();
+		if(Tools.isNotNull(appoints)) {
+			Set<Long> userids = new HashSet<Long>();
+			for (AnchorAppointEntity appoint : appoints) {
+				userids.add(appoint.getUserid());
+			}
+			pageModel.clearAll();
+			pageModel.addQuery(Restrictions.in("userid", userids));
+			List<AnchorOnlineEntity> anchors = anchorOnlineContract.load(pageModel);
+			if(Tools.isNotNull(anchors)) {
+				for (AnchorOnlineEntity anchor : anchors) {
+					anchorsMap.put(anchor.getUserid(), anchor);
+				}
+			}
+			//最后进行数据拼接操作处理
+			for (AnchorAppointEntity appoint : appoints) {
+				//首先根据对应的约会找到对应的主播
+				AnchorOnlineEntity anchor = anchorsMap.get(appoint.getUserid());
+				if(Tools.isNotNull(anchor)) {
+					AppointDto dto = new AppointDto();
+					dto.setId(appoint.getId());
+					dto.setUserid(anchor.getUserid()+"");
+					if(anchor.getAge() > 0)
+						dto.setAge(anchor.getAge() + "岁");
+					if(anchor.getDistance() > 0)
+						dto.setDistance(anchor.getDistance() + "km");
+					dto.setNickName(anchor.getNickname());
+					dto.setPhoto(ServiceHelper.getUserSmallPhoto(anchor.getPhoto()));
+					dto.setContent(appoint.getContent());
+					//拼接对应的时间字段
+					dto.setEndTime(Tools.getFormatDate(appoint.getEnd_time(), "MM月dd日") + " " + getWeekOfDate(appoint.getEnd_time()) + " 时间随意");
+					
+					//处理打招呼字段
+					if(Tools.isNotNull(userMapAppoints.get(appoint.getId())))
+						dto.setGreet(1);
+					
+					//处理返回结果的操作
+					List<AppointDto> all = maps.get(AnchorAppointTypeEnum.all.getCode());
+					if(Tools.isNull(all)) {
+						all = new ArrayList<>();
+						maps.put(AnchorAppointTypeEnum.all.getCode(), all);
+					}
+					all.add(dto);
+					
+					List<AppointDto> dtos = maps.get(appoint.getType());
+					if(Tools.isNull(dtos)) {
+						dtos = new ArrayList<>();
+						maps.put(appoint.getType(), dtos);
+					}
+					dtos.add(dto);
+				}
+			}
+		}
+		
+		for (Integer type : AnchorAppointTypeEnum.getAppointtype()) {
+			model.addAttribute("item"+type.intValue(), maps.get(type));
+		}
+		model.addAttribute("encrypt", RequestUtils.getCurrent().getHeaderEncrypt());
+		return "appoint/appointment";
+	}
+	
+	public static String getWeekOfDate(Date dt) {        
+		String[] weekDays = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};        
+		Calendar cal = Calendar.getInstance();        
+		cal.setTime(dt);        
+		int w = cal.get(Calendar.DAY_OF_WEEK) - 1;        
+		if (w < 0)            
+			w = 0;        
+		return weekDays[w];    
+	}
+	/**
+	 * 用户应约对应的约会
+	 */
+	@NoSign
+	@Transactional(rollbackFor = Exception.class)
+	@RequestMapping(value = "/commit", produces=Produce.TEXT_JSON)
+	@ResponseBody
+	public ActionResult userGreetAnchor(@RequestBody(required=false) String body) throws Exception {
+		JSONObject json = JsonHelper.toJsonObject(body);
+		long userId = RequestUtils.getCurrent().getUserid();
+		long appointId = json.getLongValue("appointId");
+		long otherId = json.getLongValue("otherId");
+		if(userId <= 0 || appointId <= 0 || otherId <= 0)
+			return ActionResult.fail(ErrorCodeEnum.error);
+		try {
+			//将对应的数据进行入库操作处理
+			AnchorAppointUserEntity t = new AnchorAppointUserEntity();
+			t.setAppointid(appointId);
+			t.setCreate_time(new Date());
+			t.setUserid(userId);
+			anchorAppointUserContract.insert(t);
+			//触发发送消息的业务
+			neteaseAgent.pushOneMessage(userId, otherId, "很高兴认识你，我已经申请你的约会，期待和你沟通", true);
+			try {
+				//进行触发场景检测操作处理
+				boolean check = channelCheckService.checkChannel();
+				if(!check)
+					msgSceneService.sendNewMsgScene(userId, otherId);
+			} catch (Exception e) {
+				
+			}
+		} catch (Exception e) {
+			//h5给的数据又重复了
+			return ActionResult.fail(ErrorCodeEnum.error);
+		}
+		return ActionResult.success();
+	}
+	
+}

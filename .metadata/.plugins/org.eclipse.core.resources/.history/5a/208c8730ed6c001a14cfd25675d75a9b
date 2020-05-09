@@ -1,0 +1,53 @@
+package com.tigerjoys.shark.miai.controller;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.tigerjoys.nbs.common.beans.Produce;
+import com.tigerjoys.nbs.common.utils.Tools;
+import com.tigerjoys.nbs.web.annotations.Login;
+import com.tigerjoys.nbs.web.annotations.NoSign;
+import com.tigerjoys.nbs.web.annotations.TestEncrypt;
+import com.tigerjoys.nbs.web.annotations.UserClientService;
+import com.tigerjoys.nbs.web.context.RequestUtils;
+import com.tigerjoys.shark.miai.service.IUserService;
+
+/**
+ * 私密相册/视频购买和列表等
+ * @author lipeng
+ *
+ */
+@Login
+@Controller
+@RequestMapping(value = "/wx/user")
+//@TestEncrypt("naihnwhQOxMW3SSDjwBCalG8cAb7Z0o2/Vb65AsQC87EDBZACqpfpBvRClXVo0ejLhaGHw2TzHgXMG2eOSXxpev+snLZI6wd/mXRLfrpV2O9JiLuQmSDbt+rf89nAyBvNMbMUq4fs+owq/jW/RshRVNcEUZnTs94l6On+H26fLqTHBB4F5JDtxC9Rdn45gCYJAeCUh7bBh0Y+CsACOqnI93LNK+JxKtiq6liRU6t/Pn9zW4gS0IF43143o8FteAA907Lc7KpTNLCFVaFL3XPcnw6/cJTqNTKFMCD3Q2D0hEAIx9quXsfXCCZccaxmpZN11OdsvSOC7gr6kAOdjT4+v3zAY5sOPO+c4sHyHYwNUbZYMoMnJhB9hxxBkB4c8NliMwUxfthBAuJegn/t81Jb+/Qp5kSXVcLzDzCgvZWrBuRWDEGJ+IqAPcJDxUv6otqvx4g9qvszzFo1WFllVZ2r+X94LCHXLQ0GM+NOpzvS9DxDPXFBUgfelYacu+9A7Gv")
+public class WeixinUserController {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(WeixinUserController.class);
+	
+	@Autowired
+	private IUserService userService;
+	
+
+	/**
+	 * H5-个人主页
+	 * @return - String
+	 * @throws Exception
+	 */
+	@UserClientService("wx")
+	@NoSign
+	@RequestMapping(value = "/userHomePage", produces = Produce.TEXT_HTML)
+	public String statisticsPay(HttpServletRequest request, Model model) throws Exception {
+		String userid = request.getParameter("userid");
+		model.addAttribute("encrypt", RequestUtils.getCurrent().getHeaderEncrypt());
+		model.addAttribute("homePage", userService.getWxUserHomePage(Tools.parseLong(userid)));
+		return "weixinChat/WeixinChatPageDetails";
+	}
+
+}

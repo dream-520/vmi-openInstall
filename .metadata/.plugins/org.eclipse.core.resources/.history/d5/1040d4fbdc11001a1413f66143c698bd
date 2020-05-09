@@ -1,0 +1,227 @@
+<!-- 支付页面 -->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/reset.css')}"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/common.css')}"/>
+		<!-- layer.css/js与弹窗相关插件 -->
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/js/layer_mobile/layer.css')}"/>
+		<script src="$!{Const.getCdn('/js/layer_mobile/layer.js')}" type="text/javascript" charset="utf-8"></script>
+		<!-- 安卓手机底部返回键事件 -->
+		<script src="$!{Const.getCdn('/js/client/requestGoBack_android.js')}" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			.buyInfo{background-color: #fff;line-height: 50px;font-size:16px;padding: 0 13px;border-bottom: 1px solid #eee;}
+			.buyInfo p:nth-of-type(2){color: #666;}
+			.dikouBox{text-align: left;background-color: #fff;font-size:16px;padding: 18px 13px 15px 13px;border-bottom: 10px solid #eee;}
+			.dikouBox>div p:nth-of-type(2){color: #999;font-size: 12px;padding-top: 10px;}
+			.dikouBox label{line-height: 45px;color: #666;}
+			.dikouBox  input[type="checkbox"] + i.checkoutIptCircle{vertical-align: middle; width:22px;height:22px;display:inline-block;border-radius: 11px;-webkit-border-radius: 11px;border: 1px solid #bbb;margin-top: -4px;}
+			.dikouBox input[type="checkbox"]:checked + i.checkoutIptCircle{background: url($!{Const.getCdn()}/img/public/radioChecked_icon.png) no-repeat;background-position:0 0;background-size: contain;border: none;}
+			
+			.payWay{background-color: #fff;}
+			.payWay>p{line-height: 45px;font-size: 14px;border-bottom: 1px solid #eee;padding: 0 13px;text-align: left;}
+			.payWay li{position: relative; line-height: 55px;font-size: 14px;border-bottom: 1px solid #eee;padding: 0 13px;vertical-align: middle;text-align: left;}
+			.payWay li label{display: block;width: 100%;height: 100%;}
+			.payWay img.payIcon{display: inline-block; width: 35px;height: 35px;vertical-align: middle;margin-right: 10px;}
+			
+			/* 支付方式选中状态 */
+			.payWay input[type="radio"] + i.radioCircle{width:22px;height:22px;display:inline-block;border-radius: 11px;-webkit-border-radius: 11px;border: 1px solid #bbb;position: absolute;right: 13px;top: 50%;margin-top: -11px;}
+			.payWay input[type="radio"]:checked + i.radioCircle{background: url($!{Const.getCdn()}/img/public/radioChecked_icon.png) no-repeat;background-position:0 0;background-size: contain;border: none;}
+			
+			/* 充值显示 */
+			.zfp_rule{padding:25px 12px;color: #ff0000;text-align: left;}
+			.zfp_rule p{font-size: 12px;padding-bottom: 6px;}
+			
+			.payBtn{position: fixed;bottom: 0;left: 0;width: 100%;line-height: 55px;font-size: 18px;color: #fff;background-color:#FF3B5E ;}
+		</style>
+		<title>支付方式</title>
+	</head>
+	<body>
+		<!--  
+		<div id="ios_statusBar"></div>
+		<div id="navigationBar">
+			<img src="$!{Const.getCdn('/img/public/backIcon_black.png')}" class="navBackBtn" onclick="navBackBtnAction()"/>
+			<p class="navTitle">选择支付方式</p>
+		</div>
+		-->
+		<div class="mainBox_hasNav">
+			<div class="buyInfo clear">
+				<p class="fl"><span>购买：</span><span id="zuanNum">$!{diamond}</span>$!{buyText}</p>
+				<p class="fr"><span id="rmbNum">$!{money}</span>元</p>
+			</div>
+
+            #if(${deductionRatio})
+			<div class="dikouBox clear">
+				<div class="fl">
+					<p>抵扣金额：<span id="dikouMoney">$!{deduction}</span>元</p>
+					<p>最多能够抵扣所选商品价格<span id="dikouPercent">$!{ratio}</span></p>
+				</div>
+				<label for="dikouIpt" class="fr">
+					<span>是否抵扣&nbsp;&nbsp;<input type="checkbox" id="dikouIpt" checked/><i class="checkoutIptCircle"></i></span>
+				</label>
+			</div>
+			#end
+			<ul class="payWay">
+				<p>选择支付方式</p>
+			
+				<li>
+					<label for="wx">
+						<span><img src="$!{Const.getCdn('/img/wallet/wxIcon.png')}" class="payIcon"><a>微信</a></span>
+						<span><input type="radio" name="payWay" id="wx" value="wx" checked/><i class="radioCircle"></i></span>
+					</label>
+				</li>
+				
+				<li>
+					<label for="zfb">
+						<span><img src="$!{Const.getCdn('/img/wallet/zfbIcon.png')}" class="payIcon"><a>支付宝</a></span>
+						<span><input type="radio" name="payWay" id="zfb" value="zfb" /><i class="radioCircle"></i></span>
+					</label>
+				</li>
+				
+			
+			</ul>
+			<!--  
+			<div class="zfp_rule">
+				<p>使用支付宝支付，多送5钻</p>
+			</div>
+			-->
+			<a onclick="payAction()" class="payBtn">立即支付</a>
+		</div>
+		<script src="$!{Const.getCdn('/js/public/jquery/jquery-2.1.4.min.js')}"></script>
+		<script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script><!--zoom.js适配屏幕-->
+		<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script><!-- 判断手机型号 安卓1，iOS2 -->
+		<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script><!-- client.js与客户端定义的事件 -->
+		<script type="text/javascript">
+			var httpHeader = '$!{encrypt}';
+			var orderId = 0;
+			var layerOpt_wait = {
+				type: 2,
+				shadeClose:false,
+				content: '加载中'
+			}
+		
+			//触发定时请求操作处理的任务
+			var timer = null;
+			function timerFun(){
+				timer = setInterval(function(){queryWxPay();},5000);
+			}
+			function queryWxPay(){
+				var param = {
+					"orderId": orderId
+				}
+				$.ajax({
+					url: '${rc.contextPath}/api/recharge/h5/pay/query',
+					type: 'post',
+					data:JSON.stringify(param),
+					contentType: 'application/json;charset=utf-8',
+					headers: {'header-encrypt-code' : httpHeader},
+					dataType: "json",
+					success: function(ret) {
+						if(ret.code == 0) {
+							window.clearInterval(timer);
+							window.location.href="${rc.contextPath}/api/recharge/h5/pay/finsh";
+						} else if(ret.code == 10401){
+							window.clearInterval(timer);
+						} else if(ret.code == 1){
+							window.clearInterval(timer);
+						} 
+					},
+					complete: function() {
+
+					}
+				});
+			};
+			// 立即支付按钮事件
+			function payAction(){
+				//新增：判断"抵扣"是否处于选中状态
+				var dikouIptFlag = false;
+			 	if(${deductionRatio}){
+				dikouIptFlag = $("#dikouIpt").is(':checked'); //true或false
+				}
+				//此处是取消抵扣使用的标记位
+				//var dikouIptFlag = false; //true或false
+				var moneyParam=${money};
+				var category=${category};
+				var anchorId='$!{anchorId}';
+				var incomeParam=0;
+				var priceIdParam = '$!{priceId}';
+				if(dikouIptFlag){
+					moneyParam = moneyParam-$!{deduction}.toFixed(2);
+					alert($!{deduction});
+					
+					incomeParam = $!{deduction};
+				}
+				
+				var payWayName = $('input[name="payWay"]:checked').val(); //zfb或wx
+				var rmbNum = Number($("#rmbNum").html()); //需要支付的钱数
+				if(payWayName == 'zfb'){
+					//把参数转过来
+					if(mobileType == 1){
+					   var alipayurl_an = "$!{Const.getWebSite()}/$!{afs}?priceId="+priceIdParam+"&money="+moneyParam+"&income="+incomeParam+"&category="+category+"&anchorId="+anchorId;
+					   window.target.gotoAppPage('WebSingleSaveFragment',JSON.stringify({"strValue1":alipayurl_an,"strValue2":"支付方式","strValue3":1}));
+					}else if(mobileType == 2){
+				    	var alipayurl_ios = "${rc.contextPath}/$!{afs}?priceId="+priceIdParam+"&money="+moneyParam+"&income="+incomeParam+"&category="+category+"&anchorId="+anchorId;
+					    window.location.href = alipayurl_ios;
+				    }
+
+				}else if(payWayName == 'wx'){
+					showLayer(layerOpt_wait);//显示弹窗
+					var param = {
+						"priceId": "$!{priceId}",
+						"channel": 5,
+						"money":moneyParam,
+						"income":incomeParam,
+						"category":category,
+						"anchorId":anchorId
+					}
+					$.ajax({
+						url: '${rc.contextPath}/api/recharge/h5/pay',
+						type: 'post',
+						data:JSON.stringify(param),
+						contentType: 'application/json;charset=utf-8',
+						headers: {'header-encrypt-code' : httpHeader},
+						dataType: "json",
+						success: function(ret) {
+							if(ret.code == 0) {
+								var data = {
+									"openStr": ret.data.url
+								}
+								orderId = ret.data.orderId;
+								timerFun();
+								if (mobileType == 1) {
+							      window.target.wxPay(ret.data.url);
+							    } else if (mobileType == 2) {
+							      window.webkit.messageHandlers.open.postMessage(data);
+							    }
+							}
+						},
+						complete: function() {
+
+						}
+					});
+					
+					setTimeout(function(){
+						layer.closeAll(); //关闭弹窗
+					},5000);
+				}
+			}
+			//顶部返回键事件
+			function navBackBtnAction(){
+				if (mobileType == 1) {
+					window.target.action(1);
+				} else if(mobileType == 2){
+					window.webkit.messageHandlers.backPage.postMessage(0);
+				}
+			}
+			$(function(){
+				setTimeout(function(){
+					screenFix(375);
+				},300);//适配屏幕
+				resetNavigationBar();//调用common.js中带有返回键的导航栏
+			});
+		</script>
+	</body>
+</html>

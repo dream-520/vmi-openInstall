@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/myReset.css">
+  <title>密聊</title>
+  <style type="text/css">
+    .wrap {
+      width: 100%;
+      height: 13.34rem;
+      font-size: 0.3rem;
+      background-color: #ffe8bc;
+      color: #875a5a;
+      margin: auto;
+      text-align: center;
+    }
+
+    .wrap .randomImg {
+      width: 100%;
+      height: 10rem;
+    }
+
+    .wrap #chatBtn .chatBtnImg {
+      width: 6.6rem;
+      height: 0.9rem;
+      margin: 0.3rem auto;
+    }
+
+    .wrap .copy {
+      width: 3rem;
+      height: 0.5rem;
+      line-height: 0.5rem;
+      border: 1px solid #ef5454;
+      border-radius: 10px;
+      margin: 0.1rem auto;
+    }
+
+    input {
+      width: 1rem;
+      height: 0.5rem;
+    }
+
+    .textCode {
+      position: relative;
+      margin: 0.1rem 0;
+      display: inline-block;
+    }
+
+    #copyBtn {
+      margin-left: 0.3rem;
+      color: brown;
+    }
+
+    /* 消息提醒 */
+    #message {
+      width: 4.5rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: none;
+      z-index: 11;
+      color: rgba(255, 254, 253, 1);
+      font-size: 0.3rem;
+      margin: auto;
+      text-align: center;
+      background: rgb(41, 36, 36);
+      border-radius: 0.8rem;
+      height: 0.6rem;
+      line-height: 0.6rem;
+    }
+  </style>
+
+  <script type="text/javascript" charset="UTF-8" src="//res.cdn.openinstall.io/openinstall.js"></script>
+  <script type="text/javascript">
+    var data = {
+      "inviteKey": "$!{inviteCode}"
+    }; //也可以是js Object
+    new OpenInstall({
+      appKey: "d8ecyr",
+      onready: function () {
+        var m = this,
+          button = document.getElementById("chatBtn");
+        button.style.visibility = "visible";
+        m.schemeWakeup();
+        button.onclick = function () {
+          m.wakeupOrInstall();
+          return false;
+        }
+      }
+    }, data);
+  </script>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="randomImg" id="randomImg"></div>
+    <div id="chatBtn">
+      <img class="chatBtnImg" src="$!{Const.getCdn()}/img/miliao_share/Private.png" alt="">
+    </div>
+    <div>
+      <span class="textCode">注册后输入邀请码:</span>
+      <p class="copy" id="copy">
+        <span id="invitationCode">888888</span>
+        <span id="copyBtn">复制</span>
+      </p>
+    </div>
+
+  </div>
+
+  <!-- 消息提醒 -->
+  <div id='message'></div>
+
+  <script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+  <script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+  <script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+  <script>
+    bgImg = new Array(2);
+    bgImg[0] = '$!{Const.getCdn()}/img/miliao_share/1.png';
+    bgImg[1] = '$!{Const.getCdn()}/img/miliao_share/2.png';
+    bgImg[2] = '$!{Const.getCdn()}/img/miliao_share/3.png';
+    bgImg[2] = '$!{Const.getCdn()}/img/miliao_share/4.png';
+    index = Math.floor(Math.random() * bgImg.length);
+    $('.randomImg').css('background', 'url(' + bgImg[index] + ')');
+    $('.randomImg').css('backgroundSize', 'cover');
+
+    var textCopy = $('#invitationCode').text();
+    if (textCopy != '') {
+      $('#copyBtn').show()
+    } else(
+      $('#copyBtn').hide()
+    )
+
+    $('#copyBtn').on('click', function () {
+      document.execCommand("Copy"); // 执行浏览器复制命令
+      $('#message').html(textCopy);
+      $('#message').show();
+      setTimeout(function () {
+        $('#message').hide();
+      }, 3000)
+    })
+
+    // 是qq浏览器
+    function is_qq() {
+      var sUserAgent = navigator.userAgent.toLowerCase();
+      if (sUserAgent.match(/QQ/i) == 'qq') {
+        return true
+      } else {
+        return false
+      }
+    }
+    // 是微信浏览器
+    function is_weiXin() {
+      var ua = navigator.userAgent.toLowerCase();
+      if (ua.match(/MicroMessenger/i) == "micromessenger") {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    // 是微信内部webView || 或者qq打开链接 
+    if (is_weiXin() || is_qq()) {
+      // alert("微信||qq打开");
+    } else {
+      window.location.href = 'http://noss.yoyo.liaomeivideo.com/upload/app/android/apk/12.apk';
+    }
+
+    //秘密聊天按钮
+    $('#chatBtn').on('click', function () {
+      // alert('正在维护中~~~')
+      appDown()
+    })
+
+    function appDown() {
+      if (mobileType == 1) {
+        console.log(window.navigator.userAgent, 'userAgent')
+        // window.location.href = 'http://noss.yoyo.liaomeivideo.com/upload/app/android/apk/12.apk';
+      } else if (mobileType == 2) {
+        var $message = $('#message');
+        $message.html('暂不支持苹果下载！');
+        $message.show();
+        setTimeout(function () {
+          $message.hide();
+        }, 3000)
+      } else {
+        window.location.href = 'http://noss.yoyo.liaomeivideo.com/upload/app/android/apk/12.apk';
+      }
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,766 @@
+package com.tigerjoys.shark.miai.service.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.shark.miai.common.dto.IdItemDto;
+import org.shark.miai.common.enums.AppNameEnum;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.alibaba.fastjson.JSONObject;
+import com.tigerjoys.nbs.common.ActionResult;
+import com.tigerjoys.nbs.common.utils.MD5;
+import com.tigerjoys.nbs.common.utils.Tools;
+import com.tigerjoys.nbs.mybatis.core.page.PageModel;
+import com.tigerjoys.nbs.mybatis.core.sql.Restrictions;
+import com.tigerjoys.nbs.web.context.RequestUtils;
+import com.tigerjoys.shark.miai.Const;
+import com.tigerjoys.shark.miai.agent.ISysConfigAgent;
+import com.tigerjoys.shark.miai.agent.IUserAgent;
+import com.tigerjoys.shark.miai.agent.constant.AgentRedisCacheConst;
+import com.tigerjoys.shark.miai.agent.dto.AreaDto;
+import com.tigerjoys.shark.miai.agent.dto.UserBO;
+import com.tigerjoys.shark.miai.agent.service.IAppAreaService;
+import com.tigerjoys.shark.miai.dto.service.HomeTabTypeDto;
+import com.tigerjoys.shark.miai.dto.service.PrivacySetVO;
+import com.tigerjoys.shark.miai.dto.service.RegionCityDataVO;
+import com.tigerjoys.shark.miai.dto.service.StaticWebUrlDto;
+import com.tigerjoys.shark.miai.dto.service.SyncDataVO;
+import com.tigerjoys.shark.miai.dto.service.SyncItemDto;
+import com.tigerjoys.shark.miai.dto.service.UserBlacklistVO;
+import com.tigerjoys.shark.miai.enums.ErrorCodeEnum;
+import com.tigerjoys.shark.miai.enums.StaticWebUrlEnum;
+import com.tigerjoys.shark.miai.inter.contract.IAppChannelContract;
+import com.tigerjoys.shark.miai.inter.contract.IAppPackageContract;
+import com.tigerjoys.shark.miai.inter.contract.IAppTabContract;
+import com.tigerjoys.shark.miai.inter.contract.IAppVersionContract;
+import com.tigerjoys.shark.miai.inter.contract.ISysConfigContract;
+import com.tigerjoys.shark.miai.inter.contract.IUserBlacklistContract;
+import com.tigerjoys.shark.miai.inter.contract.IUserChatGiftContract;
+import com.tigerjoys.shark.miai.inter.contract.IUserPrivacySecurityContract;
+import com.tigerjoys.shark.miai.inter.entity.AppChannelEntity;
+import com.tigerjoys.shark.miai.inter.entity.AppPackageEntity;
+import com.tigerjoys.shark.miai.inter.entity.AppTabEntity;
+import com.tigerjoys.shark.miai.inter.entity.AppVersionEntity;
+import com.tigerjoys.shark.miai.inter.entity.SysConfigEntity;
+import com.tigerjoys.shark.miai.inter.entity.UserBlacklistEntity;
+import com.tigerjoys.shark.miai.inter.entity.UserChatGiftEntity;
+import com.tigerjoys.shark.miai.inter.entity.UserPrivacySecurityEntity;
+import com.tigerjoys.shark.miai.service.IConfService;
+import com.tigerjoys.shark.miai.utils.ServiceHelper;
+
+/**
+ * App升级服务实现类
+ * 
+ * @author lipeng
+ *
+ */
+@Service
+public class ConfServiceImpl implements IConfService {
+
+	private final Log logger = LogFactory.getLog(getClass());
+
+	@Autowired
+	private IAppChannelContract appChannelContract;
+	
+	@Autowired
+	private IAppPackageContract appPackageContract;
+
+	@Autowired
+	private IAppVersionContract appVersionContract;
+
+	@Autowired
+	private IUserAgent userAgent;
+
+	@Autowired
+	private IUserBlacklistContract userBlacklistContract;
+
+	@Autowired
+	private IAppAreaService appAreaService;
+
+	@Autowired
+	private ISysConfigContract sysConfigContract;
+
+	@Autowired
+	private IUserPrivacySecurityContract userPrivacySecurityContract;
+
+	@Autowired
+	private IAppTabContract appTabContract;
+	
+	@Autowired
+	private ISysConfigAgent sysConfigAgent;
+	
+	@Autowired
+	private IUserChatGiftContract userChatGiftContract;
+	
+	
+	
+
+	@Override
+	public ActionResult checkVersion(String channelName, int platform) throws Exception {
+		// 根据渠道获取渠道ID
+		AppChannelEntity channel = appChannelContract.findByProperty("name", channelName);
+		// 根据渠道获取渠道ID
+		AppPackageEntity appPackage = appPackageContract.findByProperty("name", RequestUtils.getCurrent().getHeader().getPackageName());
+		// 再获取所有的渠道的ID
+		AppChannelEntity allChannel = appChannelContract.findByProperty("simple_name", Const.ALL_CAHNNEL);
+		if (channel == null && allChannel == null && appPackage == null) {
+			return ActionResult.fail(ErrorCodeEnum.no_find_channel.getCode(), ErrorCodeEnum.no_find_channel.getDesc());
+		}
+		// 此处获取all渠道最新的版本和指定渠道最新的版本
+		AppVersionEntity channelVersion = getLasterChannelVersion(channel, platform ,appPackage);
+		AppVersionEntity allVersion = null;
+
+		// 如果channelName的渠道跟all渠道的ID一致，则直接赋值。
+		if (channel != null && allChannel != null && channel.getId().longValue() == allChannel.getId().longValue()) {
+			allVersion = channelVersion;
+		} else {
+			allVersion = getLasterChannelVersion(allChannel, platform ,appPackage);
+		}
+
+		if (channelVersion == null && allVersion == null) {
+			return ActionResult.fail(ErrorCodeEnum.no_check_upgrade.getCode(),
+					ErrorCodeEnum.no_check_upgrade.getDesc());
+		}
+
+		// 此处判断当前的两个渠道哪个版本高
+		AppVersionEntity version = null;
+		if (channelVersion != null && allVersion != null) {
+			if (allVersion.getCode() > channelVersion.getCode()) {
+				version = allVersion;
+			} else {
+				version = channelVersion;
+			}
+		} else if (channelVersion != null) {
+			version = channelVersion;
+		} else {
+			version = allVersion;
+		}
+
+		int currCode = RequestUtils.getCurrent().getHeader().getVersioncode();
+		int newCode = version.getCode();
+
+		logger.info(currCode + "--" + newCode);
+
+		if (Tools.isNull(currCode) || Tools.isNull(newCode)) {
+			return ActionResult.fail(ErrorCodeEnum.no_check_upgrade.getCode(),
+					ErrorCodeEnum.no_check_upgrade.getDesc());
+		}
+
+		if (currCode == newCode) {
+			return ActionResult.fail(ErrorCodeEnum.no_check_upgrade.getCode(),
+					ErrorCodeEnum.no_check_upgrade.getDesc());
+		}
+
+		boolean isUpgrade = false;
+		if (newCode > currCode) {
+			isUpgrade = true;
+		}
+		logger.info(isUpgrade + "---" + currCode + "--" + newCode);
+
+		if (isUpgrade) {
+			// 确认要升级了，如果当前是非强制升级，则判断此版本之前的版本是否有过强制升级的要求
+			int flag = version.getFlag().intValue();
+			if (flag != 2) {// 不是强制升级。则获取当前版本处于的ID位置。
+				// 获取用户当前版本在数据库中的对象
+				PageModel pageModel = PageModel.getPageModel(1, 1);
+				if (channelVersion != null) {
+					pageModel.addQuery(Restrictions.eq("channel_id", channelVersion.getChannel_id()));
+				} else {
+					pageModel.addQuery(Restrictions.eq("channel_id", allVersion.getChannel_id()));
+				}
+				pageModel.addQuery(Restrictions.eq("platform", platform));
+				pageModel.addQuery(Restrictions.eq("code", currCode));
+				pageModel.addQuery(Restrictions.eq("status", 1));
+
+				List<AppVersionEntity> list = appVersionContract.load(pageModel);
+				if (Tools.isNotNull(list)) {
+					AppVersionEntity currVersionEntity = list.get(0);
+					// 此处判断此版本的ID后是否存在强制升级的要求
+					pageModel.clearAll();
+					pageModel.addPageField(1, 1);
+					pageModel.addQuery(Restrictions.gt("id", currVersionEntity.getId()));
+					if (channelVersion != null) {
+						pageModel.addQuery(Restrictions.eq("channel_id", channelVersion.getChannel_id()));
+					} else {
+						pageModel.addQuery(Restrictions.eq("channel_id", allVersion.getChannel_id()));
+					}
+					pageModel.addQuery(Restrictions.eq("platform", platform));
+					pageModel.addQuery(Restrictions.eq("status", 1));
+					pageModel.addQuery(Restrictions.eq("flag", 2));// 强制升级
+
+					// 不为空的话，则必须要强制升级
+					if (Tools.isNotNull(appVersionContract.load(pageModel))) {
+						flag = 2;
+					}
+				}
+			}
+
+			Map<String, Object> dataMap = new HashMap<String, Object>();
+			dataMap.put("code", newCode);
+			dataMap.put("version", version.getVersion());
+			dataMap.put("url", Const.getCdn(version.getUrl()));
+			dataMap.put("title", version.getTitle());
+			dataMap.put("content", version.getContent());
+			dataMap.put("force", flag);
+
+			return ActionResult.success(dataMap);
+		} else {
+			return ActionResult.fail(ErrorCodeEnum.no_check_upgrade.getCode(),
+					ErrorCodeEnum.no_check_upgrade.getDesc());
+		}
+	}
+
+	/*@Override
+	public ActionResult iosCheckVersion(int platform) throws Exception {
+		AppChannelEntity channel = appChannelContract.findByProperty("name",
+				RequestUtils.getCurrent().getHeader().getChannel());
+		if (channel == null) {
+			return ActionResult.fail(ErrorCodeEnum.db_error.getCode(), ErrorCodeEnum.db_error.getDesc());
+		}
+		AppVersionEntity lastVersion = getLasterChannelVersion(channel, platform);
+		if (lastVersion == null) {
+			return ActionResult.fail(ErrorCodeEnum.db_error.getCode(), ErrorCodeEnum.db_error.getDesc());
+		}
+		if (lastVersion.getCode() == RequestUtils.getCurrent().getHeader().getVersioncode()) {
+			return ActionResult.fail(ErrorCodeEnum.no_check_upgrade.getCode(),
+					ErrorCodeEnum.no_check_upgrade.getDesc());
+		} else if (lastVersion.getCode() > RequestUtils.getCurrent().getHeader().getVersioncode()) {
+			Map<String, Object> dataMap = new HashMap<String, Object>();
+			dataMap.put("code", lastVersion.getCode());
+			dataMap.put("version", lastVersion.getVersion());
+			dataMap.put("url", Const.getCdn(lastVersion.getUrl()));
+			dataMap.put("title", lastVersion.getTitle());
+			dataMap.put("content", lastVersion.getContent());
+			dataMap.put("force", lastVersion.getFlag());
+			return ActionResult.success(dataMap);
+		}
+		return ActionResult.fail(ErrorCodeEnum.no_check_upgrade.getCode(), ErrorCodeEnum.no_check_upgrade.getDesc());
+	}*/
+
+	@Override
+	public ActionResult checkIosVersion() throws Exception {
+		AppChannelEntity channel = appChannelContract.findByProperty("name",
+				RequestUtils.getCurrent().getHeader().getChannel());
+		if (channel == null) {
+			return ActionResult.fail(ErrorCodeEnum.db_error.getCode(), ErrorCodeEnum.db_error.getDesc());
+		}
+		AppVersionEntity lastVersion = getLasterChannelVersion(channel, 3);
+		if (lastVersion == null) {
+			return ActionResult.fail(ErrorCodeEnum.db_error.getCode(), ErrorCodeEnum.db_error.getDesc());
+		}
+		if (lastVersion.getCode() == RequestUtils.getCurrent().getHeader().getVersioncode()) {
+			return ActionResult.fail(ErrorCodeEnum.no_check_upgrade.getCode(),
+					ErrorCodeEnum.no_check_upgrade.getDesc());
+		} else if (lastVersion.getCode() > RequestUtils.getCurrent().getHeader().getVersioncode()) {
+			Map<String, Object> dataMap = new HashMap<String, Object>();
+			dataMap.put("code", lastVersion.getCode());
+			dataMap.put("version", lastVersion.getVersion());
+			dataMap.put("url", lastVersion.getUrl());
+			dataMap.put("title", lastVersion.getTitle());
+			dataMap.put("content", lastVersion.getContent());
+			dataMap.put("force", lastVersion.getFlag());
+			return ActionResult.success(dataMap);
+		}
+		return ActionResult.fail(ErrorCodeEnum.no_check_upgrade.getCode(), ErrorCodeEnum.no_check_upgrade.getDesc());
+	}
+	
+	
+	/**
+	 * 获得指定包名下渠道的最新的版本
+	 * 
+	 * @param channel
+	 *            - AppChannelEntity
+	 * @param platform
+	 *            - 平台
+	 * @param appPackage 
+	 * @return AppVersionEntity
+	 * @throws Exception
+	 */
+	private AppVersionEntity getLasterChannelVersion(AppChannelEntity channel, int platform, AppPackageEntity appPackage) throws Exception {
+		if (channel == null) {
+			return null;
+		}
+		PageModel pageModel = PageModel.getPageModel(1, 1);
+		pageModel.addQuery(Restrictions.eq("channel_id", channel.getId()));
+		pageModel.addQuery(Restrictions.eq("package_id", appPackage.getId()));
+		pageModel.addQuery(Restrictions.eq("platform", platform));
+		pageModel.addQuery(Restrictions.eq("status", 1));
+		pageModel.desc("code");
+
+		List<AppVersionEntity> list = appVersionContract.load(pageModel);
+		if (Tools.isNotNull(list)) {
+			return list.get(0);
+		}
+		return null;
+	}
+	
+	/**
+	 * 获得指定包名下渠道的最新的版本
+	 * 
+	 * @param channel
+	 *            - AppChannelEntity
+	 * @param platform
+	 *            - 平台
+	 * @param appPackage 
+	 * @return AppVersionEntity
+	 * @throws Exception
+	 */
+	private AppVersionEntity getLasterChannelVersion(AppChannelEntity channel, int platform) throws Exception {
+		if (channel == null) {
+			return null;
+		}
+		PageModel pageModel = PageModel.getPageModel(1, 1);
+		pageModel.addQuery(Restrictions.eq("channel_id", channel.getId()));
+		pageModel.addQuery(Restrictions.eq("platform", platform));
+		pageModel.addQuery(Restrictions.eq("status", 1));
+		pageModel.desc("code");
+		
+		List<AppVersionEntity> list = appVersionContract.load(pageModel);
+		if (Tools.isNotNull(list)) {
+			return list.get(0);
+		}
+		return null;
+	}
+
+	@Override
+	public ActionResult blackList(long userid, long stamp) throws Exception {
+		PageModel pageModel = new PageModel();
+		int pagesize = 10;
+		pageModel.setPageSize(pagesize + 1);
+		pageModel.addQuery(Restrictions.eq("userid", userid));
+		pageModel.desc("create_time");
+		if (stamp != 0) {
+			pageModel.addQuery(Restrictions.lt("id", stamp)); // 小于stamp为id
+		}
+		List<UserBlacklistEntity> list = userBlacklistContract.load(pageModel);
+
+		List<UserBlacklistVO> voList = new ArrayList<UserBlacklistVO>();
+
+		if (Tools.isNotNull(list)) {
+			int i = 0;
+			for (UserBlacklistEntity userBlacklist : list) {
+				UserBO user = userAgent.findById(userBlacklist.getBlackid());
+				if (Tools.isNotNull(user)) {
+					UserBlacklistVO vo = new UserBlacklistVO();
+					vo.setId(userBlacklist.getId());
+					vo.setUserid(user.getUserid());
+					vo.setNickname(user.getNickname());
+					vo.setPhoto(ServiceHelper.getUserPhoto(user.getPhoto()));
+					vo.setSex(user.getSex());
+					if (Tools.getAge(user.getBirthday()) != 0) {
+						vo.setAge(Tools.getAge(user.getBirthday()));
+					}
+					vo.setSignature(user.getSignature());
+					vo.setTalentVip(false);
+					voList.add(vo);
+					if (++i >= pagesize) {
+						break;
+					}
+				}
+			}
+		}
+		if (Tools.isNotNull(voList)) {
+			stamp = voList.get(voList.size() - 1).getId();
+		}
+		return ActionResult.success(voList, stamp, (list != null && list.size() > pagesize) ? true : false);
+	}
+
+	@Override
+	public Map<String, Object> getRegionCityMap() throws Exception {
+		List<AreaDto> areaList = appAreaService.getChinaCityList();
+		if (Tools.isNull(areaList)) {
+			return null;
+		}
+
+		List<RegionCityDataVO> list = new ArrayList<>(areaList.size());
+		for (AreaDto area : areaList) {
+			RegionCityDataVO city = new RegionCityDataVO();
+			city.setArea(area.getBaiduCode().intValue());
+			city.setAreaName(area.getName());
+			// city.setChildrenList(null);
+			city.setInitial(area.getInitial());
+			city.setSpell(area.getSpell());
+
+			list.add(city);
+		}
+
+		Map<String, Object> dataMap = new HashMap<>();
+		dataMap.put("version", Const.CITY_CODE_VERSION);
+		dataMap.put("dataList", areaList);
+
+		return dataMap;
+	}
+
+	@Override
+	public ActionResult getIosStatus() throws Exception {
+		UserBO user = userAgent.findByUsername("15873952675");
+		if (RequestUtils.getCurrent().getHeader().getUserid()==user.getUserid()) {
+			Map<String, Integer> dataMap = new HashMap<>();
+			dataMap.put("iosStatus", 0);
+			return ActionResult.success(dataMap);
+		}
+		AppPackageEntity appPackage = appPackageContract.findByProperty("name", RequestUtils.getCurrent().getHeader().getPackageName());
+		AppChannelEntity channel = appChannelContract.findByProperty("name", RequestUtils.getCurrent().getHeader().getChannel());
+		if (appPackage!=null&&channel!=null) {
+			PageModel pageModel = PageModel.getPageModel(0, 1);
+			pageModel.addQuery(Restrictions.eq("platform", 2));
+			pageModel.addQuery(Restrictions.eq("code", RequestUtils.getCurrent().getHeader().getVersioncode()));
+			pageModel.addQuery(Restrictions.eq("channel_id", channel.getId()));
+			pageModel.addQuery(Restrictions.eq("package_id", appPackage.getId()));
+			pageModel.addQuery(Restrictions.eq("status", 1));
+			List<AppVersionEntity> list = appVersionContract.load(pageModel);
+			if (Tools.isNotNull(list)) {
+				Map<String, Integer> dataMap = new HashMap<>();
+				dataMap.put("iosStatus", list.get(0).getIos_status());
+				return ActionResult.success(dataMap);
+			}
+		}
+		Map<String, Integer> dataMap = new HashMap<>();
+		dataMap.put("iosStatus", 0);
+		return ActionResult.success(dataMap);
+	}
+
+	@Override
+	public ActionResult getPrivacySet() throws Exception {
+		UserPrivacySecurityEntity ups = userPrivacySecurityContract.findByProperty("userid",
+				RequestUtils.getCurrent().getUserid());
+		PrivacySetVO vo = new PrivacySetVO();
+		if (ups != null) {
+			vo.setPrivacyStatus(ups.getStatus());
+			vo.setPasswordStatus(1);
+			vo.setTalentStatus(ups.getTalent_status());
+			if (ups.getStatus() == 1) {
+				SysConfigEntity config = sysConfigContract.findByProperty("name", Const.PRIVACY_EXPLAIN_INFO);
+				vo.setExplain(config.getValue());
+			}
+		} else {
+			vo.setPrivacyStatus(0);
+			vo.setPasswordStatus(0);
+			vo.setTalentStatus(0);
+		}
+		UserBO user = userAgent.findById(RequestUtils.getCurrent().getUserid());
+		if (user != null) {
+			//if (Const.IOS_TEST_MOBILE_ACCOUNT_MAP.containsKey(user.getUsername())) {
+			if (testIOS()) {
+				SysConfigEntity config = sysConfigContract.findByProperty("name", Const.IOS_TEST_PRIVACY_EXPLAIN_INFO);
+				if (config != null) {
+					vo.setExplain(config.getValue());
+				}
+			}
+		}
+		return ActionResult.success(vo);
+	}
+
+	@Override
+	public ActionResult verifyPassword(JSONObject json) throws Exception {
+		String password = json.getString("password");
+		PrivacySetVO vo = new PrivacySetVO();
+		UserPrivacySecurityEntity ups = userPrivacySecurityContract.findByProperty("userid",
+				RequestUtils.getCurrent().getUserid());
+		if (Tools.isNotNull(ups)) {
+			if (!ups.getPassword().equals(MD5.encode(password))) {
+				return ActionResult.fail(ErrorCodeEnum.privacy_passwor_false.getCode(),
+						ErrorCodeEnum.privacy_passwor_false.getDesc());
+			}
+			UserPrivacySecurityEntity upsTemp = new UserPrivacySecurityEntity();
+			upsTemp.setId(ups.getId());
+			upsTemp.setStatus(ups.getStatus() == 1 ? 0 : 1);
+			if (ups.getStatus() == 1) {
+				upsTemp.setTalent_status(0);
+			}
+			userPrivacySecurityContract.update(upsTemp);
+			vo.setPrivacyStatus(upsTemp.getStatus());
+			vo.setPasswordStatus(1);
+			vo.setTalentStatus(0);
+			if (upsTemp.getStatus() == 1) {
+				SysConfigEntity config = sysConfigContract.findByProperty("name", Const.PRIVACY_EXPLAIN_INFO);
+				vo.setExplain(config.getValue());
+			}
+		} else {
+			if (!privacyPassworValid(password)) {
+				return ActionResult.fail(ErrorCodeEnum.privacy_passwor_no_rule.getCode(),
+						ErrorCodeEnum.privacy_passwor_no_rule.getDesc());
+			}
+			try {
+				creatEntity(RequestUtils.getCurrent().getUserid(), password);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			SysConfigEntity config = sysConfigContract.findByProperty("name", Const.PRIVACY_EXPLAIN_INFO);
+			vo.setPrivacyStatus(1);
+			vo.setPasswordStatus(1);
+			vo.setTalentStatus(0);
+			vo.setExplain(config.getValue());
+		}
+		UserBO user = userAgent.findById(RequestUtils.getCurrent().getUserid());
+		if (user != null) {
+			//if (Const.IOS_TEST_MOBILE_ACCOUNT_MAP.containsKey(user.getUsername())) {
+			if (testIOS()) {
+				SysConfigEntity config = sysConfigContract.findByProperty("name", Const.IOS_TEST_PRIVACY_EXPLAIN_INFO);
+				if (config != null) {
+					vo.setExplain(config.getValue());
+				}
+			}
+		}
+		return ActionResult.success(vo);
+	}
+
+	@Override
+	public ActionResult talentOnOff() throws Exception {
+		UserPrivacySecurityEntity ups = userPrivacySecurityContract.findByProperty("userid",
+				RequestUtils.getCurrent().getUserid());
+		if (ups == null)
+			return ActionResult.fail(ErrorCodeEnum.db_error.getCode(), ErrorCodeEnum.db_error.getDesc());
+		UserPrivacySecurityEntity upsTemp = new UserPrivacySecurityEntity();
+		upsTemp.setId(ups.getId());
+		upsTemp.setTalent_status(ups.getTalent_status() == 1 ? 0 : 1);
+		userPrivacySecurityContract.update(upsTemp);
+
+		PrivacySetVO vo = new PrivacySetVO();
+		SysConfigEntity config = sysConfigContract.findByProperty("name", Const.PRIVACY_EXPLAIN_INFO);
+		vo.setPrivacyStatus(ups.getStatus());
+		vo.setPasswordStatus(1);
+		vo.setTalentStatus(ups.getTalent_status() == 0 ? 1 : 0);
+		vo.setExplain(config.getValue());
+		return ActionResult.success(vo);
+	}
+
+	/**
+	 * 新建用户表类
+	 * 
+	 * @param userid
+	 * @param privacy
+	 * @throws Exception
+	 */
+	private void creatEntity(long userid, String password) throws Exception {
+		UserPrivacySecurityEntity ups = new UserPrivacySecurityEntity();
+		Date currDate = new Date();
+		ups.setCreate_time(currDate);
+		ups.setUpdate_time(currDate);
+		ups.setUserid(userid);
+		ups.setPassword(MD5.encode(password));
+		ups.setStatus(1);
+		ups.setTalent_status(0);
+		userPrivacySecurityContract.insert(ups);
+	}
+
+	/**
+	 * 验证隐私密码是否符合规范
+	 * 
+	 * @param nickname
+	 *            - 昵称
+	 * @return True or False
+	 */
+	public boolean privacyPassworValid(String password) {
+		if (password == null) {
+			return false;
+		}
+		// 长度6-15
+		if (password.length() < 6 || password.length() > 15) {
+			return false;
+		}
+		// 仅数字，大小写字母
+		if (!Tools.matches("^[A-Za-z0-9]+$", password)) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public ActionResult syncData(int version,int packageType) throws Exception {
+		int newVersion = sysConfigAgent.getIntvalue(AgentRedisCacheConst.REDIS_SYSCONFIG_TAB_TYPE_VERSION);
+		String packageName = RequestUtils.getCurrent().getHeader().getPackageName();
+		// 付费约和免费约的版本号一致，不需要多次同步
+		SyncDataVO vo = null;
+		if (newVersion > version) {
+			vo = new SyncDataVO();
+
+			int osVersion = RequestUtils.getCurrent().getHeader().getVersioncode();
+
+			vo.setMapStaticWeb(getMapStaticWeb());
+			if (packageType == 1) {
+				vo.setHomeTabList(getDVHomeTabList()); // 主播首页
+			} else {
+				vo.setHomeTabList(getHomeTabList(1)); // 主播首页
+			}
+
+			vo.setHomeVideoTabList(getHomeTabList(2)); // 短视频首页
+
+			List<Map<String, Object>> giftType0 = getGiftsList(0);
+			List<Map<String, Object>> giftType1 = getGiftsList(1);
+			List<Map<String, Object>> giftType2 = getGiftsList(2);
+
+			List<Map<String, Object>> oldGifts = new ArrayList<>();
+			oldGifts.addAll(giftType0);
+			oldGifts.addAll(giftType1);
+			if (AppNameEnum.ios_com_duidui_duijiaoyou.getPackageName().equals(packageName)) {
+				vo.setGifts(oldGifts.size() > 10 ? oldGifts.subList(0, 10) : oldGifts);
+			} else {
+				vo.setGifts(oldGifts);
+			}
+
+			Map<Integer, List<Map<String, Object>>> giftAllList = new HashMap<>();
+
+			giftAllList.put(0, giftType0);
+			giftAllList.put(1, giftType1);
+			giftAllList.put(2, giftType2);
+			vo.setGiftAllList(giftAllList);
+			vo.setChatHitInfo("请文明用语！每条信息消耗1朵小红花");
+			if (osVersion >= 50) {
+				if (Const.IS_TEST) {
+					vo.setChatVideoSnapshotUploadUrl(Const.CHECK_PORN_UPLOAD);
+					vo.setChatVideoSnapshotTime(6000);
+					vo.setChatAudioSnapshotState(1);
+					vo.setChatAudioSnapshotTime(6000);
+					vo.setChatAudioSnapshotUploadUrl(Const.CHECK_PORN_UPLOAD);
+				} else {
+					vo.setChatVideoSnapshotUploadUrl(Const.CHECK_PORN_UPLOAD);
+					vo.setChatVideoSnapshotTime(10000);
+					vo.setChatAudioSnapshotState(0);
+					vo.setChatAudioSnapshotTime(6000);
+					vo.setChatAudioSnapshotUploadUrl(Const.CHECK_PORN_UPLOAD);
+				}
+
+			}
+
+			vo.setChatAudioUploadUrl(Const.CHECK_AUDIO_UPLOAD);
+
+			vo.setChatPicUploadUrl(Const.CHECK_PHOTO_UPLOAD);
+
+			vo.setVersion(newVersion);
+
+		}
+		return ActionResult.success(vo);
+
+	}
+
+	
+	private Map<String, StaticWebUrlDto> getMapStaticWeb(){
+		Map<String, StaticWebUrlDto> hsmp = new HashMap<String, StaticWebUrlDto>(); 
+		for(StaticWebUrlEnum re:StaticWebUrlEnum.values()){
+			hsmp.put(re.name(), StaticWebUrlDto.preDto(re));
+		}
+		return hsmp;
+	}
+	
+	
+	private List<HomeTabTypeDto> getHomeTabList(int type) throws Exception{
+		PageModel pageModel = PageModel.getPageModel();
+		pageModel.addQuery(Restrictions.eq("state", 1));
+		pageModel.addQuery(Restrictions.eq("type", type));
+		pageModel.asc("priority");
+		List<HomeTabTypeDto> dtoList = new ArrayList<>();
+		List<AppTabEntity> list = appTabContract.load(pageModel);
+		String channel = RequestUtils.getCurrent().getHeader().getChannel();
+		if(Tools.isNotNull(list)){
+			for(AppTabEntity re:list){
+				HomeTabTypeDto dto = new HomeTabTypeDto();
+				dto.setType(Integer.parseInt(re.getTag()));
+				dto.setName(re.getName());
+				dto.setShowBanner(re.getBanner()>0 ?true:false);
+				if("App Store".equalsIgnoreCase(channel) || "ios_miyou".equalsIgnoreCase(channel)){
+					if(!"音频".equals(re.getName())){
+						dtoList.add(dto);
+					}
+				}else{
+					dtoList.add(dto);
+				}
+				
+			}
+		}
+		return dtoList;
+	}
+	
+	
+	private List<HomeTabTypeDto> getDVHomeTabList() throws Exception{
+		List<HomeTabTypeDto> dtoList = new ArrayList<>();
+		HomeTabTypeDto dto = new HomeTabTypeDto();
+		dto.setType(0);
+		dto.setName("首页");
+		dto.setShowBanner(true);
+		dtoList.add(dto);
+		return dtoList;
+	}
+	
+	private List<SyncItemDto> transSyncItem(List<IdItemDto> list){
+		List<SyncItemDto> typeList = new ArrayList<>();
+		if(Tools.isNotNull(list)){
+			list.forEach(v->{
+				typeList.add(SyncItemDto.preDto(v));
+			});
+		}
+		return typeList;
+	}
+	
+	public boolean testIOS() throws Exception{
+		int oSType = RequestUtils.getCurrent().getHeader().getOs_type();
+		int version = RequestUtils.getCurrent().getHeader().getVersioncode();
+		boolean flag = false;
+		if(2 != oSType){
+			return flag;
+		}
+		PageModel pageModel = PageModel.getPageModel(0, 1);
+		pageModel.addQuery(Restrictions.eq("platform", oSType ));
+		pageModel.addQuery(Restrictions.eq("code", version));
+		List<AppVersionEntity> list = appVersionContract.load(pageModel);
+		if (Tools.isNotNull(list)) {
+			if (list.get(0).getIos_status() == 0) {
+				flag = true;
+			}
+		}
+		return flag;
+	}
+	
+	public List<Map<String, Object>> getGiftsList(int type) throws Exception {
+		String packageName = RequestUtils.getCurrent().getHeader().getPackageName();
+		Map<String, Object> res = new HashMap<>();
+		PageModel pageModel = PageModel.getPageModel();
+		pageModel.addQuery(Restrictions.eq("status", 1));
+		pageModel.addQuery(Restrictions.eq("type", type));
+		if( AppNameEnum.ios_com_duidui_duijiaoyou.getPackageName().equals(packageName) ){
+			pageModel.addQuery(Restrictions.eq("animation_flag", 0));
+		}
+		
+		String checkClientId = RequestUtils.getCurrent().getHeader().getClientId();
+		long userId = RequestUtils.getCurrent().getUserid();
+		//禁止用户
+		if(Const.USER_STOP_RECHARGE_USERID_CLIENT_IP_MAP.containsKey(String.valueOf(userId)) 
+				|| Const.USER_STOP_RECHARGE_USERID_CLIENT_IP_MAP.containsKey(checkClientId) 
+				|| Const.USER_STOP_RECHARGE_USERID_CLIENT_IP_MAP.containsKey(Tools.getIP(RequestUtils.getCurrent().getRequest())) 
+				){
+			pageModel.addQuery(Restrictions.le("diamond", 10000));
+		}
+		
+		pageModel.desc("priority");
+		List<UserChatGiftEntity> gifts = userChatGiftContract.load(pageModel);
+		String clientid = RequestUtils.getCurrent().getHeader().getClientId();
+		logger.info("syncData:USER_CLIENTID_GIFT_LIST:"+clientid);
+		List<Map<String, Object>> collect = gifts.stream().map(gift -> {
+			Map<String, Object> data = new HashMap<>();
+			data.put("id", gift.getId());
+			data.put("name", gift.getName());
+			if(gift.getDiamond()>=4000 && com.tigerjoys.shark.miai.agent.constant.Const.USER_CLIENTID_GIFT_LIST.contains(clientid)){
+				data.put("price", 20);
+			}else{
+				data.put("price", gift.getDiamond());
+			}
+		
+			if( AppNameEnum.ios_com_duidui_duijiaoyou.getPackageName().equals(packageName) ){
+				data.put("price", gift.getDiamond()/20);
+			}
+			data.put("picUrl", Const.getCdn(gift.getIcon()));
+			return data;
+		}).collect(Collectors.toList());
+		return collect;
+	}
+
+	
+}

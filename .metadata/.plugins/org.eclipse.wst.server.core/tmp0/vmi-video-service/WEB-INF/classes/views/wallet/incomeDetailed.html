@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link href="$!{Const.getCdn()}/css/wallet/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="$!{Const.getCdn()}/css/public/myReset.css">
+
+	<title>$!{incomeRecordDesc}</title>
+	<style type="text/css">
+		body {
+			-webkit-overflow-scrolling: touch;
+		}
+
+		.fl {
+			float: left;
+		}
+
+		.header {
+			position: relative;
+			padding: 0 44px;
+			height: 44px;
+			width: 100%;
+			line-height: 44px;
+			text-align: center;
+			color: #fff;
+			font-size: 14px;
+			font-weight: bold;
+			background: #009def;
+			z-index: 1000;
+		}
+
+		.list-group {
+			margin-bottom: 0;
+		}
+
+		.tab-content .tab-panel {
+			display: none;
+		}
+
+		.main-fixed {
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			overflow-y: auto;
+		}
+
+		.wrap {
+			width: 7.5rem;
+			height: 13rem;
+			background: rgb(163, 152, 152);
+		}
+
+		.list-group-item {
+			position: relative;
+			width: 100%;
+			height: 1.4rem;
+			/* border: 1px solid #eee; */
+			/* 修改bootstrap 的默认样式 */
+			padding: 0;
+		}
+
+		.list-group-item .listLeft {
+			color: #333;
+			font-size: 0.3rem;
+			position: absolute;
+			left: 4%;
+			top: 35%;
+		}
+
+		.list-group-item .listRight1 {
+			font-size: 0.22rem;
+			color: #999;
+			position: absolute;
+			right: 4%;
+			top: 15%;
+		}
+
+		.list-group-item .listRight2 {
+			font-size: 0.24rem;
+			color: #666;
+			position: absolute;
+			right: 4%;
+			top: 50%;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="main main-fixed" id="main">
+
+		<ul class="list-group" id="listWrapper">
+			<!-- <li class="list-group-item">
+				<span class="listLeft">2.5金币</span>
+				<p class="listRight1">2019-09-24&nbsp;19:00:00</p>
+				<p class="listRight2">[玫瑰花]视频聊天</p>
+			</li> -->
+		</ul>
+	</div>
+	<script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+	<script src="$!{Const.getCdn()}/js/public/viewport/viewport-2.js"></script>
+
+	<script src="$!{Const.getCdn('/js/layer_mobile/layer.js')}" type="text/javascript" charset="utf-8"></script>
+
+	<script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script>
+	<!--zoom.js适配屏幕-->
+	<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+	<!-- 判断手机型号 安卓1，iOS2 -->
+	<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+	<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+	<script>
+		var httpHeader = '$!{encrypt}';
+		var stamp = '$!{stamp}';
+		var listWrapper = document.getElementById('listWrapper'); //ul
+
+		// 请求数据
+		function handlePullUpSuccess() {
+
+			$.ajax({
+				url: '$!{rc.contextPath}/api/income/cash/list/ajax',
+				method: 'POST',
+				async: true,
+				cache: false,
+				dataType: 'json',
+				contentType: 'application/json;charset=utf-8',
+				headers: {
+					'header-encrypt-code': httpHeader
+				},
+				success(data) {
+					if (data.nextPage == true) {
+						console.log(data, '请求回来的data数据')
+						bindHTML(data)
+
+					} else {
+						return
+					}
+
+				},
+				error: function (err) {
+					console.log(err);
+				}
+			});
+		}
+		handlePullUpSuccess();
+
+		// 绑定数据
+		// bindHTML 绑定数据
+		function bindHTML(data) {
+			var str = '';
+			var eachData = data.data;
+			eachData.forEach(function (item, index) {
+				// console.log(item, index)
+
+				str += '<li class="list-group-item">'
+				str += '<span class="listLeft">' + item.title + '</span>'
+				str += '<p class="listRight1">' + item.date + '</p>'
+				str += '<p class="listRight2">' + item.via + '</p>'
+				str += '</span>'
+				str += '</li>'
+
+			})
+			listWrapper.innerHTML = str;
+		}
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,102 @@
+package com.tigerjoys.shark.miai.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.alibaba.fastjson.JSONObject;
+import com.tigerjoys.nbs.common.ActionResult;
+import com.tigerjoys.nbs.common.beans.Produce;
+import com.tigerjoys.nbs.common.utils.JsonHelper;
+import com.tigerjoys.nbs.web.annotations.Login;
+import com.tigerjoys.nbs.web.context.RequestUtils;
+import com.tigerjoys.shark.miai.service.IVChatTextYXService;
+
+@Controller
+@RequestMapping(value = "/api/textChatYX", method=RequestMethod.POST, produces = Produce.TEXT_ENCODE)
+public class VChatTextYXController {
+	
+	@Autowired
+	private IVChatTextYXService vChatTextYXService;
+
+	
+	/**
+	 * 聊天前信息检查
+	 * @return
+	 * @throws Exception
+	 */
+	@Login
+	@RequestMapping(value = "/checkChat", method=RequestMethod.POST)
+	public @ResponseBody ActionResult checkChat(@RequestBody String body) throws Exception {
+		long userId = RequestUtils.getCurrent().getUserid();
+		JSONObject json = JsonHelper.toJsonObject(body);
+		Long otherId = json.getLong("otherId");
+		return vChatTextYXService.textChatCheck(userId, otherId);
+	}
+	
+	/**
+	 * 聊天发信息接口
+	 * @return
+	 * @throws Exception
+	 */
+	@Login
+	@RequestMapping(value = "/payChat", method=RequestMethod.POST)
+	public @ResponseBody ActionResult payChat(@RequestBody String body) throws Exception {
+		long userId = RequestUtils.getCurrent().getUserid();
+		JSONObject json = JsonHelper.toJsonObject(body);
+		Long otherId = json.getLong("otherId");
+		String chatText = json.getString("chatText");
+		return vChatTextYXService.payChat(userId, otherId,chatText);
+	}
+	
+	
+	/**
+	 * 聊天发信息接口
+	 * @return
+	 * @throws Exception
+	 */
+	@Login
+	@RequestMapping(value = "/checkAudioSend", method=RequestMethod.POST)
+	public @ResponseBody ActionResult checkAudio(@RequestBody String body) throws Exception {
+		long userId = RequestUtils.getCurrent().getUserid();
+		JSONObject json = JsonHelper.toJsonObject(body);
+		long otherId = json.getLongValue("otherId");
+		int type = json.getIntValue("type");
+		return vChatTextYXService.checkAudioSend(userId,otherId,type);
+	}
+	
+	
+	/**
+	 * 查看语音
+	 * @return
+	 * @throws Exception
+	 */
+	@Login
+	@RequestMapping(value = "/getAudioMsg", method=RequestMethod.POST)
+	public @ResponseBody ActionResult getAudioMsg(@RequestBody String body) throws Exception {
+		long userId = RequestUtils.getCurrent().getUserid();
+		JSONObject json = JsonHelper.toJsonObject(body);
+		long audioId = json.getLongValue("audioId");
+		return vChatTextYXService.getAudioMsg(userId, audioId);
+	}
+	
+	/**
+	 * 发送聊天信息
+	 * @return
+	 * @throws Exception
+	 */
+	@Login
+	@RequestMapping(value = "/sendChatMsg", method=RequestMethod.POST)
+	public @ResponseBody ActionResult sendChatMsg(@RequestBody String body) throws Exception {
+		long userId = RequestUtils.getCurrent().getUserid();
+		JSONObject json = JsonHelper.toJsonObject(body);
+		Long otherId = json.getLong("otherId");
+		//TODO: 发消息
+		return ActionResult.success();
+	}
+	
+	
+}

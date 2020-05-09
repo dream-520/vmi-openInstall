@@ -1,0 +1,96 @@
+package com.tigerjoys.shark.miai.controller;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.tigerjoys.nbs.common.beans.Produce;
+import com.tigerjoys.nbs.common.cache.CacheRedis;
+import com.tigerjoys.nbs.common.utils.JsonHelper;
+import com.tigerjoys.nbs.common.utils.Tools;
+import com.tigerjoys.nbs.mybatis.core.page.PageModel;
+import com.tigerjoys.nbs.web.annotations.Login;
+import com.tigerjoys.nbs.web.annotations.TestEncrypt;
+import com.tigerjoys.shark.miai.Const;
+import com.tigerjoys.shark.miai.agent.constant.AgentRedisCacheConst;
+import com.tigerjoys.shark.miai.dto.service.WenXinIndexAnchor;
+import com.tigerjoys.shark.miai.inter.contract.IAnchorTagContract;
+import com.tigerjoys.shark.miai.inter.entity.AnchorOnlineEntity;
+import com.tigerjoys.shark.miai.inter.entity.AnchorTagEntity;
+import com.tigerjoys.shark.miai.utils.ServiceHelper;
+
+import redis.clients.jedis.Tuple;
+
+@Controller
+@RequestMapping(value = "/wx/index" ,produces=Produce.TEXT_HTML)
+//@TestEncrypt("naihnwhQOxMW3SSDjwBCalG8cAb7Z0o2/Vb65AsQC87EDBZACqpfpBvRClXVo0ejLhaGHw2TzHgXMG2eOSXxpd/gA9veIMa6QDvClehtyMKCtxbqUe/f+gSRgnDe7SMcSKgQL+HQJ/VVOF0NEsJEH6gZhIfOSc5LoI+MJeQqJDjm4JS81ncba9YlKXCZH9MAr+jU/+sCnpcW1ePqYWxAcaXEXLiwxeeG3iHkg6U1orXucl3/ZXiOCsixDUACfnAhxSPUVwsoKbBNIZf0nr97zPkOU8ZTFDn7vZuwvOr2nmn1OhRz3mdyuBsursUfv1pA/s9bXEr2D1ZOqc5IvShyVqYcK8jtdkJhnq1hwKw6NY9Hv0ci+xo8/yt+NUkvEcvtqiyzm48u93VYCMP8bULZSYovLkeCeswu/efZXuKTEBKCJkB20id2/Zd20GUM7wN50K4nXuHv5cz9HDXFI1iRvmcgy1K0yRLq/S+Mr+YAp75IdrsF4GDeOAN5sQHn26ni")
+public class WeixinIndexAnchorController {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(WeixinIndexAnchorController.class);
+	
+	@Autowired
+	@Qualifier(AgentRedisCacheConst.REDIS_USER_ONLINE_LIST_CACHE)
+	private CacheRedis anchorOnlineCacheRedis;
+	
+	@Autowired
+	private IAnchorTagContract anchorTagContract;
+	
+	@Login
+	@RequestMapping(value="/anchor", produces = Produce.TEXT_HTML)
+	public String index(Model model) throws Exception {
+		//给首页推荐页面的主播
+		List<WenXinIndexAnchor> anchors = new ArrayList<WenXinIndexAnchor>();
+		String query = anchorOnlineCacheRedis.get("anchor_online_new_list_"+1);
+		if(Tools.isNotNull(query)) {
+			String key = "anchor_online_state_" + 1 + "_" + query;
+			Set<Tuple> sets = anchorOnlineCacheRedis.zrangeByScoreWithScores(key, 1, 100, 0, 100);
+			if(Tools.isNotNull(sets)) {
+				PageModel pageModel = PageModel.getPageModel();
+				List<AnchorTagEntity> tags = anchorTagContract.load(pageModel);
+				Map<Long, AnchorTagEntity> map = new HashMap<Long, AnchorTagEntity>();
+				if(Tools.isNotNull(tags) && tags.size() > 0) {
+					for (AnchorTagEntity anchorTag : tags) {
+						map.put(anchorTag.getId(), anchorTag);
+					}
+				}
+				for (Tuple tuple : sets) {
+					if(Tools.isNotNull(tuple)) {
+						String data = tuple.getElement();
+						if(Tools.isNotNull(data)) {
+							AnchorOnlineEntity anchor = JsonHelper.toObject(data, AnchorOnlineEntity.class);
+							if(Tools.isNotNull(anchor)) {
+								//配置数据
+								WenXinIndexAnchor item = new WenXinIndexAnchor();
+								item.setUserid(anchor.getUserid()+"");
+								item.setNickName(anchor.getNickname());
+								item.setPhoto(ServiceHelper.getUserSmallPhoto(anchor.getPhoto()));
+								item.setAge(anchor.getAge()+"岁");
+								item.setDistance(anchor.getDistance()+"km");
+								if(anchor.getTag().intValue() > 0) {
+									AnchorTagEntity anchorTag = map.get((long)anchor.getTag().intValue());
+									if(Tools.isNotNull(anchorTag) && Tools.isNotNull(anchorTag.getUrl())) {
+										item.setTag(Const.getCdn(anchorTag.getUrl()));
+									}
+								}
+								anchors.add(item);
+							}
+						}
+					}
+				}
+			}
+		}
+		LOGGER.info("获取到的主播数量:"+anchors.size());
+		model.addAttribute("anchors", anchors);
+		return "weixinChat/WeixinChatPage";
+	}
+}

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/myReset.css">
+  <title>约会</title>
+  <style>
+    .wrap {
+      width: 100%;
+      font-size: 0.3rem;
+      margin: auto;
+      position: absolute;
+      top: 0.7rem;
+    }
+
+    /* 头部导航 */
+    #navHead {
+      background: #fff;
+      width: 100%;
+      height: 0.7rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding: 0.1rem 0;
+      z-index: 20;
+      line-height: 0.7rem;
+      display: -webkit-flex;
+      display: flex;
+      display: -moz-box;
+      display: -ms-flexbox;
+      border-bottom: 1px solid #999;
+    }
+
+    #navHead>span {
+      flex: 1;
+      -webkit-flex: 1;
+      -ms-flex: 1;
+      flex: 1;
+      -webkit-box-flex: 1;
+      -moz-box-flex: 1;
+    }
+
+    #goBack img {
+      width: 0.2rem;
+      height: 0.35rem;
+      margin: 0.13rem 0 0 0.2rem;
+    }
+
+    .daystar {
+      margin-left: 0.3rem;
+      text-align: center;
+      font-size: 0.36rem;
+      width: 2.11rem;
+      height: 0.5rem;
+      font-family: PingFangSC-Regular;
+      font-weight: 400;
+      color: #333;
+    }
+
+    /* 选项卡 */
+    .btnList {
+      margin-top: 0.2rem;
+    }
+
+    /* for Chrome 滚动条 */
+    .btnList .listBox::-webkit-scrollbar {
+      display: none;
+    }
+
+    .btnList .listBox {
+      width: 100%;
+      display: flex;
+      display: -webkit-flex;
+      display: -moz-box;
+      display: -ms-flexbox;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .btnList .listBox li {
+      color: #999;
+      margin: 0.3rem 0.3rem 0;
+      flex: 1;
+      -webkit-flex: 1;
+      -ms-flex: 1;
+      flex: 1;
+      -webkit-box-flex: 1;
+      -moz-box-flex: 1;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btnList .listBox li:first-child {
+      margin-left: 0.4rem;
+    }
+
+    .btnList .listBox li:last-child {
+      padding-right: 0.4rem;
+    }
+
+
+    .btnList .listBox li img {
+      width: 0.8rem;
+      height: 0.8rem;
+      border-radius: 50%;
+    }
+
+    .active {
+      color: #FE3973;
+    }
+
+    .btnList .listBox li p {
+      text-align: center;
+      font-size: 0.24rem;
+      margin: 0.2rem 0 0.3rem;
+    }
+
+    /* 选项卡对应卡片 */
+    .wrap .btnList .card {
+      background: #fee5eb;
+    }
+
+    .wrap .btnList .card li:last-child {
+      padding-bottom: 0.3rem;
+    }
+
+    .wrap .btnList .card li {
+      padding: 0.3rem 0.3rem 0;
+    }
+
+    .wrap .btnList .card li>div {
+      position: relative;
+      padding: 0.5rem 0.3rem 0.4rem 0.4rem;
+      background: #fff;
+      border-radius: 10px;
+    }
+
+    .wrap .btnList .card li .cardImg {
+      width: 1rem;
+      height: 1rem;
+      border-radius: 50%;
+      margin: 0 0.3rem 0 0;
+    }
+
+    .wrap .btnList .card li .nickName {
+      margin: -0.4rem 1.4rem 0rem;
+      font-size: 0.32rem;
+      color: #333;
+      color: #999;
+      font-size: 0.24rem;
+    }
+
+    .wrap .btnList .card li .nickName span:first-child {
+      margin-right: 0.3rem;
+    }
+
+    .wrap .btnList .card li .appointBtn {
+      width: 1rem;
+      height: 0.6rem;
+      line-height: 0.6rem;
+      text-align: center;
+      position: absolute;
+      right: 0;
+      top: 20%;
+    }
+
+    .appointBtnActive {
+      background: #999;
+    }
+
+    .wrap .btnList .card li .appointBtn {
+      width: 1.5rem;
+      height: 0.6rem;
+      margin: 0 0.3rem;
+      background: #ff5151;
+      color: #fff;
+      border-radius: 30px;
+      font-size: 0.24rem;
+    }
+
+    .wrap .btnList .card li .appointText {
+      margin: 0.4rem 0 0.3rem;
+      line-height: 0.5rem;
+    }
+
+    .wrap .btnList .card li .appointTime {
+      color: #666;
+      font-size: 0.24rem;
+    }
+
+    .wrap .btnList .card li .appointTime span {
+      /* margin-right: 0.4rem; */
+    }
+  </style>
+</head>
+
+<body>
+  <div id="wrap" class="wrap">
+    <!-- 头部当行 -->
+    <div id="navHead">
+      <span id="goBack">
+        <a href="">
+          <img src="$!{Const.getCdn()}/img/activity/goddess/back.png" alt="" onclick="gotoAppBack()">
+        </a>
+      </span>
+      <span class="daystar">约会</span>
+      <span class="pastStar" style="visibility: hidden;"></span>
+    </div>
+
+    <!-- 按钮列表 -->
+    <div class="btnList">
+      <ul class="listBox" id="listBox">
+        <li>
+          <img src="$!{Const.getCdn('/img/appoint/all.png')}" alt="">
+          <p>全部</p>
+        </li>
+        <li>
+          <img src="$!{Const.getCdn('/img/appoint/all.png')}" alt="">
+          <p>美食</p>
+        </li>
+        <li>
+          <img src="$!{Const.getCdn('/img/appoint/move.png')}" alt="">
+          <p>电影</p>
+        </li>
+        <li>
+          <img src="$!{Const.getCdn('/img/appoint/street.png')}" alt="">
+          <p>逛街</p>
+        </li>
+        <li>
+          <img src="$!{Const.getCdn('/img/appoint/play.png')}" alt="">
+          <p>游玩</p>
+        </li>
+        <li>
+          <img src="$!{Const.getCdn('/img/appoint/sing.png')}" alt="">
+          <p>逛街</p>
+        </li>
+        <li>
+          <img src="$!{Const.getCdn('/img/appoint/sport.png')}" alt="">
+          <p>运动</p>
+        </li>
+        <li>
+          <img src="$!{Const.getCdn('/img/appoint/bar.png')}" alt="">
+          <p>泡吧</p>
+        </li>
+      </ul>
+
+      <ul class="card" id="card">
+        #foreach($item in $!{item0})
+        <li>
+          <div>
+            <img class="cardImg" src="$!{item.photo}" alt="">
+            <span>$!{item.nickName}</span>
+            <p class="nickName">
+              <span>$!{item.age}</span>
+              <span>$!{item.distance}</span>
+            </p>
+            <p class="appointBtn" id="appointBtn" onclick="byAppointment('$!{item.userid}')">我要应约</p>
+            <p class="appointText">$!{item.content}</p>
+            <div class="appointTime">
+              <span>$!{item.endTime}</span>
+              <!-- <span>01月09日</span>
+              <span>星期1</span>
+              <span>20：00</span> -->
+            </div>
+          </div>
+        </li>
+        #end
+
+        #foreach($item in $!{item1})
+        <li>
+          <div>
+            <img class="cardImg" src="$!{item.photo}" alt="">
+            <span>$!{item.nickName}</span>
+            <p class="nickName">
+              <span>$!{item.age}</span>
+              <span>$!{item.distance}</span>
+            </p>
+            <p class="appointBtn" id="appointBtn" onclick="byAppointment('$!{item.userid}')">我要应约</p>
+            <p class="appointText">$!{item.content}</p>
+            <div class="appointTime">
+              <span>$!{item.endTime}</span>
+              <!-- <span>01月09日</span>
+              <span>星期1</span>
+              <span>20：00</span> -->
+            </div>
+          </div>
+        </li>
+        #end
+
+        #foreach($item in $!{item2})
+        <li>
+          <div>
+            <img class="cardImg" src="$!{item.photo}" alt="">
+            <span>$!{item.nickName}</span>
+            <p class="nickName">
+              <span>$!{item.age}</span>
+              <span>$!{item.distance}</span>
+            </p>
+            <p class="appointBtn" id="appointBtn" onclick="byAppointment('$!{item.userid}')">我要应约</p>
+            <p class="appointText">$!{item.content}</p>
+            <div class="appointTime">
+              <span>$!{item.endTime}</span>
+              <!-- <span>01月09日</span>
+              <span>星期1</span>
+              <span>20：00</span> -->
+            </div>
+          </div>
+        </li>
+        #end
+
+        #foreach($item in $!{item3})
+        <li>
+          <div>
+            <img class="cardImg" src="$!{item.photo}" alt="">
+            <span>$!{item.nickName}</span>
+            <p class="nickName">
+              <span>$!{item.age}</span>
+              <span>$!{item.distance}</span>
+            </p>
+            <p class="appointBtn" id="appointBtn" onclick="byAppointment('$!{item.userid}')">我要应约</p>
+            <p class="appointText">$!{item.content}</p>
+            <div class="appointTime">
+              <span>$!{item.endTime}</span>
+              <!-- <span>01月09日</span>
+              <span>星期1</span>
+              <span>20：00</span> -->
+            </div>
+          </div>
+        </li>
+        #end
+
+        #foreach($item in $!{item4})
+        <li>
+          <div>
+            <img class="cardImg" src="$!{item.photo}" alt="">
+            <span>$!{item.nickName}</span>
+            <p class="nickName">
+              <span>$!{item.age}</span>
+              <span>$!{item.distance}</span>
+            </p>
+            <p class="appointBtn" id="appointBtn" onclick="byAppointment('$!{item.userid}')">我要应约</p>
+            <p class="appointText">$!{item.content}</p>
+            <div class="appointTime">
+              <span>$!{item.endTime}</span>
+              <!-- <span>01月09日</span>
+              <span>星期1</span>
+              <span>20：00</span> -->
+            </div>
+          </div>
+        </li>
+        #end
+
+        #foreach($item in $!{item5})
+        <li>
+          <div>
+            <img class="cardImg" src="'+ $!{item.photo} +'" alt="" onclick="gotoHomePage('$!{item.userid}')">
+            <span>$!{item.nickName}</span>
+            <p class="nickName">
+              <span>$!{item.age}</span>
+              <span>$!{item.distance}</span>
+            </p>
+            <p class="appointBtn" id="appointBtn" onclick="byAppointment('$!{item.userid}')">我要应约</p>
+            <p class="appointText">$!{item.content}</p>
+            <div class="appointTime">
+              <span>$!{item.endTime}</span>
+              <!-- <span>01月09日</span>
+              <span>星期1</span>
+              <span>20：00</span> -->
+            </div>
+          </div>
+        </li>
+        #end
+
+        #foreach($item in $!{item6})
+        <li>
+          <div>
+            <img class="cardImg" src="$!{item.photo}" alt="">
+            <span>$!{item.nickName}</span>
+            <p class="nickName">
+              <span>$!{item.age}</span>
+              <span>$!{item.distance}</span>
+            </p>
+            <p class="appointBtn" id="appointBtn" onclick="byAppointment('$!{item.userid}')">我要应约</p>
+            <p class="appointText">$!{item.content}</p>
+            <div class="appointTime">
+              <span>$!{item.endTime}</span>
+              <!-- <span>01月09日</span>
+              <span>星期1</span>
+              <span>20：00</span> -->
+            </div>
+          </div>
+        </li>
+        #end
+
+        #foreach($item in $!{item7})
+        <li>
+          <div>
+            <img class="cardImg" src="$!{item.photo}" alt="">
+            <span>$!{item.nickName}</span>
+            <p class="nickName">
+              <span>$!{item.age}</span>
+              <span>$!{item.distance}</span>
+            </p>
+            <p class="appointBtn" id="appointBtn" onclick="byAppointment('$!{item.userid}')">我要应约</p>
+            <p class="appointText">$!{item.content}</p>
+            <div class="appointTime">
+              <span>$!{item.endTime}</span>
+              <!-- <span>01月09日</span>
+              <span>星期1</span>
+              <span>20：00</span> -->
+            </div>
+          </div>
+        </li>
+        #end
+
+      </ul>
+    </div>
+  </div>
+
+  <script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+  <script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+  <script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+
+  <script>
+    var httpHeader = '$!{encrypt}';
+    var $liBox = $('#listBox li'),
+      $cardLi = $('#card li'),
+      $appointBtn = $('#card li #appointBtn');
+
+    //切换选项卡
+    $liBox.on('click', function () {
+      var item = $(this).index();
+      $('#listBox li p').removeClass('active');
+      $('#listBox li p').eq(item).addClass('active');
+
+      if (item == 0) {
+        $cardLi.show();
+        console.log(item, this)
+      } else if (item > 0) {
+        $cardLi.hide();
+        $cardLi.eq(item).show();
+        console.log(item, this)
+      }
+    })
+
+    //女神主页
+    function gotoHomePage(userid) {
+      console.log(userid, '女神主页')
+      var userParamAndroid = {
+        "strValue1": userid
+      };
+      var userParamWebkit = {
+        "personId": userid
+      };
+      if (mobileType == 1) {
+        window.target.gotoAppPage('HomepageFragment', JSON.stringify(userParamAndroid));
+      } else if (mobileType == 2) {
+        window.webkit.messageHandlers.showPersonHomePage.postMessage(userParamWebkit);
+      }
+    }
+
+    //我要应约
+    function byAppointment(userid) {
+      var index = $appointBtn.index($(this));
+      console.log(index)
+
+      //请求数据
+      var params = {
+        appointId: index,
+        otherId: this.userid
+      }
+
+      console.log(params)
+
+      $.ajax({
+        url: '${rc.contextPath}/api/anchor/appoint/commit',
+        method: 'POST',
+        async: true,
+        cache: false,
+        dataType: 'json',
+        contentType: 'application/json;charset=utf-8',
+        headers: {
+          'header-encrypt-code': httpHeader
+        },
+        data: JSON.stringify(params),
+        success(data) {
+          console.log(data, 'data');
+          if (data.code == 0) {
+            $('#appointBtn').text('已应约').css('background', '#999')
+          }
+        },
+        error: function (err) {
+          console.log(err);
+        }
+      });
+    }
+
+    // ios 头部导航偏移调整
+    var navHead = document.getElementById('navHead');
+    if (mobileType == 1) {
+      navHead.style.paddingTop = '0.1rem';
+    } else if (mobileType == 2) {
+      navHead.style.paddingTop = '0.5rem';
+    }
+  </script>
+</body>
+
+</html>

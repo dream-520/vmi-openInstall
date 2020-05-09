@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+   <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/myReset.css" />
+  <script src="$!{Const.getCdn()}/js/weixinChat/vue.min.js"></script>
+  <script src="$!{Const.getCdn()}/js/weixinChat/axios.min.js"></script>
+  <script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+  <script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+  <script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+  
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+  
+  <title>一对一视频聊天</title>
+  <style>
+    #app {
+      width: 100%;
+      margin: auto;
+      overflow: hidden;
+      background: url('$!{Const.getCdn()}/img/weixinChat/chatBg.png') no-repeat center;
+      background-size: 100% 100%;
+      margin-top: 0.7rem;
+    }
+
+    /* 导航头 */
+    .navigation {
+      z-index: 10;
+      position: fixed;
+      top: 0;
+      right: 0;
+      background: #fff;
+      width: 100%;
+      height: 0.7rem;
+      border-bottom: 1px solid #c9bfbf;
+      display: flex;
+      display: -webkit-flex;
+      display: -moz-box;
+      display: -ms-flexbox;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navigation div {
+      padding: 0 0.2rem 0;
+      font-size: 0.3rem;
+    }
+
+    #app .conHeader {
+      font-size: 0.6rem;
+      color: #fff;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+
+    /* 主播列表 */
+    .anchor {
+      width: 100%;
+      margin-top: 0.7rem;
+    }
+
+    .anchor .anchorList {
+      flex-wrap: wrap;
+      display: -webkit-flex;
+      display: flex;
+      display: -moz-box;
+      display: -ms-flexbox;
+      margin: 0 0.1rem;
+    }
+
+    .anchor .listContent {
+      width: 50%;
+      padding: 0rem 0.15rem 0.25rem 0.15rem;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .listContent .tag {
+      position: absolute;
+      top: 0;
+      left: 10%;
+      width: 0.66rem;
+      height: 0.66rem;
+    }
+
+    .anchor .listContent .spaceBg {
+      width: 100%;
+      height: 1rem;
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      /* margin: 0rem 0.15rem 0.25rem 0.15rem; */
+    }
+
+    .anchor .listContent .anchorImg {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    .anchor .listContent .nickname {
+      font-size: 0.26rem;
+      color: #fff;
+      position: absolute;
+      left: 12%;
+      bottom: 70%;
+    }
+
+    .anchor .listContent .user {
+      position: absolute;
+      left: 12%;
+      bottom: 17%;
+    }
+
+    .anchor .listContent .age {
+      font-size: 0.24rem;
+      color: #fff;
+      /* position: absolute;
+      left: 0;
+      bottom: 2%; */
+    }
+
+    .anchor .listContent .space {
+      font-size: 0.24rem;
+      color: #fff;
+      /* position: absolute;
+      left: 0;
+      bottom: 2%; */
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 导航头 -->
+  <div class="navigation">
+    <div class="view"></div>
+    <div class="header">一对一视频聊天</div>
+    <div class="content"></div>
+  </div>
+
+  <!-- 内容 -->
+  <div id="app">
+
+    <div class="conHeader">一对一美女视频聊天</div>
+
+    <!-- 主播列表 -->
+    <div class="anchor">
+      <ul class="anchorList">
+		 #foreach($anchor in $!{anchors})
+        <li class="listContent">
+          <a :href="'./WeixinChatPageDetails.html?id='+i">
+            <img class="tag" src="$!{Const.getCdn()}/img/weixinChat/001.png" alt="">
+            <img class="anchorImg" src="$!{Const.getCdn()}/img/weixinChat/11.png" alt="">
+            <div class="spaceBg">
+              <p class="nickname">$!{nickname}</p>
+              <p class="user">
+                <span class="age">22岁</span>
+                <span class="space">8.05km</span>
+              </p>
+            </div>
+          </a>
+        </li>
+		#end
+      </ul>
+    </div>
+  </div>
+
+</body>
+
+</html>

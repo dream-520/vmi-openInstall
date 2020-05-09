@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/myReset.css">
+  <title>邀请明细</title>
+  <style>
+    .wrap {
+      width: 100%;
+      height: 13.34rem;
+      margin: auto;
+    }
+
+    .wrap .header {
+      background: url('$!{Const.getCdn()}/img/miliao_share/bannerTop.png') no-repeat center;
+      background-size: 100%;
+      width: 100%;
+      height: 3.4rem;
+      line-height: 1.6rem;
+      margin: auto;
+      margin-top: 0.7rem;
+    }
+
+    .wrap .header .T {
+      font-size: 0.44rem;
+      color: #fff;
+      margin: 0 0.3rem;
+    }
+
+    .wrap .header .B {
+      font-size: 0.44rem;
+      color: #fff;
+      margin: 0 0.3rem;
+    }
+
+    .wrap .main {
+      font-size: 0.2rem;
+      margin: 0.5rem 0.3rem 0.15rem;
+    }
+
+    .wrap .main .level {
+      font-size: 0.3rem;
+      margin-right: 0.5rem;
+      padding: 0.5rem 0.2rem 0.1rem;
+      color: #333;
+    }
+
+    .wrap .main .act {
+      border-bottom: 2px solid #fe3973;
+    }
+
+    .wrap .mainList .content {
+      font-size: 0.26rem;
+      width: 100%;
+      height: 0.9rem;
+      line-height: 0.9rem;
+      margin-top: 0.3rem;
+      background: #eee;
+      color: #666;
+    }
+
+    .wrap .mainList .content .tabList span {
+      margin: 0 0.24rem;
+    }
+
+    .wrap .mainList .content .detailsList {
+      width: 100%;
+      height: 1.4rem;
+      line-height: 1.4rem;
+      font-size: 0.26rem;
+      color: #666;
+      border-bottom: 1px solid #eee;
+      overflow: hidden;
+    }
+
+    .wrap .mainList .content .detailsList .head {
+      border-radius: 50%;
+      margin: 0.2rem 0.3rem;
+      width: 0.9rem;
+      height: 0.9rem;
+    }
+
+    .wrap .mainList .content .detailsList .overflow {
+      display: inline-block;
+      width: 2rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .wrap .mainList .content .detailsList .money {
+      vertical-align: top;
+      float: right;
+      margin-right: 0.4rem;
+    }
+
+    /* 头部导航 */
+    #navHead {
+      background: rgba(255, 255, 255, 1);
+      width: 100%;
+      height: 0.7rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding: 0.1rem 0;
+      z-index: 20;
+      line-height: 0.7rem;
+      display: -webkit-flex;
+      display: flex;
+      display: -moz-box;
+      display: -ms-flexbox;
+    }
+
+    #navHead>span {
+      flex: 1;
+      -webkit-flex: 1;
+      -ms-flex: 1;
+      flex: 1;
+      -webkit-box-flex: 1;
+      -moz-box-flex: 1;
+    }
+
+    #goBack img {
+      height: 0.3rem;
+      margin: 0.13rem 0 0 0.3rem;
+    }
+
+    .daystar {
+      margin-left: 0.3rem;
+      text-align: center;
+      font-size: 0.36rem;
+      width: 2.11rem;
+      height: 0.5rem;
+      font-family: PingFangSC-Regular;
+      font-weight: 400;
+      color: #333;
+    }
+
+    .pastStar {
+      text-align: right;
+      margin-right: 0.3rem;
+      width: 0.61rem;
+      height: 0.3rem;
+      font-size: 0.3rem;
+      font-family: PingFangSC-Regular;
+      font-weight: 400;
+      color: rgba(51, 51, 51, 1);
+      opacity: 0;
+    }
+
+    .pastStar a {
+      color: rgba(51, 51, 51, 1);
+      font-size: 0.3rem;
+      width: 0.61rem;
+      height: 0.3rem;
+      font-family: PingFangSC-Regular;
+      font-weight: 400;
+      line-height: 0.3rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div id="navHead">
+      <span id="goBack">
+        <a href="">
+          <img src="$!{Const.getCdn()}/img/miliao_share/back.png" alt="" onclick="gotoAppBack()">
+        </a>
+      </span>
+      <span class="daystar">我的邀请</span>
+      <span class="pastStar">
+        <a>邀请</a>
+      </span>
+    </div>
+
+    <div class="header">
+      <div class="T">
+        <p>累计用户&nbsp;:&nbsp;$!{cpsNum}人</p>
+      </div>
+
+      <div class="B">
+        <p>累计收益&nbsp;:&nbsp;$!{cpsIncome}元</p>
+      </div>
+    </div>
+
+    <div class="main">
+      <span class="level act">A级</span>
+      <span class="level">B级</span>
+      <span class="level">C级</span>
+    </div>
+
+    <div class="mainList">
+      <ul class="content">
+        <li class="tabList">
+          <span>A&nbsp;级好友&nbsp;:&nbsp;$!{cpsStatis.a_num}人</span>
+          <span>总收益&nbsp;:&nbsp;$!{cpsTotalA}元</span>
+        </li>
+        #foreach($re in $!{incomeA})
+        <li class="detailsList">
+          <img class="head" src="$!{re.icon}" alt="">
+          <span class="overflow">$!{re.nikeName}</span>
+          <span class="money">收益:&nbsp;$!{re.income}</span>
+        </li>
+        #end
+      </ul>
+
+      <ul class="content">
+        <li class="tabList">
+          <span>B&nbsp;级好友&nbsp;:&nbsp;$!{cpsStatis.b_num}人</span>
+          <span>总收益&nbsp;:&nbsp;$!{cpsTotalB}元</span>
+        </li>
+        #foreach($re in $!{incomeB})
+        <li class="detailsList">
+          <img class="head" src="$!{re.icon}" alt="">
+          <span class="overflow">$!{re.nikeName}</span>
+          <span class="money">收益:&nbsp;$!{re.income}</span>
+        </li>
+        #end
+      </ul>
+
+      <ul class="content">
+        <li class="tabList">
+          <span>C&nbsp;级好友&nbsp;:&nbsp;$!{cpsStatis.c_num}人</span>
+          <span>总收益&nbsp;:&nbsp;$!{cpsTotalC}元</span>
+        </li>
+        #foreach($re in $!{incomeC})
+        <li class="detailsList">
+          <img class="head" src="$!{re.icon}" alt="">
+          <span class="overflow">$!{re.nikeName}</span>
+          <span class="money">收益:&nbsp;$!{re.income}</span>
+        </li>
+        #end
+      </ul>
+    </div>
+
+  </div>
+
+  <script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+  <script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+  <script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+  <script>
+    //切换class类名,选项卡
+    var CurrentLevel = 0;
+    changeTab(CurrentLevel, '.main span', '.content')
+    $('.main span').click(function () {
+      var n = $(this).index(); // 拿到点击span的索引
+      changeTab(n, '.main span', '.content');
+    })
+
+    function changeTab(n, tab, content) {
+      $(tab).removeClass('act')
+      $(tab).eq(n).addClass('act')
+      $(content).hide();
+      $(content).eq(n).show();
+    }
+
+    // 顶部|底部 导航栏返回事件
+    function requestGoBack() {
+      gotoAppBack();
+    }
+
+    // ios 头部导航偏移调整
+    var navHead = document.getElementById('navHead');
+    var oHeader = document.getElementById('header');
+    if (mobileType == 1) {
+      navHead.style.paddingTop = '0.1rem';
+    } else if (mobileType == 2) {
+      navHead.style.paddingTop = '0.5rem';
+      oHeader.style.paddingTop = '0.5rem';
+    }
+  </script>
+</body>
+
+</html>

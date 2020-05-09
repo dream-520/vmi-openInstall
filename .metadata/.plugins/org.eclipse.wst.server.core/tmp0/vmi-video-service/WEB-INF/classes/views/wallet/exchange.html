@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/reset.css">
+  <title>积分兑换</title>
+  <style>
+    body {
+      /* background: #f6f6f6; */
+    }
+
+    i {
+      font-style: normal;
+    }
+
+    .wrap {
+      width: 7.2rem;
+      /* height: 13.34rem; */
+      font-size: 0.1rem;
+      margin: auto;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .wrap .exBg {
+      /* width: 100%; */
+      height: 3.6rem;
+      line-height: 1.1rem;
+      margin: 0.34rem 0.3rem;
+      background: url('$!{Const.getCdn()}/img/wallet/button.png') no-repeat center;
+      background-size: 100% 100%;
+      color: #fff;
+    }
+
+    .wrap .exBg .exLeft {
+      text-align: left;
+      margin-left: 0.4rem;
+      font-size: 0.4rem;
+    }
+
+    .wrap .exBg .exNum {
+      font-size: 0.7rem;
+    }
+
+    .wrap .exBg .count {
+      font-size: 0.28rem;
+      color: #fffefe;
+    }
+
+    /* 消息提醒 */
+    #message {
+      width: 4.5rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: none;
+      z-index: 11;
+      color: rgba(255, 254, 253, 1);
+      font-size: 0.3rem;
+      margin: auto;
+      text-align: center;
+      background: rgb(41, 36, 36);
+      border-radius: 0.8rem;
+      height: 0.6rem;
+      line-height: 0.6rem;
+    }
+
+    .payBtn {
+      position: absolute;
+      bottom: 10%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50%;
+      line-height: 0.8rem;
+      font-size: 0.35rem;
+      color: #fff;
+      background: url('$!{Const.getCdn()}/img/wallet/bindOK.png') no-repeat center;
+      background-size: 100% 100%;
+    }
+
+    .wrap .payWay {
+      margin-top: 0.5rem;
+    }
+
+    .wrap .payWay li {
+      position: relative;
+      line-height: 0.4rem;
+      height: 1rem;
+      font-size: 0.28rem;
+      border-bottom: 1px solid #eee;
+      margin: 0.1rem 0.5rem;
+      text-align: left;
+    }
+
+    .wrap .payWay li .wx {
+      line-height: 0.5rem;
+      position: absolute;
+      top: 25%;
+      left: 0;
+    }
+
+    /* .wrap .payWay li span .recodeNum {
+      /* margin-left: 0.9rem; */
+    }
+
+    */ .wrap .payWay li .exTitle {
+      color: #333;
+      font-size: 0.28rem;
+    }
+
+    .wrap .payWay li .Remarks {
+      font-size: 0.24rem;
+      color: #999;
+    }
+
+
+    .pleaseTel {
+      /* padding: 0 0.5rem; */
+    }
+
+    .exchange {
+      margin-left: 56%;
+      /* position: absolute;
+      top: 1%;
+      right: 5%; */
+    }
+
+    /* label input 单选框切換 */
+
+    label {
+      /*设置label的样式*/
+      width: 100%;
+    }
+
+    .option {
+      /*把优化后的按钮图片设置为该背景图片，把该定位到原生样式的上方，遮盖住原生样式。*/
+      width: 0.5rem;
+      height: 0.5rem;
+      position: absolute;
+      top: 20%;
+      right: 2%;
+      background-size: cover;
+      background: url('$!{Const.getCdn()}/img/wallet/kong.png') no-repeat center;
+      background-size: cover;
+    }
+
+    input[type="radio"] {
+      /*为了保险起见，把原生样式隐藏掉*/
+      display: inline-block;
+      margin-right: 15px;
+      opacity: 0;
+    }
+
+    input[type="radio"]:checked+div {
+      /*当radiuo被选中时，把input下边的div标签的背景图片替换掉*/
+      background: url('$!{Const.getCdn()}/img/wallet/dui.png') no-repeat center;
+      background-size: cover;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="ios_statusBar"></div>
+  <!--ios顶部状态栏-->
+  <div id="navigationBar" class="navigationBar_ios">
+    <!-- <img src="$!{Const.getCdn()}/img/public/backIcon_black.png" class="navBackBtn" onclick="navBackBtnAction()"  style="display: none;" /> -->
+    <p class="navTile"></p>
+  </div>
+  <div class="wrap" id="wrap">
+    <div class="exBg">
+      <p class="exLeft">当前积分</p>
+      <p class="exNum" id="point">$!{point}</p>
+      <p class="count ">100积分 = 20钻/1元</p>
+    </div>
+    <div>
+      <ul class="payWay">
+        <li class="exNum" id="exNum">
+          <label for="wx" class="wx">
+            <span class='exTitle'>输入兑换数:&nbsp;</span>
+            <span>
+              <input type="number" name="recode" id="recode" />
+              <!-- <span class="recodeNum">￥：0</span> -->
+            </span>
+          </label>
+        </li>
+        <li>
+          <span class="exTitle">兑换到钻</span>
+          <span class="exchange">
+            <!-- <i class="Unchecked">
+              <img class="checkedImg" src="./img/kong.png" alt="">
+            </i> -->
+            <label>
+              <input type="radio" name="type" value="1" />
+              <div class="option"></div>
+              <!--该盛放的是优化后的按钮图片-->
+              <span class="opt-text"></span>
+            </label>
+          </span>
+          <p class="Remarks">可以用来拨打音视频和送礼物</p>
+
+        </li>
+        <li>
+          <span class="exTitle">兑换到收益</span>
+          <!-- <i class="checked">
+            <img class="checkedImg" src="./img/dui.png" alt="">
+          </i> -->
+          <label>
+            <input type="radio" name="type" value="2" />
+            <div class="option"></div>
+            <!--该盛放的是优化后的按钮图片-->
+            <span class="opt-text"></span>
+          </label>
+          <p class="Remarks">可以提现或充值抵扣</p>
+        </li>
+        <a onclick="okExchange()" class="payBtn">确定兑换</a>
+      </ul>
+    </div>
+  </div>
+  <!-- 消息提醒 -->
+  <div id='message'></div>
+</body>
+
+</html>
+<script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+<script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+<script>
+  var httpHeader = '$!{encrypt}';
+  // 获取input 框的 value 值
+  var inputValue = $('#recode').val();
+  //  默认选中单选框的第一个
+  $('input:radio:first').attr('checked', 'checked');
+  // 获取 单选框的值 第一个
+
+
+  // 确认兑换 传input 的值   point  type
+  function okExchange() {
+    var inputValue = $('#recode').val();
+    var checkValue = $('input:radio:checked').val();
+    var exchangePost = {
+      'point': (inputValue == '' || inputValue == null) ? inputValue = '0' : inputValue,
+      'type': checkValue,
+    };
+    $.ajax({
+      url: '${rc.contextPath}/api/point/exchanging',
+      method: 'POST',
+      async: true,
+      cache: false,
+      dataType: 'json',
+      contentType: 'application/json;charset=utf-8',
+      data: JSON.stringify(exchangePost),
+      headers: {
+        'header-encrypt-code': httpHeader
+      },
+      success(data) {
+        console.log(data)
+        if (data.code == 0) {
+          $('#message').html(data.codemsg);
+          $('#message').show();
+          $("#point").html(data.data);
+          $('#recode').val('');
+          setTimeout(function () {
+            $('#message').hide();
+          }, 3000)
+        } else {
+          $('#message').html(data.codemsg);
+          $('#message').show();
+          setTimeout(function () {
+            $('#message').hide();
+          }, 3000)
+        }
+
+        // if (data.code == 10804) {
+        //   $('#message').html(data.codemsg);
+        //   $('#message').show();
+        //   setTimeout(function () {
+        //     $('#message').hide();
+        //   }, 3000)
+        // }
+        // if (data.code == 10808) {
+        //   $('#message').html(data.codemsg);
+        //   $('#message').show();
+        //   setTimeout(function () {
+        //     $('#message').hide();
+        //   }, 3000)
+        // }
+      },
+      error: function (err) {
+        console.log(err);
+      }
+    });
+
+  }
+
+  // 顶部|底部 导航栏返回事件
+  function requestGoBack() {
+    gotoAppBack();
+  }
+
+  // function navBackBtnAction() {
+  //   if (mobileType == 1) {
+  //     window.target.action(1);
+  //   } else if (mobileType == 2) {
+  //     // window.target.action(1);
+  //     window.webkit.messageHandlers.backPage.postMessage(0); //返回上一页
+  //     // window.webkit.messageHandlers.backPage.postMessage(0);
+  //     // window.location.href = "${rc.contextPath}/api/income/h5Page"; //返回到'我的收益'页面
+  //   }
+  // }
+
+  //安卓的宽和苹果的宽适配问题
+  var wrap = document.getElementById('wrap');
+  if (mobileType == 1) {
+    wrap.style.width = '7.2rem';
+  } else if (mobileType == 2) {
+    wrap.style.width = '100%';
+  }
+</script>

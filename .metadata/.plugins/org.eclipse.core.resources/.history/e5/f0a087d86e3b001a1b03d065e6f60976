@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/myReset.css">
+  <script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+  <script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+  <script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+
+  <title>vip</title>
+  <style>
+    .wrap {
+      width: 100%;
+      font-size: 0.3rem;
+      margin: auto;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      background-size: 100% 100%;
+    }
+
+    .anchorList {
+      display: -webkit-flex;
+      display: flex;
+      display: -moz-box;
+      display: -ms-flexbox;
+      flex-wrap: wrap;
+      margin: 0.5rem 0 1rem;
+    }
+
+    .anchorList li {
+      width: 3.4rem;
+      height: 3.4rem;
+      margin: 0 0.16rem 0.16rem;
+      position: relative;
+    }
+
+    .anchorList li .photo {
+      width: 100%;
+      height: 100%;
+      border-radius: 10px;
+    }
+
+    .anchorList li .listName {
+      font-size: 0.26rem;
+      color: #37332d;
+    }
+
+    #subscribe {
+      width: 65%;
+      height: 1rem;
+      background: url('$!{Const.getCdn()}/img/integral/ying.png') no-repeat center;
+      background-size: 100% 100%;
+      margin: 0 auto;
+      line-height: 1rem;
+      text-align: center;
+      color: #fff;
+      font-size: 0.4rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="list">
+      <ul class="anchorList">
+        #foreach($anchor in $!{anchors}) 
+        <li>
+          <img class="photo" src="$!{anchor.photo}" alt="" onclick="gotoHomePage('$!{anchor.userid}')">
+          <p class="listName">$!{anchor.nickName}</p>
+        </li>
+        #end
+      </ul>
+    </div>
+    <!-- 按钮 -->
+    <p id="subscribe" onclick="navBackBtnAction()">查看更多</p>
+  </div>
+</body>
+
+<script>
+  window.onload = function () {
+    buyVipCard()
+  }
+  //跳转到购买VIP内页
+  function buyVipCard() {
+    if (mobileType == 1) {
+      window.target.gotoAppPage('MyVipFragment', '');
+    } else if (mobileType == 2) {
+      var buyVipParamIos = {
+        "pageType": 15,
+        "param": {}
+      }
+      window.webkit.messageHandlers.skipManager.postMessage(buyVipParamIos);
+    }
+  }
+
+  //女神主页
+  function gotoHomePage(userid) {
+    console.log(userid, '女神主页')
+    var userParamAndroid = {
+      "strValue1": userid
+    };
+    var userParamWebkit = {
+      "personId": userid
+    };
+    if (mobileType == 1) {
+      window.target.gotoAppPage('HomepageFragment', JSON.stringify(userParamAndroid));
+    } else if (mobileType == 2) {
+      window.webkit.messageHandlers.showPersonHomePage.postMessage(userParamWebkit);
+    }
+  }
+
+  // 顶部|底部 导航栏返回事件
+  function requestGoBack() {
+    gotoAppBack();
+  }
+</script>
+
+</html>

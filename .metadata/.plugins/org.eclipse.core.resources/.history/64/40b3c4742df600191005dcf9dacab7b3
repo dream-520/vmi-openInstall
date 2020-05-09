@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/myReset.css">
+  <title>私密聊</title>
+  <style>
+    .wrap {
+      width: 7.5rem;
+      height: 13.34rem;
+      position: relative;
+      margin: auto;
+      overflow: hidden;
+    }
+
+    #video {
+      height: 100%;
+      width: 100%;
+    }
+
+    .wrap .RList {
+      position: absolute;
+      right: 0;
+      bottom: 40%;
+      margin: 0 0.3rem 0 0;
+    }
+
+    .wrap .RList .love {
+      width: 0.8rem;
+      height: 0.8rem;
+      vertical-align: bottom;
+    }
+
+    .wrap .RList .eye {
+      width: 0.8rem;
+      height: 0.8rem;
+      vertical-align: bottom;
+    }
+
+    .wrap .RList .share {
+      width: 0.8rem;
+      height: 0.8rem;
+      vertical-align: bottom;
+    }
+
+    .wrap #changeGirl {
+      position: absolute;
+      left: 0;
+      bottom: 38%;
+    }
+
+    .wrap #changeGirl .changeGirl {
+      width: 1.9rem;
+      height: 0.8rem;
+    }
+
+    .wrap .RList .num {
+      color: #fff;
+      font-size: 0.26rem;
+      text-align: center;
+      -moz-text-shadow: 1px 1px 5px #000;
+      -webkit-text-shadow: 1px 1px 5px #000;
+      text-shadow: 1px 1px 5px #000;
+    }
+
+    .wrap #chatBtn {
+      position: absolute;
+      bottom: 30%;
+      left: 0;
+      /* background-color: rgba(255, 255, 255, 0.5); */
+      width: 100%;
+      height: 1.4rem;
+      display: -webkit-box;
+      /* Chrome 4+, Safari 3.1, iOS Safari 3.2+ */
+      display: -moz-box;
+      /* Firefox 17- */
+      display: -webkit-flex;
+      /* Chrome 21+, Safari 6.1+, iOS Safari 7+, Opera 15/16 */
+      display: -moz-flex;
+      /* Firefox 18+ */
+      display: -ms-flexbox;
+      /* IE 10 */
+      display: flex;
+      /* Chrome 29+, Firefox 22+, IE 11+, Opera 12.1/17/18, Android 4.4+ */
+    }
+
+    .wrap #chatBtn .chatBtnImg {
+      width: 6.6rem;
+      height: 0.9rem;
+      margin: auto;
+    }
+
+    /* 所有控件 */
+    video::-webkit-media-controls-enclosure {
+      display: none;
+    }
+
+    /* 苹果下载提醒 */
+    #message {
+      width: 50%;
+      height: 5%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: none;
+      z-index: 11;
+      color: rgba(255, 254, 253, 1);
+      font-size: 20px;
+      margin: auto;
+      text-align: center;
+      background: rgb(41, 36, 36);
+      border-radius: 20px;
+      line-height: 36px;
+    }
+  </style>
+
+  <!-- 以下为openinstall集成代码，建议在html文档中尽量靠前放置，加快初始化过程 -->
+  <!-- 强烈建议直接引用下面的cdn加速链接，以得到最及时的更新，我们将持续跟踪各种主流浏览器的变化，提供最好的服务；不推荐将此js文件下载到自己的服务器-->
+  <script type="text/javascript" charset="UTF-8" src="//res.cdn.openinstall.io/openinstall.js"></script>
+  <script type="text/javascript">
+    //openinstall初始化时将与openinstall服务器交互，应尽可能早的调用
+    /*web页面向app传递的json数据(json string/js Object)，应用被拉起或是首次安装时，通过相应的android/ios api可以获取此数据*/
+
+    // var data = OpenInstall.parseUrlParams(); //openinstall.js中提供的工具函数，解析url中的所有查询参数
+
+    var data = {
+      "inviteKey": "$!{inviteCode}"
+    }; //也可以是js Object
+
+    new OpenInstall({
+      /*appKey必选参数，openinstall平台为每个应用分配的ID*/
+      appKey: "d8ecyr",
+      /*可选参数，自定义android平台的apk下载文件名；个别andriod浏览器下载时，中文文件名显示乱码，请慎用中文文件名！*/
+      //apkFileName : 'com.fm.openinstalldemo-v2.2.0.apk',
+      /*可选参数，是否优先考虑拉起app，以牺牲下载体验为代价*/
+      //preferWakeup:true,
+      /*自定义遮罩的html*/
+      //mask:function(){
+      //  return "<div id='openinstall_shadow' style='position:fixed;left:0;top:0;background:rgba(0,255,0,0.5);filter:alpha(opacity=50);width:100%;height:100%;z-index:10000;'></div>"
+      //},
+      /*openinstall初始化完成的回调函数，可选*/
+      onready: function () {
+        var m = this,
+          button = document.getElementById("chatBtn");
+        button.style.visibility = "visible";
+
+        /*在app已安装的情况尝试拉起app*/
+        m.schemeWakeup();
+        /*用户点击某个按钮时(假定按钮id为downloadButton)，安装app*/
+        button.onclick = function () {
+          m.wakeupOrInstall();
+          return false;
+        }
+      }
+    }, data);
+  </script>
+</head>
+
+<body>
+  <div class="wrap" id="wrap">
+    <div class="videoBox" id="videoBox">
+      <!-- <video id="video" controls="controls" autoplay="autoplay" loop="loop" style="object-fit:fill">
+        <source
+          src="https://upaiyun.test.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/09/12/1568290374968_9194.mp4"
+          type="video/mp4" />
+      </video> -->
+      <!-- <video id="video"
+        src="https://upaiyun.test.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/09/12/1568290374968_9194.mp4"
+        autoplay="autoplay" controls="controls" preload="auto" x5-video-player-type="h5" playsinline webkit-playsinline
+        style="object-fit:fill">
+      </video> -->
+    </div>
+
+    <div class="RList">
+
+      <img class="love" src="$!{Const.getCdn()}/img/miliao_share/love.png" alt="爱心">
+      <p class="num one">3233</p>
+
+      <img class="eye" src="$!{Const.getCdn()}/img/miliao_share/eye.png" alt="观看">
+      <p class="num two">1280</p>
+
+      <img class="share" src="$!{Const.getCdn()}/img/miliao_share/share.png" alt="分享">
+      <p class="num there">556</p>
+
+    </div>
+
+    <div id="changeGirl">
+      <img class="changeGirl" class="share" src="$!{Const.getCdn()}/img/miliao_share/switch.png" alt="分享">
+    </div>
+
+    <div id="chatBtn">
+      <img class="chatBtnImg" src="$!{Const.getCdn()}/img/miliao_share/Private.png" alt="">
+    </div>
+
+    <!-- 消息提醒 -->
+    <div id='message'></div>
+  </div>
+</body>
+
+</html>
+<script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+<script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+<script>
+  var videoList = [
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/07/1570433780207_9396.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/07/1570389475050_4340.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/07/1570389429907_9237.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/06/1570371169303_8923.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/06/1570363480292_1023.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/06/1570354092139_5675.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/06/1570349777965_2398.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/05/1570290640376_7458.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/05/1570277147717_3306.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/05/1570275169599_439.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/05/1570271264570_4509.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/05/1570262608348_5746.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/05/1570243810486_5847.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/05/1570243708516_4489.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/04/1570197298206_9927.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/04/1570190099303_9033.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/04/1570175243678_3609.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/03/1570109717794_624.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/03/1570076153391_5543.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/02/1570003688373_6211.mp4",
+    "http://noss.yoyo.liaomeivideo.com/upload/shortVideo/video/2019/10/01/1569941845225_2584.mp4",
+  ];
+
+  // 获取视频
+  function autoVideo() {
+
+    // 随机获取一条视频数据
+    var rand = Math.floor(Math.random() * videoList.length + 1) - 1;
+    console.log(rand, 'rand')
+    var randIndex = videoList[rand];
+    console.log(randIndex)
+
+    // 绑定的数据
+    var str = '';
+    var url = randIndex;
+    var wHeight = document.body.clientHeight;
+    str +=
+      '<video id="video" controls="controls" x5-video-player-type="h5" x5-video-player-fullscreen="true" autoplay="autoplay" style="object-fit:fill">'
+    str += '<source src="' + url + '" type="video/mp4">'
+    str += '</source>'
+    str += '</video>'
+    $('.videoBox').html(str)
+  };
+  autoVideo()
+
+  // 随机数
+  function myRandom(n, m) {
+    var c = m - n + 1;
+    return Math.floor(Math.random() * c + n);
+  }
+
+  //随机热度显示
+  function randomHot() {
+    console.log(myRandom(2000, 3000), '随机数')
+    $('.one').html(myRandom(2000, 3000))
+    $('.two').html(myRandom(5000, 9000))
+    $('.there').html(myRandom(200, 900))
+  }
+
+  // 切换主播按钮
+  $('#changeGirl').on('click', function () {
+    // 点击随机获取热度值
+    randomHot()
+    // 点击播放下一条视频
+    autoVideo()
+    //播放完毕继续播放下一条
+    window.video.onended = function () {
+      randomHot()
+      var rand = Math.floor(Math.random() * videoList.length + 1) - 1;
+      var randIndex = videoList[rand];
+      this.src = randIndex;
+    }
+  })
+
+  //播放完毕继续播放下一条
+  window.video.onended = function () {
+    randomHot()
+
+    var rand = Math.floor(Math.random() * videoList.length + 1) - 1;
+    var randIndex = videoList[rand];
+    console.log(randIndex, 'randIndex')
+    this.src = randIndex;
+  }
+
+  //do 判断浏览器
+  // document.getElementById('mcover').style.display='block';//显示
+  // document.getElementById('mcover').style.display='';//隐藏
+
+  function appDown() {
+
+    if (mobileType == 1) {
+      console.log(window.navigator.userAgent, 'userAgent')
+      // window.location.href = 'http://noss.yoyo.liaomeivideo.com/upload/app/android/apk/12.apk';
+    } else if (mobileType == 2) {
+      // window.location.href = 'http://47.95.194.184/apk/miliao_5.0.0.apk';
+      var $message = $('#message');
+      $message.html('暂不支持苹果下载！');
+      $message.show();
+      setTimeout(function () {
+        $message.hide();
+      }, 3000)
+      return
+    }
+  }
+
+  //秘密聊天按钮
+  $('#chatBtn').on('click', function () {
+    // alert('正在维护中~~~')
+    appDown()
+  })
+
+  //跳转到其他h5的 WebView
+  function gotoH5Fragment(urls, title) {
+    var h5ParamAndroid = {
+      "strValue1": urls,
+      "strValue2": 私密聊
+    };
+    if (mobileType == 1) {
+      window.target.gotoAppPage('WebSingleSaveFragment', JSON.stringify(h5ParamAndroid));
+    } else if (mobileType == 2) {
+      window.webkit.messageHandlers.goToH5Page.postMessage({
+        "url": urls
+      });
+    }
+  }
+
+  // 是微信浏览器
+  function is_weixn() {
+    var ua = navigator.userAgent.toLowerCase();
+    if (ua.match(/MicroMessenger/i) == "micromessenger") {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  function is_qq() {
+    var sUserAgent = navigator.userAgent.toLowerCase();
+    if (sUserAgent.match(/QQ/i) == 'qq') {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  var wrap = document.getElementById('wrap');
+  var videoBox = document.getElementById('videoBox');
+  var videoQ = document.getElementById('video');
+  var changeGirl = document.getElementById('changeGirl');
+
+
+  // var appImg = document.getElementById('app');
+  // appImg.style.background = 'url(' + bgImg[index] + ')';
+
+  // 是微信内部webView || 或者qq打开链接  播放 play 暂停 pause autoDialf
+  if (is_weixn()) {
+    alert("微信请点击右上角按钮, 点击使用浏览器打开");
+  } else if (is_qq()) {
+    alert("qq请点击右上角按钮, 点击使用浏览器打开");
+    bgImg = new Array(2);
+    bgImg[0] = '$!{Const.getCdn()}/img/miliao_share/bgapk.jpg';
+    bgImg[1] = '$!{Const.getCdn()}/img/miliao_share/bgapkq.jpg';
+    bgImg[2] = '$!{Const.getCdn()}/img/miliao_share/bgapks.jpg';
+    index = Math.floor(Math.random() * bgImg.length);
+    wrap.style.background = 'url(' + bgImg[index] + ')';
+    wrap.style.backgroundSize = 'cover';
+    videoBox.style.display = 'none';
+    videoQ.style.display = 'none';
+    changeGirl.style.display = 'none';
+  } else {
+    alert("其他浏览器打开");
+    // $('#video').play();
+    window.location.href = 'http://noss.yoyo.liaomeivideo.com/upload/app/android/apk/12.apk';
+  }
+
+  /*
+    完美解决移动端video视频层级问题
+    ios: <video id="video-ios" src="./ceshi.mp4" webkit-playsinline playsinline x5-playsinline></video>
+    安卓:<video id="video" controls="controls" autoplay="autoplay" x5-video-player-type="h5" style="object-fit:fill">
+  */
+</script>

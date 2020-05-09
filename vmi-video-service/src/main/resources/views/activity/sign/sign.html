@@ -1,0 +1,180 @@
+<!--当日签到
+	图片地址：/img/activity/sign/xxx.png
+	css地址：/css/activity/sign/sign1.css
+	$!{Const.getCdn('')}
+-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no,minimal-ui">
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/common.css"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/activity/sign/sign1.css"/>
+		<!-- 安卓手机底部返回键事件 -->
+		<script src="$!{Const.getCdn()}/js/client/requestGoBack_android.js" type="text/javascript" charset="utf-8"></script>
+		<!--辨别设备 mobileType 安卓：1，IOS：2-->
+		<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+		<title>签到</title>
+	</head>
+	<body>
+		<div id="ios_statusBar"></div><!--ios顶部状态栏-->
+		<div id="navigationBar">
+			<img src="$!{Const.getCdn('/img/public/backIcon_black.png')}" class="navBackBtn" onclick="navBackBtnAction()"/>
+			<p class="navTitle">签到</p>
+		</div>
+		<img src="$!{Const.getCdn('/img/activity/sign/signBG.png')}" class="signBG"/>
+		<div class="signMainBox">
+			<div class="signBox signBox1">
+				<h1 id="continueTotalDay">$!{signDays}<small>天</small></h1>
+				<p>您已连续签到</p>
+				<!--signBtn1未签到，signBtn2已签到-->
+				#if($!{isSign})
+				<input type="button" id="signBtn" class="signBtn signBtn2" disabled="disabled"/>
+				#else
+				<input type="button" id="signBtn" class="signBtn signBtn1" onclick="signFragment(this)"/>
+				#end
+			</div>
+			<div class="signBox signBox2">
+				<h1>您需要补签<span id="addSign">$!{missDays}</span>次</h1>
+				<h2>补签完再签到<span id="addSign2">$!{Days}</span>天&nbsp;可获得<span class="redTxt">超值礼品</span></h2>
+				<a id="addSignBtn" class="signBtn addSignBtn" onclick="gotoSign2Page()"></a>
+			</div>
+			<div class="rule">
+				<img src="$!{Const.getCdn('/img/activity/sign/rule.png')}"/>
+				<ul class="ruleTxt">
+					<li>1.本平台所有用户均可参与该活动;</li>
+					<li>2.用户每天签到都可获得现金奖励，到我的钱包-收益查看，可用于消费抵扣或提现；</li>
+					<li>3.只有连续一个自然月才能够获得超值礼品，签满后可在我的钱包-领取商品进行领取；</li>
+					<li>4.没有签到的日期可以通过补签进行签到；</li>	
+					<li>5.该活动解释权归官方平台所有。</li>
+				</ul>
+			</div>
+			<!--今日签到成功弹窗-->
+			<div id="signSuccPop" class="pop">
+			   <span class="closeBtn" onclick="hidePop('signSuccPop')"><img src="$!{Const.getCdn('/img/public/closeIcon_black.png')}"/></span>
+			   <p>签到成功 !</p>
+			   <p>恭喜您获得<span class="money"></span>元</p>
+			   <a onclick="hidePop('signSuccPop')" class="pop_footerBtn">我知道了</a>
+			</div>
+			<!--签满弹窗-->
+			<div id="signFullPop" class="pop">
+			   <span class="closeBtn" onclick="hidePop('signFullPop')"><img src="$!{Const.getCdn('/img/public/closeIcon_black.png')}"/></span>
+			   <p>您已经连续签到一个月!</p>
+			   <p>恭喜您可以领取神秘礼物!</p>
+			   <p>本次签到获得<span class="money"></span>元</p>
+			   <a class="pop_footerBtn" onclick="gotoGoodsPage()">去领取</a>
+			</div>
+		</div>
+		<div class="overLay"></div>
+		<script src="$!{Const.getCdn('/js/public/jquery/jquery-2.1.4.min.js')}" type="text/javascript" charset="utf-8"></script>
+		<!--zoom.js适配屏幕-->
+		<script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+		<!--client.js与安卓/IOS交互的事件-->
+		<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+		   //顶部导航栏返回按钮事件：返回APP内，关闭此H5
+		   function navBackBtnAction() {
+			   gotoAppBack();
+		   }
+		   //安卓：APP返回到h5时响应的事件
+		   function updateUserInfo(str) {
+			   window.location.reload();
+		   }
+		   //跳转到补签页面方法
+		   function gotoSign2Page(){
+			   if(mobileType == 1){
+				   var sign2Url = "$!{Const.getWebSite()}/api/sign/supplement"
+				   closeCurrentWindow();
+				   window.target.gotoAppPage('WebSingleSaveFragment',JSON.stringify({"strValue1":sign2Url}));
+			   }else if(mobileType == 2){
+				   window.location.href = "${rc.contextPath}/api/sign/supplement"
+			   }
+		   }
+		    
+		   //跳转到领取商品页面
+		   function gotoGoodsPage(){
+			   if(mobileType == 1){
+				   var GoodsUrl = "$!{Const.getWebSite()}/api/commodity/getCommodityList"
+				   closeCurrentWindow();
+				   window.target.gotoAppPage('WebSingleSaveFragment',JSON.stringify({"strValue1":GoodsUrl}));
+			   }else if(mobileType == 2){
+				   window.location.href = "$!{rc.contextPath}/api/commodity/getCommodityList"
+			   }
+		   }
+		   
+		  //半透明遮罩层显示全屏
+		  var documentHeight = document.body.Height;
+		  $(".overLay").css({
+		    "height": documentHeight
+		  });
+			
+		  //显示弹框
+		  function showPop(id) {
+		    $('#' + id).show();
+		    $(".overLay").show();
+		  }
+		
+		  function hidePop(id) {
+		    $('#' + id).hide();
+		    $(".overLay").hide();
+		  }
+			  
+		  var continueTotalDay = parseInt($("#continueTotalDay").html());
+		  var needSignDay = parseInt($("#addSign1").html()); //需要补签天数
+		  var lastSignDay = parseInt($("#addSign2").html()); //补签完需要再签到的天数
+		  //这里！这里！签到按钮事件
+		  function signFragment(obj){
+		  	var $_this = $(obj);
+		    //此处ajax
+			var httpHeader = '$!{encrypt}';
+			$.ajax({
+				url : '${rc.contextPath}/api/sign/signing',
+				type : 'post',
+				timeout : 10000,
+				dataType : 'json',
+				cache : false,
+				contentType: 'application/json;charset=utf-8',
+				headers: {
+					'header-encrypt-code' : httpHeader
+				},
+				success : function(res){
+					console.log(res);
+					//msg: "签到成功", code: 0, signFull: false, success: true,award:0.01-1元的现金奖励
+					if(res.success){
+						if(res.signFull){
+							showPop('signFullPop');
+							$("#signFullPop .money").html(res.award);//获得的现金奖励
+						}else{
+							showPop('signSuccPop');
+							$("#signSuccPop .money").html(res.award);//获得的现金奖励
+						}
+						$_this.removeClass("signBtn1").addClass("signBtn2").prop({"disabled": true});
+					  	
+					  	//连续签到天数增加1
+					    $("#continueTotalDay").html(continueTotalDay + 1);
+					    
+					    //补签完需要再签到的天数
+					    $("#addSign2").html(lastSignDay - 1);
+					}
+				},
+				error : function(){
+					alert('网络超时，请检查您的网络设置！');
+				}
+			});
+		  	
+		  }
+		  
+		  
+		  $(document).ready(function(){
+			//适配屏幕
+			setTimeout(function(){
+				screenFix(375);
+			},300);
+			//"导航栏"写在H5端时使用：安卓/ios的状态栏高度不一样
+			resetNavigationBar(); //定义在common.js中
+		  });
+		</script>
+	</body>
+</html>

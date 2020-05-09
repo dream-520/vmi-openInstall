@@ -1,0 +1,66 @@
+<!--申请大V：正在审核状态 $!{Const.getCdn('')}-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/reset.css')}"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/common.css')}"/>
+		<!--辨别设备 mobileType 安卓：1，IOS：2-->
+		<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+		<title>正在审核</title>
+		<style type="text/css">
+			body{position: relative;}
+			#navigationBar{}
+			.mainBox{padding-top: 136px;}
+			.mainBox p{font-size: 16px;color: #333;padding-bottom: 20px;}
+			.mainBox p.wxNumber{color: #f600ff;}
+			a.commonBtn{margin-top: 150px;}
+		</style>
+	</head>
+	<body>
+		<div id="ios_statusBar"></div><!--ios顶部状态栏-->
+		<div id="navigationBar">
+			<img src="$!{Const.getCdn('/img/public/backIcon_black.png')}" class="navBackBtn" onclick="navBackBtnAction()"/>
+			<p class="navTitle">正在审核</p>
+		</div>
+		<div class="mainBox">
+			<p>你提交的认证资料我们已经收到</p>
+			<p>请加客服微信</p>
+			<p class="wxNumber">
+				微信昵称：V密客服<br/>
+				微信号：vm55667788
+				</p>
+			<p>进行认证，谢谢合作</p>
+			<a class="commonBtn" onclick="navBackBtnAction()">我知道了</a>
+		</div>
+		<script src="$!{Const.getCdn('/js/public/jquery/jquery-2.1.4.min.js')}" type="text/javascript" charset="utf-8"></script>
+		<!--zoom.js适配屏幕-->
+		<script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+		<!--client.js与安卓/IOS交互的事件-->
+		<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			//安卓用户手机底部自带的"返回键"事件
+			function requestGoBack() {
+				window.target.gotoAppPage('MainHomeFragment','{"strValue1":"3"}');
+			}
+			//导航栏返回按钮事件：返回到"我的"页面（APP底部tab最后一个）
+			function navBackBtnAction(){
+				if (mobileType == 1) {
+					window.target.gotoAppPage('MainHomeFragment','{"strValue1":"3"}');
+				} else if(mobileType == 2){
+					window.webkit.messageHandlers.backPage.postMessage(0);
+				}
+			}
+			$(document).ready(function(){
+				//适配屏幕
+				setTimeout(function(){
+					screenFix(375);
+				},500);
+				//"导航栏"写在H5端时使用：安卓/ios的状态栏高度不一样
+				resetNavigationBar(); //定义在common.js中
+			});
+		</script>
+	</body>
+</html>

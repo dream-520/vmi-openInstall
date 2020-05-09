@@ -1,0 +1,245 @@
+package com.tigerjoys.shark.miai.service.impl;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tigerjoys.nbs.common.ActionResult;
+import com.tigerjoys.nbs.common.utils.JsonHelper;
+import com.tigerjoys.nbs.common.utils.Tools;
+import com.tigerjoys.nbs.web.context.RequestHeader;
+import com.tigerjoys.nbs.web.context.RequestUtils;
+import com.tigerjoys.shark.miai.agent.IDeviceAgent;
+import com.tigerjoys.shark.miai.agent.IKuaiShouConfirmAgent;
+import com.tigerjoys.shark.miai.agent.constant.LoggerAgentConst;
+import com.tigerjoys.shark.miai.agent.dto.AreaDto;
+import com.tigerjoys.shark.miai.agent.dto.DeviceBO;
+import com.tigerjoys.shark.miai.agent.dto.transfer.DeviceCreateDto;
+import com.tigerjoys.shark.miai.agent.dto.transfer.DeviceModifyDto;
+import com.tigerjoys.shark.miai.agent.enums.KuaiShouAdTypeEnum;
+import com.tigerjoys.shark.miai.agent.service.IAppAreaService;
+import com.tigerjoys.shark.miai.dto.service.AmassInfoDto;
+import com.tigerjoys.shark.miai.enums.ErrorCodeEnum;
+import com.tigerjoys.shark.miai.service.IInformationCollectService;
+import com.tigerjoys.shark.miai.utils.ServiceHelper;
+
+/**
+ * 信息手机服务实现类
+ * @author chengang
+ *
+ */
+@Service
+public class InformationCollectServiceImpl implements IInformationCollectService {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(InformationCollectServiceImpl.class);
+	
+	private final Logger mobileInfoLogger = LoggerFactory.getLogger(LoggerAgentConst.AMASS_NEW_LOGGER);
+	
+	@Autowired
+	private IDeviceAgent deviceAgent;
+	
+	@Autowired
+	private IAppAreaService appAreaService;
+	
+	@Autowired
+	private IKuaiShouConfirmAgent kuaiShouConfirmAgent;
+
+	@Override
+	public ActionResult amassInfo(AmassInfoDto info) throws Exception {
+		if(info == null) {
+			LOGGER.error("info is null");
+			return ActionResult.fail();
+		}
+
+		RequestHeader header = RequestUtils.getCurrent().getHeader();
+		String clientId = header.getClientId();
+		
+		if(Tools.isNull(clientId)) {
+			LOGGER.warn("信息收集接口接收到的ClientId参数为Null，请检查...................................");
+			return ActionResult.fail(ErrorCodeEnum.parameter_error.getCode() , ErrorCodeEnum.parameter_error.getDesc());
+		}
+		info.setClientId(clientId);
+		//LoggerConst.AMASS_LOGGER.info(info.toString());
+		mobileInfoLogger.info(JsonHelper.toJson(info));
+		
+		try {
+			if(Tools.isNull(info.getImei1())) {
+				info.setImei1(null);
+			}
+			if(Tools.isNull(info.getImsi1())) {
+				info.setImsi1(null);
+			}
+			//0在IOS中代表没有拿到数据
+			if(Tools.intValue(info.getNoticeClose()) == 0) {
+				info.setNoticeClose(null);
+			}
+			
+			//先根据clientId获取设备信息
+			DeviceBO device = deviceAgent.findByClientId(clientId);
+			if(device != null) {
+				updateDeviceInfo(info , device);
+			}
+			//根据IMEI获取设备信息
+			if(device == null && Tools.isNotNull(info.getImei1())) {
+				device = deviceAgent.findByImei(info.getImei1());
+				if(device != null) {
+					updateDeviceInfo(info , device);
+				}
+			}
+			
+			//如果device还是空，则创建新设备
+			if(device == null) {
+				device = createDeviceInfo(info);
+				//检测是否属于对应的快手推广进行的注册用户
+				if(Tools.isNotNull(header.getChannel()) && header.getChannel().equals("kuaishou_cpd")) {
+					kuaiShouConfirmAgent.confirm(header.getClientId(), KuaiShouAdTypeEnum.device.getCode());
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage() , e);
+		}
+		
+		return ActionResult.success();
+	}
+	
+	/**
+	 * 新建一个设备
+	 * @param info - AmassInfoDto
+	 * @return PassDeviceDto
+	 * @throws Exception
+	 */
+	private DeviceBO createDeviceInfo(AmassInfoDto info) throws Exception {
+		RequestHeader header = RequestUtils.getCurrent().getHeader();
+		HttpServletRequest request = RequestUtils.getCurrent().getRequest();
+		
+		DeviceCreateDto createDto = new DeviceCreateDto();
+		createDto.setAppversion(header.getVersion());
+		createDto.setBssid(info.getSsid());
+		createDto.setChannel(header.getChannel());
+		createDto.setCity_id(info.getCity());
+		String areaName = ServiceHelper.getCityNameByIP(Tools.getIP(request));
+		if(Tools.isNotNull(areaName)) {
+			AreaDto cityArea = appAreaService.getCityByName(areaName);
+			if(cityArea != null) {
+				AreaDto[] areas = appAreaService.getAreas(cityArea.getId());
+				createDto.setCountry_id(areas[0]!=null?areas[0].getId():0L);
+				createDto.setProvince_id(areas[1]!=null?areas[1].getId():0L);
+				createDto.setCity_id(areas[2]!=null?areas[2].getId():0L);
+			}
+		}else{
+			String provinceName = ServiceHelper.getProvinceNameByIP(Tools.getIP(RequestUtils.getCurrent().getRequest()));
+			if(Tools.isNotNull(provinceName)) {
+				AreaDto provinceArea = appAreaService.getProvinceByName(provinceName);
+				if(provinceArea != null) {
+					AreaDto[] areas = appAreaService.getAreas(provinceArea.getId());
+					createDto.setCountry_id(areas[0]!=null?areas[0].getId():0L);
+					createDto.setProvince_id(areas[1]!=null?areas[1].getId():0L);
+					createDto.setCity_id(areas[2]!=null?areas[2].getId():0L);
+				}
+			}
+		}
+		createDto.setClientid(header.getClientId());
+		createDto.setCore(info.getCore());
+		createDto.setCore_model(info.getCoreModel());
+		createDto.setImei(info.getImei1());
+		createDto.setImsi(info.getImsi1());
+		createDto.setIp(Tools.getIP(request));
+		createDto.setLat(info.getLat());
+		createDto.setLng(info.getLng());
+		createDto.setMac(info.getMac());
+		createDto.setMobile(info.getMobile());
+		createDto.setMobile_brand(info.getMobileBrand());
+		createDto.setMobile_model(info.getMobileModel());
+		createDto.setOs_ver(info.getReleaseVersion());
+		createDto.setPkg_name(info.getPkgName());
+		createDto.setPkgmd5(info.getPkgMd5());
+		createDto.setPlatform(header.getOs_type());
+		createDto.setRom_remain(info.getRomRemain());
+		createDto.setRom_volume(info.getRomVolume());
+		createDto.setScreensize(info.getScreenSize());
+		createDto.setSdk_remain(info.getSdkRemain());
+		createDto.setSdk_ver(info.getSdkVersion());
+		createDto.setSdk_volume(info.getSdkVolume());
+		createDto.setSsid(info.getSsid());
+		createDto.setUserid(RequestUtils.getCurrent().getUserid());
+		createDto.setVersioncode(header.getVersioncode());
+		createDto.setNoticeClose(info.getNoticeClose());
+		
+		createDto.setAndroidId(info.getAndroidId());
+		
+		return deviceAgent.createDevice(createDto);
+	}
+	
+	/**
+	 * 更新设备信息
+	 * @param info - 客户端传递过来的设备信息
+	 * @param device - 设备信息
+	 * @throws Exception
+	 */
+	private void updateDeviceInfo(AmassInfoDto info , DeviceBO device) throws Exception {
+		RequestHeader header = RequestUtils.getCurrent().getHeader();
+		HttpServletRequest request = RequestUtils.getCurrent().getRequest();
+		
+		long userid = RequestUtils.getCurrent().getUserid();
+		
+		DeviceModifyDto modifyDeviceDto = new DeviceModifyDto();
+		modifyDeviceDto.setDeviceId(device.getDeviceId());
+		if(userid != 0) {
+			modifyDeviceDto.setUserid(userid);
+		}
+		if(Tools.isNotNull(info.getMobile())) {
+			modifyDeviceDto.setMobile(info.getMobile());
+		}
+		if(info.getCity() != 0) {
+			modifyDeviceDto.setCity_id(info.getCity());
+		}
+		if(info.getLng() != 0) {
+			modifyDeviceDto.setLng(info.getLng());
+		}
+		if(info.getLat() != 0) {
+			modifyDeviceDto.setLat(info.getLat());
+		}
+		if(Tools.isNotNull(info.getBssid())) {
+			modifyDeviceDto.setBssid(info.getBssid());
+		}
+		if(Tools.isNotNull(info.getSsid())) {
+			modifyDeviceDto.setSsid(info.getSsid());
+		}
+		if(Tools.isNotNull(header.getVersion())) {
+			modifyDeviceDto.setAppversion(header.getVersion());
+		}
+		if(header.getVersioncode() != 0) {
+			modifyDeviceDto.setVersioncode(header.getVersioncode());
+		}
+		if(info.getCore() != 0) {
+			modifyDeviceDto.setCore(info.getCore());
+		}
+		if(Tools.isNotNull(info.getCoreModel())) {
+			modifyDeviceDto.setCore_model(info.getCoreModel());
+		}
+		if(Tools.isNotNull(header.getChannel())) {
+			modifyDeviceDto.setChannel(header.getChannel());
+		}
+		if(Tools.isNotNull(info.getReleaseVersion())) {
+			modifyDeviceDto.setOs_ver(info.getReleaseVersion());
+		}
+		if(Tools.isNotNull(info.getSdkVersion())) {
+			modifyDeviceDto.setSdk_ver(info.getSdkVersion());
+		}
+		if(Tools.isNotNull(info.getNoticeClose())) {
+			modifyDeviceDto.setNoticeClose(info.getNoticeClose());
+		}
+		
+		if(Tools.isNotNull(info.getAndroidId())) {
+			modifyDeviceDto.setAndroidId(info.getAndroidId());
+		}
+		
+		modifyDeviceDto.setIp(Tools.getIP(request));
+		
+		deviceAgent.modifyDevice(modifyDeviceDto);
+	}
+
+}

@@ -1,0 +1,156 @@
+<!-- 支付页面_目前仅供ios使用 -->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/reset.css')}"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/common.css')}"/>
+		<!-- layer.css/js与弹窗相关插件 -->
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/js/layer_mobile/layer.css')}"/>
+		<script src="$!{Const.getCdn('/js/layer_mobile/layer.js')}" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			.buyInfo{background-color: #fff;line-height: 50px;font-size:16px;padding: 0 13px;border-bottom: 10px solid #eee;}
+			.buyInfo p:nth-of-type(2){color: #666;}
+			.payWay{background-color: #fff;}
+			.payWay>p{line-height: 45px;font-size: 14px;border-bottom: 1px solid #eee;padding: 0 13px;text-align: left;}
+			.payWay li{position: relative; line-height: 55px;font-size: 14px;border-bottom: 1px solid #eee;padding: 0 13px;vertical-align: middle;text-align: left;}
+			.payWay li label{display: block;width: 100%;height: 100%;}
+			.payWay img.payIcon{display: inline-block; width: 35px;height: 35px;vertical-align: middle;margin-right: 10px;}
+			
+			/* 支付方式选中状态 */
+			.payWay input[type="radio"] + i.radioCircle{width:22px;height:22px;display:inline-block;border-radius: 11px;-webkit-border-radius: 11px;border: 1px solid #bbb;position: absolute;right: 13px;top: 50%;margin-top: -11px;}
+			.payWay input[type="radio"]:checked + i.radioCircle{background: url($!{Const.getCdn()}/img/public/radioChecked_icon.png) no-repeat;background-position:0 0;background-size: contain;border: none;}
+			
+			.payBtn{position: fixed;bottom: 0;left: 0;width: 100%;line-height: 55px;font-size: 18px;color: #fff;background-color:#FF3B5E ;}
+		</style>
+		<title>支付方式</title>
+	</head>
+	<body>
+	 <!--  
+		<div id="ios_statusBar" style="display:block"></div>
+		
+		<div id="navigationBar" class="navigationBar_ios">
+			<img src="$!{Const.getCdn('/img/public/backIcon_black.png')}" class="navBackBtn" onclick="navBackBtnAction()"/>
+			<p class="navTitle">选择支付方式</p>
+		</div>-->
+		<div class="mainBox">
+			<div class="buyInfo clear">
+				<p class="fl"><span>购买：</span><span id="zuanNum">$!{diamond}</span>钻</p>
+				<p class="fr"><span id="rmbNum">$!{money}</span>元</p>
+			</div>
+			<ul class="payWay">
+				<p>选择支付方式</p>
+				<li>
+					<label for="zfb">
+						<span><img src="$!{Const.getCdn('/img/wallet/zfbIcon.png')}" class="payIcon"><a>支付宝</a></span>
+						<span><input type="radio" name="payWay" id="zfb" value="zfb" checked/><i class="radioCircle"></i></span>
+					</label>
+				</li>
+				<li>
+					<label for="wx">
+						<span><img src="$!{Const.getCdn('/img/wallet/wxIcon.png')}" class="payIcon"><a>微信</a></span>
+						<span><input type="radio" name="payWay" id="wx" value="wx"/><i class="radioCircle"></i></span>
+					</label>
+				</li>
+			</ul>
+			<a onclick="payAction()" class="payBtn">立即支付</a>
+		</div>
+		<script src="$!{Const.getCdn('/js/public/jquery/jquery-2.1.4.min.js')}"></script>
+		<script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script><!--zoom.js适配屏幕-->
+		<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script><!-- 判断手机型号 安卓1，iOS2 -->
+		<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var httpHeader = '$!{encrypt}';
+			var orderId = 0;
+			var layerOpt_wait = {
+				type: 2,
+				shadeClose:false,
+				content: '加载中'
+			}
+		
+			// 顶部导航栏返回事件
+			function navBackBtnAction(){
+				//window.webkit.messageHandlers.backPage.postMessage(0);
+				//history.back(-1);//返回上一页--zuanList
+				window.location.href = document.referrer;//返回上一页并刷新
+			}
+			//触发定时请求操作处理的任务
+			var timer = null;
+			function timerFun(){
+				timer = setInterval(function(){queryWxPay();},5000);
+			}
+			function queryWxPay(){
+				var param = {
+					"orderId": orderId
+				}
+				$.ajax({
+					url: '${rc.contextPath}/api/recharge/h5/pay/query',
+					type: 'post',
+					data:JSON.stringify(param),
+					contentType: 'application/json;charset=utf-8',
+					headers: {'header-encrypt-code' : httpHeader},
+					dataType: "json",
+					success: function(ret) {
+						if(ret.code == 0) {
+							window.clearInterval(timer);
+							window.location.href="${rc.contextPath}/api/recharge/h5/pay/finsh";
+						}
+					},
+					complete: function() {
+
+					}
+				});
+			};
+			// 立即支付按钮事件
+			function payAction(){
+				var payWayName = $('input[name="payWay"]:checked').val(); //zfb或wx
+				var rmbNum = Number($("#rmbNum").html()); //需要支付的钱数
+				if(payWayName == 'zfb'){
+					window.location.href="$!{afs}";
+				}else if(payWayName == 'wx'){
+					showLayer(layerOpt_wait);//显示弹窗
+					var param = {
+						"priceId": $!{priceId},
+						"channel": 5,
+						"money":$!{money},
+						"income":0
+					}
+					$.ajax({
+						url: '${rc.contextPath}/api/recharge/h5/pay',
+						type: 'post',
+						data:JSON.stringify(param),
+						contentType: 'application/json;charset=utf-8',
+						headers: {'header-encrypt-code' : httpHeader},
+						dataType: "json",
+						success: function(ret) {
+							if(ret.code == 0) {
+								var data = {
+									"openStr": ret.data.url
+								}
+								orderId = ret.data.orderId;
+								timerFun();
+								window.webkit.messageHandlers.open.postMessage(data);
+							}else{
+							
+							}
+						},
+						complete: function() {
+
+						}
+					});
+					
+					setTimeout(function(){
+						layer.closeAll(); //关闭弹窗
+					},5000);
+				}
+			}
+			$(function(){
+				setTimeout(function(){
+					screenFix(375);
+				},300);//适配屏幕
+				resetNavigationBar(); //定义在common.js中
+			});
+		</script>
+	</body>
+</html>

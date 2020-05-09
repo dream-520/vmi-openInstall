@@ -1,0 +1,195 @@
+<!--补签
+	“未签到”绑定的事件 在calendar.js里面
+	图片地址：/img/activity/sign/xxx.png
+	css地址：/css/activity/sign/sign2.css
+	js地址：/js/sign/calendar.js
+	$!{Const.getCdn('')}
+-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no,minimal-ui">
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/reset.css"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/common.css"/>
+		<link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/activity/sign/sign2.css"/>
+		<!--辨别设备 mobileType 安卓：1，IOS：2-->
+		<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+		<title>补签</title>
+	</head>
+	<body>
+		<div id="ios_statusBar"></div><!--ios顶部状态栏-->
+		<div id="navigationBar">
+			<img src="$!{Const.getCdn('/img/public/backIcon_black.png')}" class="navBackBtn" onclick="navBackBtnAction()"/>
+			<p class="navTitle">补签</p>
+		</div>
+		<div id="calendar"></div>
+		<p class="txt">连续签到一个自然月，可获得<span class="redTxt">超值礼品</span><br />您的补签卡还剩<span id="SignCardNum" class="redTxt">$!{signCard}</span>张。
+		</p>
+		<div class="buyCardBox">
+			<img src="$!{Const.getCdn('/img/activity/sign/buySignCard.png')}" class="buySignCard" onclick="buySignCard()"/>
+			<img src="$!{Const.getCdn('/img/activity/sign/buyVipCard.png')}" class="buyVipCard" onclick="gotoWalletFragment(0)"/>
+			<p class="txt2">说明：必须单次充值100元以上送补签卡，每满100送一张。</p>
+			
+			<!--购买补签卡成功弹窗-->
+			<div id="buysignCard_SuccPop" class="pop">
+			   <span class="closeBtn" onclick="hidePop('buysignCard_SuccPop')"><img src="$!{Const.getCdn('/img/public/closeIcon_black.png')}"/></span>
+			   <p>您成功购买了1张补签卡 </p>
+			   <p>快去进行补签吧~ </p>
+			   <a onclick="hidePop('buysignCard_SuccPop')" class="pop_footerBtn">我知道了</a>
+			</div>
+			<!--余额不足弹框-->
+			<div id="noMoneyPop" class="pop">
+			   <span class="closeBtn" onclick="hidePop('noMoneyPop')"><img src="$!{Const.getCdn('/img/public/closeIcon_black.png')}"/></span>
+			   <p style="font-size: 19px;">您的钻石余额不足，请充值~</p>
+			   <a onclick="gotoWalletFragment(0)" class="pop_footerBtn">去充值</a>
+			</div>
+		</div>
+		<!--补签成功弹窗-->
+		<div id="signSuccPop" class="pop">
+		   <span class="closeBtn" onclick="hidePop('signSuccPop')"><img src="$!{Const.getCdn('/img/public/closeIcon_black.png')}"/></span>
+		   <p>补签成功 ！</p>
+		   <p>恭喜您获得<span class="money"></span>元</p>
+		   <a onclick="hidePop('signSuccPop')" class="pop_footerBtn">我知道了</a>
+		</div>
+		<!--补签卡不足弹窗-->
+		<div id="noSignCardPop" class="pop">
+		   <span class="closeBtn" onclick="hidePop('noSignCardPop')"><img src="$!{Const.getCdn('/img/public/closeIcon_black.png')}"/></span>
+		   <p>您的补签卡不足</p>
+		   <p>请购买单次补签卡<br/>或充值后再进行补签</p>
+		   <a onclick="hidePop('noSignCardPop')" class="pop_footerBtn">我知道了</a>
+		</div>
+		<!--签满弹窗-->
+		<div id="signFullPop" class="pop">
+		   <span class="closeBtn" onclick="hidePop('signFullPop')"><img src="$!{Const.getCdn('/img/public/closeIcon_black.png')}"/></span>
+		   <p>您已经连续签到一个月</p>
+		   <p>恭喜您可以领取神秘礼物！</p>
+		   <p>本次签到获得<span class="money"></span>元</p>
+		   <a onclick="gotoGoodsPage()" class="pop_footerBtn">去领取</a>
+		</div>
+		<div class="overLay"></div>
+		<script src="$!{Const.getCdn('/js/public/jquery/jquery-2.1.4.min.js')}" type="text/javascript" charset="utf-8"></script>
+		<!--zoom.js适配屏幕-->
+		<script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+		<!--client.js与安卓/IOS交互的事件-->
+		<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+		<script src="$!{Const.getCdn('/js/sign/calendar.js')}" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			var signCardNum;//补签卡张数
+			var httpHeader = '$!{encrypt}';
+			var httpPath_suppleDays = '${rc.contextPath}/api/sign/suppleDays'; //补签事件请求地址
+			
+			//安卓用户手机底部“返回键”事件
+			function requestGoBack() {
+				window.target.action(1);
+			}
+			//顶部导航栏返回按钮事件：返回到"今日签到页面"
+			function navBackBtnAction(){
+				if (mobileType == 1) {
+					window.target.action(1);
+				} else if(mobileType == 2){
+					window.location.href = "${rc.contextPath}/api/sign/init"
+				}
+			}
+			
+			//跳转到领取商品页面
+		   function gotoGoodsPage(){
+			   if(mobileType == 1){
+				   var GoodsUrl = "$!{Const.getWebSite()}/api/commodity/getCommodityList"
+				   closeCurrentWindow();
+				   window.target.gotoAppPage('WebSingleSaveFragment',JSON.stringify({"strValue1":GoodsUrl}));
+			   }else if(mobileType == 2){
+				   window.location.href = "$!{rc.contextPath}/api/commodity/getCommodityList"
+			   }
+		   }
+			//安卓：APP返回到h5时响应的事件
+			function updateUserInfo(str) {
+				window.location.reload();
+			}
+			//IOS:APP返回到h5时响应的事件，例如充值后返回到补签页面
+			function viewWillAppear(){
+				window.location.reload();
+			}
+			//半透明遮罩层显示全屏
+			  var documentHeight = document.body.Height;
+			  $(".overLay").css({
+			    "height": documentHeight
+			  });
+			  //显示弹框
+			  function showPop(id) {
+			    $('#' + id).show();
+			    $(".overLay").show();
+			  }
+			
+			  function hidePop(id) {
+			    $('#' + id).hide();
+			    $(".overLay").hide();
+			  }
+			//购买单次补签卡事件
+			function buySignCard() {
+				$.ajax({
+					url : '${rc.contextPath}/api/sign/buySignCard',
+					type : 'post',
+					timeout : 10000,
+					dataType : 'json',
+					cache : false,
+					contentType : 'application/json;charset=utf-8',
+					headers : {
+						'header-encrypt-code' : httpHeader
+					},
+					success : function(res) {
+						console.log(res)
+						//canBuySignCard：false，code:"5"，msg:"您的余额不够！"，success:false
+						//canBuySignCard: true, code: 0,msg: "购买成功", success: true,
+						if (res.success) {
+							//钻石余额充足 补签卡多一张+扣除5钻
+							showPop('buysignCard_SuccPop');
+							//补签卡多一张
+							signCardNum = parseInt($("#SignCardNum").html());
+							$("#SignCardNum").html(signCardNum + 1);
+						} else {
+							//钻石余额不足
+							showPop("noMoneyPop");
+						}
+					},
+					error : function() {
+						alert("系统错误！");
+					}
+				});
+			};
+			$(function() {
+				//适配屏幕
+				setTimeout(function(){
+					screenFix(375);
+				},300);
+				//"导航栏"写在H5端时使用：安卓/ios的状态栏高度不一样
+				resetNavigationBar(); //定义在common.js中
+				//日历初始化
+				$.ajax({
+					url : '${rc.contextPath}/api/sign/calendarInit',
+					type : 'post',
+					timeout : 10000,
+					dataType : 'json',
+					cache : false,
+					contentType : 'application/json;charset=utf-8',
+					headers : {
+						'header-encrypt-code' : httpHeader
+					},
+					success : function(res) {
+						console.log(res);
+						var signList = JSON.parse(res.signList);
+						var notSignList = JSON.parse(res.notSignList);
+						var disableList = JSON.parse(res.disableList);
+						var today = JSON.parse(res.today);
+						var allDayInMonth = JSON.parse(res.allDayInMonth);
+						calUtil.init(signList, notSignList, disableList, today,allDayInMonth,{});
+					},
+					error : function() {
+						alert("系统错误！");
+					}
+				});
+			});
+		</script>
+	</body>
+</html>

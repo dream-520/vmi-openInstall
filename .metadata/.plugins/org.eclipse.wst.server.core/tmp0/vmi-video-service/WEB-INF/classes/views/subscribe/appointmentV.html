@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/myReset.css">
+  <script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+  <script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+  <script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+  <title>预约大V</title>
+  <style>
+    .wrap {
+      width: 100%;
+      /* height: 13.34rem; */
+      font-size: 0.3rem;
+      margin: auto;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin-top: 0.8rem;
+    }
+
+    .wrap .remaining {
+      width: 100%;
+      height: 0.8rem;
+      line-height: 0.9rem;
+      background: #eee;
+      text-align: center;
+      font-size: 0.26rem;
+      color: #333;
+    }
+
+    /* 预约大V */
+    .mySubV .mySubListV {
+      width: 100%;
+      height: 2rem;
+      line-height: 1.2rem;
+      border-bottom: 1px solid #d2cece;
+      position: relative;
+    }
+
+    .mySubV .mySubListV .listLeftV {
+      text-align: left;
+
+    }
+
+    .mySubV .mySubListV .listLeftV .listImg {
+      width: 1rem;
+      height: 1rem;
+      margin: 0 0.3rem;
+      display: inline-block;
+      border-radius: 50%;
+      vertical-align: text-top;
+    }
+
+    .mySubV .mySubListV .listLeftV .nickname {
+      font-size: 0.34rem;
+      color: #666;
+    }
+
+    .mySubV .mySubListV .listLeftV .line {
+      width: 0.8rem;
+      height: 0.36rem;
+      vertical-align: middle;
+      margin-left: 0.1rem;
+    }
+
+    .mySubV .mySubListV .listLeftV .status {
+      position: absolute;
+      right: 6%;
+      top: 2%;
+      font-size: 0.32rem;
+      color: #999;
+    }
+
+    .mySubV .mySubListV .listLeftV .month {
+      font-size: 0.24rem;
+      margin-top: -0.6rem;
+      margin-left: 1.7rem;
+      color: #999;
+      line-height: 0.4rem;
+    }
+
+    .mySubV .mySubListV .listLeftV .minute {
+      font-size: 0.24rem;
+      margin-left: 1.7rem;
+      color: #999;
+    }
+
+    .mySubV .mySubListV .listRightV {
+      position: absolute;
+      bottom: -8%;
+      right: 5%;
+    }
+
+    .mySubV .mySubListV .listRightV .talkImg {
+      width: 0.5rem;
+      height: 0.5rem;
+      margin-right: 0.2rem;
+    }
+
+    .mySubV .mySubListV .listRightV .mvImg {
+      width: 1.5rem;
+      height: 0.6rem;
+    }
+
+    /* 头部导航 */
+    #navHead {
+      background: rgba(255, 255, 255, 1);
+      width: 100%;
+      height: 0.7rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding: 0.1rem 0;
+      z-index: 20;
+      line-height: 0.7rem;
+      display: -webkit-flex;
+      display: flex;
+      display: -moz-box;
+      display: -ms-flexbox;
+    }
+
+    #navHead>span {
+      flex: 1;
+      -webkit-flex: 1;
+      -ms-flex: 1;
+      flex: 1;
+      -webkit-box-flex: 1;
+      -moz-box-flex: 1;
+    }
+
+    #goBack img {
+      width: 0.2rem;
+      height: 0.35rem;
+      margin: 0.13rem 0 0 -1.5rem;
+    }
+
+    .daystar {
+      margin-left: 0.3rem;
+      text-align: center;
+      font-size: 0.36rem;
+      width: 2.11rem;
+      height: 0.5rem;
+      font-family: PingFangSC-Regular;
+      font-weight: 400;
+      color: #333;
+    }
+
+    .pastStar {
+      text-align: right;
+      margin-right: 0.3rem;
+      width: 0.61rem;
+      height: 0.3rem;
+      font-size: 0.3rem;
+      font-family: PingFangSC-Regular;
+      font-weight: 400;
+      color: rgba(51, 51, 51, 1);
+    }
+
+    .pastStar a {
+      color: rgba(51, 51, 51, 1);
+      font-size: 0.3rem;
+      width: 0.61rem;
+      height: 0.3rem;
+      font-family: PingFangSC-Regular;
+      font-weight: 400;
+      line-height: 0.3rem;
+    }
+
+    .girlStar {
+      color: rgb(10, 8, 8);
+      font-weight: 700;
+      width: 7.5rem;
+      font-size: 0.51rem;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div id="navHead">
+      <span id="goBack">
+        <a href="${rc.contextPath}/web/subscribe/user">
+          <img src="$!{Const.getCdn()}/img/activity/goddess/back.png" alt="">
+        </a>
+      </span>
+      <span class="daystar">$!{title}</span>
+      <span class="pastStar" style="visibility: hidden;">
+      </span>
+    </div>
+
+    <p class="remaining" id="remaining">$!{subTitle}</p>
+    <ul class="mySubV">
+      #foreach($detail in $!{details})
+      <li class="mySubListV">
+        <div class="listLeftV">
+          <img class="listImg" src="$!{detail.photo}" alt="" onclick="gotoHomePage('$!{detail.userid}')">
+          <span>
+            <i class="nickname">$!{detail.nickname}</i>
+
+            #if($!{detail.onlineState} == 0)
+            <img class="line" src="$!{Const.getCdn()}/img/subscribe/offline.png" alt="">
+            #end
+            #if($!{detail.onlineState} == 1)
+            <img class="line" src="$!{Const.getCdn()}/img/subscribe/disturb.png" alt="">
+            #end
+            #if($!{detail.onlineState} == 2)
+            <img class="line" src="$!{Const.getCdn()}/img/subscribe/talkAgain.png" alt="">
+            #end
+            #if($!{detail.onlineState} == 3)
+            <img class="line" src="$!{Const.getCdn()}/img/subscribe/onLline.png" alt="">
+            #end
+
+            <i class="status">
+              #if($!{detail.state} == 0)
+              <i style="color: #FFB505;">预约中</i>
+              #end
+              #if($!{detail.state} == 1)
+              <i style="color: #999;">预约失败</i>
+              #end
+              #if($!{detail.state} == 2)
+              <i style="color: #3c76f9;">预约成功</i>
+              #end
+            </i>
+            <span style="line-height: normal; display: none;">
+              <p class="month"></p>
+              <p class="minute"></p>
+            </span>
+          </span>
+        </div>
+        <div class="listRightV">
+          <span>
+            <img class="talkImg" src="$!{Const.getCdn()}/img/subscribe/talk.png" alt=""
+              onclick="ChatSingleFragment('$!{detail.userid}','$!{detail.nickname}','$!{detail.photo}')">
+          </span>
+          <span>
+            <img class="mvImg" src="$!{Const.getCdn()}/img/subscribe/mvTalk.png" alt=""
+              onclick="ChatSingleFragmentMv('$!{detail.userid}','$!{detail.nickname}','$!{detail.photo}')">
+          </span>
+        </div>
+      </li>
+      #end
+    </ul>
+  </div>
+  <script>
+    /*
+     * 2."ChatSingleFragment" 1对1聊天页
+     * strValue1: 对方的mi id
+     * strValue2: 对方的userName string
+     * strValue3: 对方的userHead  string
+     * 
+     * public static final String ACTION_AV_CALL = "actionAvCall"; // 打电话
+     * strValue1 UserId
+     * strValue2 类型 音1 视频2
+     */
+
+    //和主播聊天 WebView
+    function ChatSingleFragment(userid, nickname, photo) {
+      console.log(userid, nickname, photo)
+      var userParamAndroid = {
+        "strValue1": userid,
+        "strValue2": nickname,
+        "strValue3": photo
+      };
+      var userParamWebkit = {
+        "strValue1": userid,
+        "strValue2": nickname,
+        "strValue3": photo
+      };
+      if (mobileType == 1) { //actionAvCall
+        window.target.gotoAppPage('ChatSingleFragment', JSON.stringify(userParamAndroid));
+      }
+      // else if (mobileType == 2) {
+      //   window.webkit.messageHandlers.showPersonHomePage.postMessage(userParamWebkit);
+      // }
+    }
+
+    //和主播视频聊天 WebView
+    function ChatSingleFragmentMv(userid, nickname, photo) {
+      var userParamAndroid = {
+        "strValue1": userid,
+        "strValue2": 2,
+      };
+      if (mobileType == 1) { //actionAvCall
+        window.target.gotoAppPage('actionAvCall', JSON.stringify(userParamAndroid));
+      }
+    }
+
+    //女神主页
+    function gotoHomePage(userid) {
+      console.log(userid, '女神主页')
+      var userParamAndroid = {
+        "strValue1": userid
+      };
+      var userParamWebkit = {
+        "personId": userid
+      };
+      if (mobileType == 1) {
+        window.target.gotoAppPage('HomepageFragment', JSON.stringify(userParamAndroid));
+      } else if (mobileType == 2) {
+        window.webkit.messageHandlers.showPersonHomePage.postMessage(userParamWebkit);
+      }
+    }
+
+    // ios 头部导航偏移调整
+    var navHead = document.getElementById('navHead');
+    var remaining = document.getElementById('remaining');
+    if (mobileType == 1) {
+      navHead.style.paddingTop = '0.1rem';
+    } else if (mobileType == 2) {
+      navHead.style.paddingTop = '0.5rem';
+      remaining.style.marginTop = '0.7rem';
+    }
+  </script>
+</body>
+
+</html>

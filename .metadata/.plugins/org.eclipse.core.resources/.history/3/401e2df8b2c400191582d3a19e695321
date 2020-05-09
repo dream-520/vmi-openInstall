@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 50px">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="full-screen" content="yes">
+  <meta name="x5-fullscreen" content="true">
+  <meta name="applicable-device" content="mobile">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <!-- <link rel="stylesheet" href="./css/reset.css"> -->
+  <link rel="stylesheet" href="$!{Const.getCdn()}/css/public/myReset.css">
+  <link rel="stylesheet" href="$!{Const.getCdn()}/css/activity/goddess/girlStar.css">
+  <!-- <link rel="stylesheet" href="./css/girlStar.css"> -->
+  <title>每日女神之星</title>
+</head>
+
+<body>
+  <!-- 女神活动 -->
+  <div id="wrap">
+    <div id="navHead">
+      <span id="goBack">
+        <a href="">
+          <img src="$!{Const.getCdn()}/img/activity/goddess/back.png" alt="" onclick="navBackBtnAction()">
+        </a>
+      </span>
+      <span class="daystar">每日女神之星</span>
+      <span class="pastStar">
+        <a href="${rc.contextPath}/web/activity/anchorStar/history">往期</a>
+      </span>
+    </div>
+
+    <!-- <div id="navHead">
+      <img src="$!{Const.getCdn()}/img/activity/goddess/back.png" class="navBackBtn" onclick="navBackBtnAction()" />
+      <p class="daystar">每日女神之星</p>
+      <div class="pastStar">
+        <a href="${rc.contextPath}/web/activity/anchorStar/history">往期</a>
+      </div>
+    </div> -->
+
+    <div id="header">
+      <!-- <img class="bcImg" src="img/background.png" alt=""> -->
+      <img class="bcImg" src="$!{Const.getCdn()}/img/activity/goddess/background.png" alt="">
+      <ul class="cent" id='cent'>
+        <!-- <li class="phase" id="issue">第x期</li> -->
+        <!-- <li class="time">距离活动结束还剩</li> -->
+        <!-- <li id="hour_show"></li> -->
+      </ul>
+    </div>
+
+    <div class="starList">
+      <ul class="vote" id='vote'>
+        <!-- <li class="flex" id="voteList">
+          <span class="ap">
+            <img class="imgA" src="./img/Rectangle 2.png" alt="" />
+          </span>
+          <img class="imgB" src="./img/25-1.png" alt="" />
+          <span class="spanD">
+            <i class="Nickname">兰溪</i>
+            <i id='starList'>
+              <img class="starClass" src="./img/star+.png" alt="">
+              <img class="starClass" src="./img/star+.png" alt="">
+              <img class="starClass" src="./img/star+.png" alt="">
+              <img class="starClass" src="./img/star+.png" alt="">
+              <img class="starClass" src="./img/star+.png" alt="">
+            </i>
+            <i class="charm">魅力</i>
+          </span>
+          <span id="btnGo">
+            <img class="binImg" src="./img/Rectangle.png" alt="" />
+          </span>
+        </li> -->
+      </ul>
+    </div>
+
+    <div class="girlShow" id="girlShow">
+      <!-- 背景层 -->
+      <div id="popLayer"></div>
+      <div id="popBox">
+        <!-- <div class="close" id='close'></div> -->
+        <!-- <div class="content" id="content"> -->
+
+        <!-- <img src="./img/25-1.png" alt="" class="voteImg">
+          <p id="nickname">昵称</p>
+          <p id="come">为你的女神加油，瓜分奖金</p>
+          <input type="number" value="10" id="num">
+          <span id="flower">小红花</span>
+          <p id="moreVotes">投票越多，瓜分奖金越多</p>
+          <p id="over">剩余:-小红花
+            <a href="">去购买</a>
+          </p>
+          <div id="sure" class="sure"></div> -->
+        <!-- </div> -->
+
+      </div>
+
+      <!-- 消息提醒 -->
+      <div id='message'></div>
+
+    </div>
+
+    <div>
+      <ul class="explain">
+        <li class="til" id='til'>活动说明</li>
+        <li>1、所有用户均可参加投票；</li>
+        <li>2、每天中午12点出结果，并开始新的一期投票；</li>
+        <li>3、投出冠军大V的用户可瓜分所有投票奖金，奖金直接返钻到账户中，可用于和大V视频聊天；</li>
+        <li>4、每位用户投票不限，大V的魅力值是按照大V本身的收益和投票数之和进行排序；</li>
+        <li>5、本活动最终解释权归官方所有；</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 中奖弹框 -->
+  <div id="boxP">
+    <!-- 　　<div class="pic">
+      <p class="good">恭喜你</p>
+      <p class="goodL">你投中了第23期女神之星,获得208钻以返回到账户中</p>
+      <a href="">
+        <img class="imgH" src="$!{Const.getCdn()}/img/activity/goddess/Rectangle canyu.png" alt="">
+      </a>
+    </div> -->
+  </div>
+</body>
+
+</html>
+<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+<!-- 判断手机型号 安卓1，iOS2 -->
+<script src="$!{Const.getCdn('/js/public/zoom/zoom.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+<!--client.js与安卓/IOS交互的事件-->
+<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+<script>
+  var httpHeader = '$!{encrypt}';
+  var ajax = '${rc.contextPath}/web/activity/anchorStar/index/ajax';
+  var dailog = '${rc.contextPath}/web/activity/anchorStar/index/dailog';
+  var commit = '${rc.contextPath}/web/activity/anchorStar/index/commit';
+
+  // 跳转到小红花
+  var RecordUrl = "$!{Const.getWebSite()}/api/income/zuanList?pricePage=1";
+  var RecordUrlA = "${rc.contextPath}/api/income/zuanList?pricePage=1";
+
+  var starTrophy = '$!{Const.getCdn("/img/activity/goddess/RectanglePrize.png")}';
+  var imgStar = '$!{Const.getCdn("/img/activity/goddess/star+.png")}';
+  var starBtn = '$!{Const.getCdn("/img/activity/goddess/Rectangle.png")}';
+  var prizeImg = '$!{Const.getCdn("/img/activity/goddess/Rectangle canyu.png")}';
+
+  // ios 头部导航偏移调整
+  var navHead = document.getElementById('navHead');
+  if (mobileType == 1) {
+    navHead.style.paddingTop = '0.1rem';
+  } else if (mobileType == 2) {
+    navHead.style.paddingTop = '0.5rem'
+  }
+
+
+  //2、"状态栏"写在H5端时使用：安卓/ios的状态栏高度不一样
+  // function resetNavigationBar() {
+  //   if (mobileType == 1) {
+  //     $("#navigationBar").addClass("navigationBar_android");
+  //     $(".mainBox_hasNav").css({
+  //       "marginTop": "48px"
+  //     });
+  //   } else if (mobileType == 2) {
+  //     $("#ios_statusBar").show();
+  //     $("#navigationBar").addClass("navigationBar_ios");
+  //     $(".mainBox_hasNav").css({
+  //       "marginTop": "64px"
+  //     });
+  //   } else {
+  //     $("#navigationBar").addClass("navigationBar_common");
+  //     $(".mainBox_hasNav").css({
+  //       "marginTop": "48px"
+  //     });
+  //   }
+  // };
+</script>
+<script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+<script src="$!{Const.getCdn()}/js/activity/goddess/girlStar.js"></script>

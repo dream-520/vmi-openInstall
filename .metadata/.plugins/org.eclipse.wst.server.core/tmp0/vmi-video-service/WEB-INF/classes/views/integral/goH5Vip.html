@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn()}/css/public/myReset.css">
+  <script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+  <script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+  <script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+  <script src="$!{Const.getCdn('/js/integral/scrollTopNews4.js')}" type="text/javascript"></script>
+
+  <title>领取话费</title>
+  <style>
+    .box {
+      width: 100%;
+      overflow-x: hidden;
+      background: url('$!{Const.getCdn()}/img/integral/bgVip.png') no-repeat center;
+      background-size: 100% 100%;
+    }
+
+    .header {
+      width: 100%;
+      margin-left: 0.8rem;
+    }
+
+    .header-content {
+      width: 100%;
+      color: #fff;
+    }
+
+    .div1 {
+      margin-top: 0.5rem;
+      font-size: 0.62rem;
+      font-weight: 700;
+    }
+
+    .div2 {
+      font-size: 0.62rem;
+      margin: 0.2rem auto;
+      font-weight: 700;
+    }
+
+    .divdate {
+      font-size: 0.3rem;
+      margin: 0.2rem 0 0 0.5rem;
+    }
+
+    .bgText {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      width: 3.6rem;
+      height: 0.6rem;
+      text-align: center;
+      line-height: 0.6rem;
+      font-size: 0.36rem;
+    }
+
+    .header-content-bottom {
+      font-size: 0.26rem;
+      color: #fff;
+    }
+
+    .scrollDiv {
+      height: 2rem;
+      overflow: hidden;
+      font-size: 0.28rem;
+      color: #333;
+    }
+
+    .scrollWrap {
+      padding: 0.4rem 0.3rem;
+      margin: 0.5rem 0.3rem 0;
+      background: #fff;
+      border: #ccc 1px solid;
+      border-radius: 20px;
+    }
+
+    .scrollDiv ul {
+      height: 100%;
+      margin: 0 0.3rem;
+    }
+
+    .scrollDiv li {
+      width: 100%;
+      height: 0.5rem;
+      line-height: 0.5rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -o-text-text-overflow: ellipsis;
+    }
+
+    /* 已有$人购买 */
+    .scrollText {
+      color: #fff;
+      font-size: 0.36rem;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      width: 5rem;
+      height: 0.8rem;
+      line-height: 0.8rem;
+      text-align: center;
+      margin: 1.2rem auto 0.5rem;
+    }
+
+    /* vip按鈕 */
+    .vipList {
+      margin: 0 0.3rem;
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .vipList ul {
+      padding: 0.1rem 0;
+    }
+
+    .vipList .vipListItem {
+      height: 2rem;
+      width: 100%;
+      position: relative;
+      color: #666;
+      border-bottom: 1px solid #eee;
+      position: relative;
+    }
+
+    .vipList .vipListItem:last-child {
+      border-bottom: none;
+    }
+
+    .vipList .vipListItem .money {
+      font-size: 0.28rem;
+      color: #333;
+      position: absolute;
+      top: 42%;
+      right: 30%;
+    }
+
+    .vipList .vipListItem span i:first-child {
+      font-size: 0.32rem;
+      color: #333;
+      font-weight: 700;
+    }
+
+    .vipList .vipListItem span p {
+      font-size: 0.22rem;
+      color: #666;
+      margin: -0.4rem 1.4rem 0rem;
+    }
+
+    .vipList .vipListItem .btn {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translate(-25%, -50%);
+      -webkit-transform: translate(-25%, -50%);
+      -moz-transform: translate(-25%, -50%);
+      -ms-transform: translate(-25%, -50%);
+      -o-transform: translate(-25%, -50%);
+    }
+
+    .vipList .vipListItem .discount {
+      position: absolute;
+      right: 10%;
+      top: 70%;
+      font-size: 0.22rem;
+      color: #ff3b5e;
+      font-weight: 600;
+    }
+
+    .vipList .vipListItem .btn .btnImg {
+      background: url('$!{Const.getCdn()}/img/integral/vipBtn.png') no-repeat center;
+      background-size: 100% 100%;
+      width: 1.5rem;
+      height: 0.6rem;
+      font-size: 0.28rem;
+      display: block;
+      line-height: 0.6rem;
+      text-align: center;
+      color: #fff;
+    }
+
+    .vipList .vipIcon {
+      width: 1.1rem;
+      height: 1.1rem;
+      vertical-align: -webkit-baseline-middle;
+    }
+
+    /* vip 尊贵特权 */
+    .texts {
+      color: #333;
+      margin: 0.6rem 0.3rem 0.2rem;
+      line-height: 0.55rem;
+    }
+
+    .texts .textListH {
+      font-size: 0.36rem;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .texts .textList {
+      font-size: 0.24rem;
+      color: #666;
+    }
+
+    .privilegeBox {
+      margin: 0.5rem 0.3rem;
+    }
+
+    .privilege {
+      width: 100%;
+    }
+  </style>
+
+
+</head>
+
+<body>
+  <div class="box">
+
+    <div class="header">
+      <div id="changeText1">
+        <div class="header-content div1">开通&nbsp;VIP&nbsp;服务</div>
+        <div class="header-content div2">享受无限畅聊</div>
+        <div class="header-content bgText">更可获得100话费</div>
+        <div class="header-content-bottom divdate">$!{vipInfo2}</div>
+      </div>
+    </div>
+    
+    <div class="scrollText">$!{buyVipNum}</div>
+
+
+    <div class="vipList">
+      <ul>
+
+       #foreach($item in $!{prices})
+       <li class="vipListItem">
+         <img class="vipIcon" src="$!{item.icon}" alt="">
+         <span>
+           <i>$!{item.title}</i>
+           <p>$!{item.description}</p>
+         </span>
+         <span class="money">￥$!{item.money}</span>
+         <p class="btn" onclick="gotoPayPage('$!{item.actionUrl}')">
+           <span class="btnImg">$!{item.buttonName}</span>
+         </p>
+         <span class="discount">限时优惠</span>
+       </li>
+       #end
+
+      </ul>
+    </div>
+    
+     <div class="scrollWrap">
+      <div class="scrollDiv" id="scrollNews">
+        <ul>
+          #foreach($item in $!{rechargeInfo})
+          <li>$!{item}</li>
+          #end
+        </ul>
+      </div>
+    </div>
+
+    <!-- VIP特权 -->
+    <div class="privilegeBox">
+      <img class="privilege" src="$!{Const.getCdn()}/img/integral/privilege.png" alt="">
+    </div>
+
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      $("#scrollNews").Scroll({
+        line: 4,
+        speed: 1000,
+        timer: 2000,
+      });
+    });
+    
+    //跳转到其他h5的 WebView
+    function gotoH5Fragment(urls, title) {
+      var h5ParamAndroid = {
+        "strValue1": urls,
+        "strValue2": VIP特色服务
+      };
+      if (mobileType == 1) {
+        window.target.gotoAppPage('WebSingleSaveFragment', JSON.stringify(h5ParamAndroid));
+      } else if (mobileType == 2) {
+        window.webkit.messageHandlers.goToH5Page.postMessage({
+          "url": urls
+        });
+      }
+    }
+    
+    //安卓：APP返回到h5时响应的事件
+    function updateUserInfo(str) {
+      window.location.reload();
+    }
+    
+    function requestGoBack() {
+        if (mobileType == 1) {
+          window.target.action(1);
+        } else if (mobileType == 2) {
+          window.webkit.messageHandlers.backPage.postMessage(0); //返回上一页--zuanList--
+        }
+      };
+
+    // 跳转到"支付方式"页面--需要附带参数:钻数+钱数
+    function gotoPayPage(actionUrl) {
+      if (mobileType == 1) {
+        var actionUrl = actionUrl;
+        window.target.gotoAppPage('WebSingleSaveFragment', JSON.stringify({
+          "strValue1": actionUrl,
+          "strValue2": "选择支付方式",
+          "strValue3": "1"
+        }));
+      } else if (mobileType == 2) {
+        window.location.href = actionUrl;
+      }
+    }
+  </script>
+</body>
+
+</html>

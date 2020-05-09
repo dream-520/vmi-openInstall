@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" type="text/css" href="$!{Const.getCdn('/css/public/myReset.css')}" />
+  <title>冲刺11.11</title>
+  <style>
+    .wrap {
+      width: 100%;
+      margin: auto;
+      overflow-x: hidden;
+      font-size: 0.3rem;
+      position: relative;
+      color: #fff;
+      background: url("$!{Const.getCdn()}/img/activity/11BG.png") no-repeat center;
+    }
+
+    .wrap .bgImg {
+      width: 100%;
+    }
+
+    .wrap .absolute {
+      position: absolute;
+      top: 25%;
+      left: 0;
+      width: 100%;
+    }
+
+    .act {
+      color: #FBE18A;
+    }
+
+    .wrap .absolute .main .level {
+      margin-right: 0.7rem;
+      line-height: 1rem;
+    }
+
+    .wrap .absolute .mainList {
+      width: 100%;
+    }
+
+    .wrap .absolute .mainList .content {}
+
+    .wrap .absolute .mainList .content .tabList {
+      border-bottom: 1px solid #666;
+      width: 100%;
+      height: 1.4rem;
+    }
+
+    .wrap .absolute .mainList .content .tabList .num {
+      line-height: 1.4rem;
+      margin-left: 0.3rem;
+      font-size: 0.28rem;
+    }
+
+    .wrap .absolute .mainList .content .tabList .listImg {
+      width: 0.9rem;
+      height: 0.9rem;
+      border-radius: 50%;
+      margin: 0 0.3rem 0 0.4rem;
+      vertical-align: middle;
+    }
+
+    .wrap .absolute .mainList .content .tabList .listT {
+      font-size: 0.28rem;
+      vertical-align: super;
+    }
+
+    .wrap .absolute .mainList .content .tabList .listB {
+      font-size: 0.24rem;
+      margin-top: -0.6rem;
+      margin-left: 2.2rem;
+    }
+
+    .explain {
+      margin: 0.4rem 0.3rem;
+    }
+
+    .text .textList {
+      font-size: 0.32rem;
+    }
+
+    .text>li {
+      line-height: 0.5rem;
+      font-size: 0.28rem;
+    }
+
+    .wrap .absolute .main {
+      font-size: 0.34rem;
+      padding-left: 0.3rem;
+      width: 100%;
+      height: 1rem;
+      background: #353434;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <img class="bgImg" src="$!{Const.getCdn('/img/activity/11BG.png')}" alt="">
+    <div class="absolute">
+      <div class="main">
+        <span class="level act">聊天榜</span>
+        <span class="level">礼物榜</span>
+      </div>
+      <div class="mainList">
+        <ul class="content">
+          #foreach($chat in $vchatList)
+          <li class="tabList">
+            <!-- 数字 -->
+            <span class="num">$!{chat.number}</span>
+            <!-- 图片 -->
+            <img class="listImg" src="$!{chat.photo}" onclick="gotoHomePage('$!{chat.userid}')">
+            <span>
+              <i class="listT">$!{chat.nickname}</i>
+              <p class="listB">分钟数&nbsp;:&nbsp;$!{chat.count}</p>
+            </span>
+          </li>
+          #end
+        </ul>
+
+        <ul class="content">
+
+          #foreach($gift in $giftList)
+          <li class="tabList">
+            <!-- 数字 -->
+            <span class="num">$!{gift.number}</span>
+            <!-- 图片 -->
+            <img class="listImg" src="$!{gift.photo}" onclick="gotoHomePage('$!{gift.userid}')">
+            <span>
+              <i class="listT">$!{gift.nickname}</i>
+              <p class="listB">礼物值&nbsp;:&nbsp;$!{gift.count}</p>
+            </span>
+          </li>
+          #end
+        </ul>
+        <div class="explain">
+          <ul class="text">
+            <li class="textList">活动说明:</li>
+            <li>1.在活动期间，大V聊天总时长以及收礼物前三名会获得奖励;</li>
+            <li>2.奖励</li>
+            <li>女神第一名,奖励现金1000元,</li>
+            <li>女神第二名,奖励现金500元,</li>
+            <li>女神第三名,奖励现金300元;</li>
+            <li>活动时间:2019.11.03 - 2019.11.11;</li>
+            <li>本活动最终解释权归平台所有。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+<script src="$!{Const.getCdn()}/js/public/viewport/viewport.js"></script>
+<script src="$!{Const.getCdn()}/js/public/jquery/jquery-2.1.4.min.js"></script>
+<script src="$!{Const.getCdn('/js/public/device/device.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/public/common.js')}" type="text/javascript" charset="utf-8"></script>
+<script src="$!{Const.getCdn('/js/client/client.js')}" type="text/javascript" charset="utf-8"></script>
+
+<script>
+  //切换class类名,选项卡
+  var CurrentLevel = 0;
+  changeTab(CurrentLevel, '.main span', '.content')
+  $('.main span').click(function () {
+    var n = $(this).index(); // 拿到点击span的索引
+    changeTab(n, '.main span', '.content');
+  })
+
+  function changeTab(n, tab, content) {
+    $(tab).removeClass('act')
+    $(tab).eq(n).addClass('act')
+    $(content).hide();
+    $(content).eq(n).show();
+  }
+
+  // 顶部|底部 导航栏返回事件
+  function requestGoBack() {
+    gotoAppBack();
+  }
+
+  //跳转到其他h5的 WebView
+  function gotoH5Fragment(urls, title) {
+    var h5ParamAndroid = {
+      "strValue1": urls,
+      "strValue2": 冲刺1111
+    };
+    if (mobileType == 1) {
+      window.target.gotoAppPage('WebSingleSaveFragment', JSON.stringify(h5ParamAndroid));
+    } else if (mobileType == 2) {
+      window.webkit.messageHandlers.goToH5Page.postMessage({
+        "url": urls
+      });
+    }
+  }
+
+  //女神主页
+  function gotoHomePage(userid) {
+    console.log(userid, '女神主页')
+    var userParamAndroid = {
+      "strValue1": userid
+    };
+    var userParamWebkit = {
+      "personId": userid
+    };
+    if (mobileType == 1) {
+      window.target.gotoAppPage('HomepageFragment', JSON.stringify(userParamAndroid));
+    } else if (mobileType == 2) {
+      window.webkit.messageHandlers.showPersonHomePage.postMessage(userParamWebkit);
+    }
+  }
+</script>
+
+</html>
