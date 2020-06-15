@@ -27,7 +27,7 @@
 		<jedis_version>2.8.0</jedis_version>
 		<xmemcached_version>1.4.3</xmemcached_version>
 		<javax_el_version>2.2.4</javax_el_version>
-		<hibernate_validator_version>5.0.2.Final</hibernate_validator_version>
+		<hibernate_validator_version>5.3.5.Final</hibernate_validator_version>
 		<commons_lang3_version>3.1</commons_lang3_version>
 		<commons_lang_version>2.4</commons_lang_version>
 		<commons_collections_version>3.2.1</commons_collections_version>
