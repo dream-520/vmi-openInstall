@@ -53,7 +53,7 @@
 		<logback_ext_spring_version>0.1.1</logback_ext_spring_version>
 		<log4j_version>1.2.17</log4j_version>
 		<!-- Test libs -->
-		<junit_version>4.10</junit_version>
+		<junit_version>4.13.1</junit_version>
 		<easymock_version>3.0</easymock_version>
 		<jmockit_version>0.999.8</jmockit_version>
 		<mockito_version>1.10.19</mockito_version>
